@@ -7,8 +7,8 @@ Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Vorlage: [`docs/adr/0
 | ADR-0001 | [Web-Stack](../adr/0001-web-stack.md) | M0 | akzeptiert |
 | ADR-0002 | [Persistenz in IndexedDB, ZIP für Export/Import](../adr/0002-persistenz-indexeddb-zip.md) | M0 | akzeptiert |
 | ADR-0003 | [Fremdkomponenten-Strategie und zweistufiger Lizenz-Check](../adr/0003-fremdkomponenten-strategie.md) | M0 | akzeptiert |
-| ADR-0004 | Boot-ROM-Strategie (eigene, Nintendo-kompatible Boot-ROM nur im Emulator) | M1 | geplant |
-| ADR-0005 | [Quelltext als einzige Wahrheit](../adr/0005-quelltext-einzige-wahrheit.md) | M0 | akzeptiert |
+| ADR-0004 | [Boot-ROM-Strategie (eigene, Nintendo-kompatible Boot-ROM nur im Emulator)](../adr/0004-boot-rom-strategie.md) | M1 | akzeptiert |
+| ADR-0005 | [Quelltext als einzige Wahrheit](../adr/0005-quelltext-einzige-wahrheit.md) | M0 | akzeptiert, Nachtrag M1 |
 | ADR-0006 | [Emulator-Core-Auswahl (SameBoy)](../adr/0006-emulator-core.md) | M1 | akzeptiert |
 | ADR-0007 | [Lizenz (MIT) und Umgang mit Marke/Namen](../adr/0007-lizenz-und-marke.md) | M0 | akzeptiert |
 | ADR-0008 | [Eventmodell sowie Service Worker und Offline](../adr/0008-eventmodell-und-offline.md) | M0 | akzeptiert |
