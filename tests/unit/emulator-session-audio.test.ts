@@ -27,10 +27,47 @@ describe('emulator session audio (US4)', () => {
     const page = fakePage();
     const session = createEmulatorSession({ emulator: fakeEmulator(), romStore: memoryRomStore(), audio, page });
     expect(session.session.getSnapshot().notice).toEqual({ kind: 'audio-locked' });
-    page.fire('pointerdown');
+    page.fire('pointerdown'); // not a user activation on touch screens
+    expect(audio.unlock).not.toHaveBeenCalled();
+    page.fire('pointerup');
+    expect(audio.unlock).toHaveBeenCalledTimes(1); // synchronously inside the event
     await session.idle();
-    expect(audio.unlock).toHaveBeenCalled();
     expect(session.session.getSnapshot()).toMatchObject({ notice: null, audio: { unlocked: true } });
+  });
+
+  it('tries again on the next tap if the browser did not allow it', async () => {
+    const audio = fakeAudio();
+    audio.unlock.mockImplementationOnce(() => Promise.reject(new Error('not allowed')));
+    const page = fakePage();
+    const session = createEmulatorSession({ emulator: fakeEmulator(), romStore: memoryRomStore(), audio, page });
+    page.fire('touchend');
+    await session.idle();
+    expect(session.session.getSnapshot().notice).toEqual({ kind: 'audio-locked' });
+    page.fire('click');
+    await vi.waitFor(() => {
+      expect(session.session.getSnapshot().audio.unlocked).toBe(true);
+    });
+  });
+
+  it('unlocks from the Enable sound button through UnlockAudio', () => {
+    const audio = fakeAudio();
+    const session = createEmulatorSession({ emulator: fakeEmulator(), romStore: memoryRomStore(), audio });
+    session.dispatch({ type: 'UnlockAudio' });
+    expect(audio.unlock).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps working when the browser never answers the unlock request (phone bug)', async () => {
+    const audio = fakeAudio();
+    audio.unlock.mockImplementation(() => new Promise<void>(() => undefined)); // pending forever
+    const emulator = fakeEmulator();
+    const page = fakePage();
+    const session = createEmulatorSession({ emulator, romStore: memoryRomStore(), audio, page });
+    page.fire('pointerup');
+    session.dispatch({ type: 'UnlockAudio' });
+    session.dispatch({ type: 'LoadRom', bytes: testRom('marker'), fileName: 'm.gb' });
+    await session.idle();
+    expect(emulator.run).toHaveBeenCalled();
+    expect(session.session.getSnapshot().runState).toBe('running');
   });
 
   it('applies mute and volume immediately, persists them and leaves emulation alone', async () => {

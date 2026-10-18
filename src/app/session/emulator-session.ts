@@ -20,11 +20,19 @@ import { loadSettings, saveSettings, type Settings } from './settings-store.ts';
 /** Save game is written at most this often while it changes (research.md R10). */
 export const BATTERY_SAVE_INTERVAL_MS = 2000;
 
+type PageEvent = 'visibilitychange' | 'pagehide' | (typeof UNLOCK_EVENTS)[number];
+
 interface Page {
   readonly visibilityState: DocumentVisibilityState;
-  addEventListener(type: 'visibilitychange' | 'pagehide' | 'pointerdown', listener: () => void): void;
-  removeEventListener(type: 'visibilitychange' | 'pagehide' | 'pointerdown', listener: () => void): void;
+  addEventListener(type: PageEvent, listener: () => void): void;
+  removeEventListener(type: PageEvent, listener: () => void): void;
 }
+
+/**
+ * Events that count as user activation in Chrome. pointerdown does not on touch screens, only for the
+ * mouse; so sound is unlocked on the release of a tap (HTML "activation triggering input event").
+ */
+const UNLOCK_EVENTS = ['pointerup', 'touchend', 'click', 'keydown'] as const;
 
 export interface SessionDeps {
   readonly emulator: EmulatorPort;
@@ -192,10 +200,19 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     });
   };
 
+  const isUnlocked = () => audio?.unlocked === true;
+
+  /** Must start inside the user's event: audio.unlock() is called before the first await. */
   const unlockAudio = async () => {
     if (!audio || audio.unlocked) return;
-    await audio.unlock();
-    update({ audio: { ...state.audio, unlocked: audio.unlocked }, notice: state.notice?.kind === 'audio-locked' ? null : state.notice });
+    try {
+      await audio.unlock();
+    } catch {
+      return; // not allowed yet; the next tap tries again
+    }
+    if (!isUnlocked()) return; // re-read: the browser may still refuse
+    update({ audio: { ...state.audio, unlocked: true }, notice: state.notice?.kind === 'audio-locked' ? null : state.notice });
+    for (const type of UNLOCK_EVENTS) page?.removeEventListener(type, onUserActivation);
   };
 
   const handle = async (action: ViewAction): Promise<void> => {
@@ -233,7 +250,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
         audio?.setMuted(action.muted);
         return;
       case 'UnlockAudio':
-        return unlockAudio();
+        return; // handled synchronously in dispatch, inside the user's event
       case 'SetFrameRate':
       case 'SetBreakpoint':
       case 'ClearBreakpoint':
@@ -255,8 +272,8 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   const onPageHide = () => {
     void saveBattery();
   };
-  const onFirstPointer = () => {
-    queue = queue.then(unlockAudio);
+  const onUserActivation = () => {
+    void unlockAudio();
   };
 
   const unsubscribeHalt = emulator.events.subscribe('EmulatorHalted', (event) => {
@@ -269,7 +286,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   if (audio) emulator.setAudioSink(audio);
   page?.addEventListener('visibilitychange', onVisibility);
   page?.addEventListener('pagehide', onPageHide);
-  page?.addEventListener('pointerdown', onFirstPointer);
+  for (const type of UNLOCK_EVENTS) page?.addEventListener(type, onUserActivation);
   audio?.setVolume(settings.volume);
   audio?.setMuted(settings.muted);
   if (audio && !audio.unlocked) state = { ...state, notice: { kind: 'audio-locked' } };
@@ -290,7 +307,14 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       getSnapshot: () => state,
     },
     dispatch(action) {
-      queue = queue.then(() => handle(action));
+      // Unlocking audio must happen synchronously inside the user's event, not later from the queue.
+      if (action.type === 'UnlockAudio') void unlockAudio();
+      // One failing action must never block the ones after it (e.g. Replace, Start stored ROM).
+      queue = queue
+        .then(() => handle(action))
+        .catch((error: unknown) => {
+          console.error(`Action ${action.type} failed`, error);
+        });
     },
     async init() {
       const stored = await romStore.load();
@@ -302,7 +326,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       unsubscribeHalt();
       page?.removeEventListener('visibilitychange', onVisibility);
       page?.removeEventListener('pagehide', onPageHide);
-      page?.removeEventListener('pointerdown', onFirstPointer);
+      for (const type of UNLOCK_EVENTS) page?.removeEventListener(type, onUserActivation);
     },
   };
 }

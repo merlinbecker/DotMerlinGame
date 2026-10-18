@@ -67,10 +67,16 @@ function RomPage({ session, dispatch, pending, onPick, onReplace, onCancel }: Ro
           </button>
         )}
       </div>
-      {session.notice && (
-        <p className={styles.notice} role="status">
-          {noticeText(session.notice)}
-        </p>
+      {session.notice?.kind === 'audio-locked' ? (
+        <button type="button" className={styles.button} onClick={() => { dispatch({ type: 'UnlockAudio' }); }}>
+          Enable sound
+        </button>
+      ) : (
+        session.notice && (
+          <p className={styles.notice} role="status">
+            {noticeText(session.notice)}
+          </p>
+        )
       )}
       <dl className={styles.facts}>
         <dt>State</dt>
@@ -140,7 +146,13 @@ function SoundPage({ session, dispatch }: { readonly session: SessionState; read
           +
         </button>
       </div>
-      <p className={styles.hint}>{session.audio.unlocked ? 'Mute is in the screen header.' : 'Tap anywhere to enable sound.'}</p>
+      {session.audio.unlocked ? (
+        <p className={styles.hint}>Mute is in the screen header.</p>
+      ) : (
+        <button type="button" className={styles.button} onClick={() => { dispatch({ type: 'UnlockAudio' }); }}>
+          Enable sound
+        </button>
+      )}
     </>
   );
 }

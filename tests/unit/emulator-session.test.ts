@@ -100,6 +100,18 @@ describe('emulator session (US1)', () => {
     expect(session.session.getSnapshot()).toMatchObject({ runState: 'running', notice: { kind: 'header-invalid' } });
   });
 
+  it('processes later actions after an action failed', async () => {
+    const store = memoryRomStore();
+    store.load.mockRejectedValueOnce(new Error('IndexedDB broken'));
+    const emulator = fakeEmulator();
+    const session = createEmulatorSession({ emulator, romStore: store });
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    session.dispatch({ type: 'StartStoredRom' });
+    session.dispatch({ type: 'LoadRom', bytes: testRom('marker'), fileName: 'm.gb' });
+    await session.idle();
+    expect(session.session.getSnapshot().runState).toBe('running');
+  });
+
   it('forwards buttons to the emulator', async () => {
     const emulator = fakeEmulator();
     const session = createEmulatorSession({ emulator, romStore: memoryRomStore() });

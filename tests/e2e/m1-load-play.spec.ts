@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { canvasColors, frameOf, loadRom, openApp } from './support.ts';
+import { canvasColors, frameOf, loadRom, openApp, romFile } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -58,4 +58,21 @@ test('asks before replacing the stored ROM', async ({ page }) => {
   await page.getByRole('button', { name: 'Replace' }).click();
   await expect(page.getByRole('status')).toHaveText('This file is not a valid ROM.');
   await expect(page.getByTestId('run-state')).toHaveText('running');
+});
+
+test('replaces and restarts ROMs on a touch screen (phone)', async ({ browser }) => {
+  const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 1400, height: 900 } });
+  const page = await context.newPage();
+  await openApp(page);
+  await page.locator('[data-view="memory-map"]').tap({ position: { x: 20, y: 200 } }); // first tap: sound
+  await loadRom(page, 'pattern');
+  await expect(page.getByTestId('run-state')).toHaveText('running');
+  await page.getByTestId('rom-file').setInputFiles(romFile('input'));
+  await page.getByRole('button', { name: 'Replace' }).tap();
+  await expect(page.locator('[data-view="rom-info"]')).toContainText('input.gb');
+  await page.reload();
+  await page.getByRole('button', { name: 'Start stored ROM' }).tap();
+  await expect(page.getByTestId('run-state')).toHaveText('running');
+  await expect.poll(() => frameOf(page)).toBeGreaterThan(5);
+  await context.close();
 });

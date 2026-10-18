@@ -8,11 +8,20 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('unlocks sound with the first tap (US4-AS2)', async ({ page }) => {
+test('unlocks sound with the first tap anywhere, also on a touch screen (US4-AS2)', async ({ browser }) => {
+  const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 1400, height: 900 } });
+  const page = await context.newPage();
   await openApp(page);
-  await expect(page.getByText('Tap anywhere to enable sound.').first()).toBeVisible();
-  await page.locator('[data-view="rom-info"]').click({ position: { x: 5, y: 60 } });
-  await expect(page.getByText('Tap anywhere to enable sound.')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Enable sound' })).toBeVisible();
+  await page.locator('[data-view="memory-map"]').tap({ position: { x: 20, y: 200 } });
+  await expect(page.getByRole('button', { name: 'Enable sound' })).toHaveCount(0);
+  await context.close();
+});
+
+test('unlocks sound with the Enable sound button', async ({ page }) => {
+  await openApp(page);
+  await page.getByRole('button', { name: 'Enable sound' }).click();
+  await expect(page.getByRole('button', { name: 'Enable sound' })).toHaveCount(0);
 });
 
 test('mutes from the screen header immediately while the emulation keeps running (US4-AS3)', async ({ page }) => {
