@@ -20,7 +20,7 @@ ihn noch nicht unterstützt. Wechsel, sobald die Peer-Range es erlaubt.
 
 ## R2 – Lizenz-Check
 
-**Decision**: Eigenes Skript `scripts/check-licenses.mjs` auf Basis der JSON-Ausgabe von
+**Decision**: Eigenes Skript `scripts/check-licenses.ts` auf Basis der JSON-Ausgabe von
 license-checker-rseidelsohn, zweistufig (Entscheidung des Projektinhabers, 2026-10-18):
 
 | Bereich | Regel |
@@ -156,6 +156,20 @@ damit lokal und CI nicht auseinanderlaufen.
 (`dmg_boot.bin`, `dmg0_boot.bin`, `*boot*.bin` im Wurzelverzeichnis von `roms/`) aus, aber nicht
 pauschal `*.bin`, weil RGBDS-Projekte `.bin`-Dateien per `INCBIN` einbinden (Beispiele ab M2).
 Build-Ergebnisse von Beispielprojekten liegen in ignorierten `build/`-Unterordnern der Projekte.
+
+## R15 – Skripte in TypeScript
+
+**Decision**: Hilfsskripte in `scripts/` und `build/` sind TypeScript (`.ts`) und werden direkt mit
+`node scripts/<name>.ts` ausgeführt. Node 24 führt TypeScript-Dateien ohne Zusatzwerkzeug aus
+(lokal geprüft am 2026-10-18 mit Node v24.21.0). Dadurch deckt `tsc --noEmit` alle Skripte ab.
+Einschränkung: nur löschbare Typ-Syntax (keine `enum`, keine Parameter-Properties); in
+`tsconfig.json` daher `erasableSyntaxOnly: true` und `allowImportingTsExtensions: true`.
+
+## R16 – Manifest-Farben aus den Tokens
+
+**Decision**: Das Manifest-Plugin liest `background_color` und `theme_color` aus
+`src/app/theme/tokens.css` (`--color-bg`, `--color-fg`), statt sie fest einzutragen. Damit bleibt
+`tokens.css` die einzige Quelle für Farben (FR-006). Fehlt ein Token, bricht der Build ab.
 
 ## R14 – Ausstehende Tests
 

@@ -151,7 +151,7 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
 
 - Gerät meldet `prefers-reduced-motion`: Die Shell verhält sich identisch zum Bewegungs-Token "aus".
 - Build außerhalb eines Git-Repos (z. B. aus einem Archiv): Statt Commit-Hash wird ein eindeutiger
-  Platzhalter (z. B. "unbekannt") angezeigt, der Build bricht nicht ab.
+  Platzhalter (`unknown`) angezeigt, der Build bricht nicht ab.
 - Ein früher registrierter Service Worker einer anderen Version existiert noch im Browser: Die
   Shell registriert keinen neuen; der Umgang mit Altlasten ist Teil von M7.
 - Sehr kleine Viewports (unter 320 px Breite): Die Shell bleibt bedienbar, Slots verkleinern sich,

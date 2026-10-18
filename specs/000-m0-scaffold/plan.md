@@ -77,7 +77,8 @@ specs/000-m0-scaffold/
 ```text
 .github/workflows/ci.yml
 build/
-└── manifest-plugin.ts        # Manifest + <title> aus PROJECT_NAME
+├── build-version.ts          # Commit-Hash, -dirty, Rückfall unknown
+└── manifest-plugin.ts        # Manifest + <title> aus PROJECT_NAME, Farben aus tokens.css
 scripts/
 ├── check-licenses.mjs        # zweistufiger Lizenz-Check
 ├── generate-third-party.mjs  # erzeugt THIRD_PARTY_LICENSES
@@ -106,6 +107,7 @@ tests/
 └── e2e/                      # Playwright (Chromium)
 docs/adr/                     # 0000-template.md, 0001–0003, 0005, 0007–0010
 third_party/                  # README.md, npm.md, license-exceptions.json
+docs/abnahme/                 # m0.md, m0-grayscale.png (Abnahmeprotokoll)
 LICENSE                       # MIT
 THIRD_PARTY_LICENSES
 .gitignore                    # *.gb, *.gbc, *.sgb, roms/, Boot-ROM-Namen, dist/, Testberichte
