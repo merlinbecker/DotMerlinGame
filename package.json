@@ -1,6 +1,6 @@
 {
   "name": "dotmerlingame",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -16,6 +16,8 @@
     "lint": "eslint . && stylelint \"src/**/*.css\"",
     "typecheck": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
     "tools:rgbds": "node scripts/fetch-rgbds.ts",
+    "core:build": "sh scripts/build-core.sh",
+    "core:verify": "sh scripts/build-core.sh && git diff --exit-code -- src/adapters/emulator/sameboy/generated",
     "licenses": "node scripts/check-licenses.ts",
     "licenses:generate": "node scripts/generate-third-party.ts",
     "secrets": "node scripts/check-secrets.ts",
