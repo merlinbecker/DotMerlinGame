@@ -23,6 +23,6 @@
 }
 
 /* Disabled is shown by a dashed border, not by color. */
-.switch:disabled {
+.switch[aria-disabled="true"] {
   border-style: dashed;
 }

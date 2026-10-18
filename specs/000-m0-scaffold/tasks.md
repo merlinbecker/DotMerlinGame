@@ -100,13 +100,13 @@ Graustufen-Screenshot manuell bewerten.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T027 [P] [US2] E2E test in `tests/e2e/eink.spec.ts`: `document.getAnimations()` is empty; for every element computed `transition-duration` is `0s` and `animation-name` is `none`; for every element `color`, `background-color`, `border-{top,right,bottom,left}-color`, `outline-color`, `caret-color` and SVG `fill`/`stroke` parse to R = G = B (ignore fully transparent); press Tab through all focusable elements and repeat the color check plus assert a visible outline (`outline-width` ≥ 2px) on the focused element; emulate `prefers-reduced-motion: reduce` and repeat the motion checks; assert every focusable element's bounding box is at least the computed value of `--touch-target-min` in width and height (FR-008); save a grayscale full-page screenshot to `test-results/m0-grayscale.png` for manual review (SC-005)
-- [ ] T028 [P] [US2] Stylelint fixture test in `tests/tooling/stylelint-rules.test.ts`: run stylelint API on inline CSS samples and assert errors for a hex color, a `px` value, a `transition`, an `animation` and a `:hover` selector in a non-token file, and no errors for the same values in `tokens.css`
+- [X] T027 [P] [US2] E2E test in `tests/e2e/eink.spec.ts`: `document.getAnimations()` is empty; for every element computed `transition-duration` is `0s` and `animation-name` is `none`; for every element `color`, `background-color`, `border-{top,right,bottom,left}-color`, `outline-color`, `caret-color` and SVG `fill`/`stroke` parse to R = G = B (ignore fully transparent); press Tab through all focusable elements and repeat the color check plus assert a visible outline (`outline-width` ≥ 2px) on the focused element; emulate `prefers-reduced-motion: reduce` and repeat the motion checks; assert every focusable element's bounding box is at least the computed value of `--touch-target-min` in width and height (FR-008); save a grayscale full-page screenshot to `test-results/m0-grayscale.png` for manual review (SC-005)
+- [X] T028 [P] [US2] Stylelint fixture test in `tests/tooling/stylelint-rules.test.ts`: run stylelint API on inline CSS samples and assert errors for a hex color, a `px` value, a `transition`, an `animation` and a `:hover` selector in a non-token file, and no errors for the same values in `tokens.css`
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Audit all CSS modules from US1 against tokens: replace any literal with tokens, ensure focus styles use `--focus-outline-*`, disabled state distinguishable without color (e.g. dashed border or reduced weight plus `aria-disabled`); fix until T027/T028 pass
-- [ ] T030 [US2] Document in `src/app/theme/README.md` (German): token categories, rule "no literals outside tokens.css", motion switch via `data-motion` and `prefers-reduced-motion`, how to add a token
+- [X] T029 [US2] Audit all CSS modules from US1 against tokens: replace any literal with tokens, ensure focus styles use `--focus-outline-*`, disabled state distinguishable without color (e.g. dashed border or reduced weight plus `aria-disabled`); fix until T027/T028 pass
+- [X] T030 [US2] Document in `src/app/theme/README.md` (German): token categories, rule "no literals outside tokens.css", motion switch via `data-motion` and `prefers-reduced-motion`, how to add a token
 
 **Checkpoint**: US1 + US2 erfüllen alle UI-Abnahmekriterien von M0
 
