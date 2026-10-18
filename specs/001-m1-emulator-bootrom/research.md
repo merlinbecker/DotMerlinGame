@@ -293,8 +293,18 @@ Adapter (Port unverändert).
   E-Ink-Gerät abgestimmt.
 - Zoom: `LayoutState` erhält `maximizedSlot: number | null`. Bleibt `version: 1`, weil M0 nie
   persistiert hat. Ausgeblendete Slots gelten als unsichtbar (FR-024).
-- Controller: Pointer Events mit `setPointerCapture`, mehrere gleichzeitige Pointer, Tastaturbelegung als
-  Konstante (Pfeiltasten, X=A, Z=B, Enter=Start, Shift=Select). Keine Hover-Zustände.
+- Controller: Pointer Events mit `setPointerCapture`, mehrere gleichzeitige Pointer. Keine Hover-Zustände.
+- Tastatur und Game-Controller (PI, 2026-10-18) sitzen nicht im Controller-View, sondern im
+  Eingabe-Adapter `src/adapters/input/`, verdrahtet in `main.tsx`, damit sie ohne sichtbares
+  Controller-Quadrat wirken:
+  - Tastatur: WASD = Steuerkreuz, J = A, K = B, Enter = Start, Leertaste = Select (über `KeyboardEvent.code`,
+    damit sie auch auf anderen Tastaturlayouts gleich liegen).
+  - Gamepad API: Chrome meldet einen Controller erst nach dem ersten Tastendruck (`gamepadconnected`),
+    danach wird `navigator.getGamepads()` einmal pro Bildschirmframe abgefragt. Standard-Mapping:
+    rechte Fronttaste (1) = A, untere (0) = B, wie die Lage auf dem DMG; 8 = Select, 9 = Start,
+    12–15 = Steuerkreuz; linker Stick (Achsen 0/1, Schwelle 0,5) wirkt wie das Steuerkreuz. Controller
+    ohne Standard-Mapping werden nur mit diesen Indizes versucht. Ob ein konkreter Controller unter
+    Android sauber erkannt wird, zeigt erst der Gerätetest.
 - Spielinhalt im Screen-View: Canvas mit `image-rendering: pixelated`, ganzzahlige Skalierung.
 
 ## Offene Punkte (nicht blockierend, bei Umsetzung klären)

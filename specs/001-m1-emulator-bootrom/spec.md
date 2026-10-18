@@ -41,6 +41,10 @@ fremde freie Boot-ROM wird nicht eingebunden.
 - Q (Analyse, 2026-10-18): Wie wird ein Quadrat vergrößert, wenn ein Doppeltipp im Controller eine
   Spieleingabe ist? → A: Für alle Quadrate gibt es nur einen Zoom-Schalter in der Kopfleiste, keinen
   Doppeltipp. Grundsatz: sparsam mit Gesten.
+- Q (Gerätetest, 2026-10-18): Wie wird gespielt außer per Touch? → A: Gleichwertig über drei Quellen:
+  das Controller-Quadrat (Touch), einen Game-Controller (Bluetooth oder USB, Gamepad API) oder die
+  Tastatur mit WASD = Steuerkreuz, J = A, K = B, Enter = Start, Leertaste = Select. Gamepad und Tastatur
+  wirken auch, wenn das Controller-Quadrat nicht angezeigt wird.
 - Q (Analyse, 2026-10-18): Bleibt das Wischen in der Kopfleiste für den View-Wechsel? → A: Nein. View-Wechsel
   nur über Pfeiltasten in der Kopfleiste, weil Gesten fehleranfällig sind. Das Briefing wurde angepasst.
 
@@ -66,6 +70,10 @@ Eingaben über das Controller-Quadrat wirken sich im Spiel aus.
    Richtung + A), **Then** werden alle gleichzeitig erkannt.
 4. **Given** ein zuvor geladenes ROM, **When** die App neu geöffnet wird, **Then** kann es ohne
    erneute Dateiauswahl aus dem lokalen Speicher wieder gestartet werden.
+5. **Given** ein laufendes Spiel, **When** ein Game-Controller (Bluetooth oder USB) eine Taste meldet
+   oder auf der Tastatur WASD, J, K, Enter oder Leertaste gedrückt wird, **Then** reagiert das Spiel
+   wie auf die entsprechende DMG-Taste, auch wenn das Controller-Quadrat nicht angezeigt wird. Ein
+   verbundener Game-Controller wird in ROM Info angezeigt.
 
 ---
 
@@ -289,7 +297,10 @@ Grundlage für Editor und Disassembly in M2/M3.
   Kanäle veröffentlichen; die Rate MUSS konfigurierbar sein.
 - **FR-005**: Es MUSS ein Screen-View das Bild des Emulators mit voller Bildrate darstellen.
 - **FR-006**: Es MUSS ein Controller-View alle acht Tasten (Steuerkreuz, A, B, Start, Select) per
-  Touch bedienbar machen, mit Mehrfachdruck; zusätzlich MUSS eine Tastaturbelegung existieren.
+  Touch bedienbar machen, mit Mehrfachdruck. Zusätzlich MÜSSEN, unabhängig davon, ob der Controller-View
+  angezeigt wird, (a) die Tastatur mit WASD = Steuerkreuz, J = A, K = B, Enter = Start,
+  Leertaste = Select und (b) Game-Controller über die Gamepad API (Bluetooth oder USB, Standard-Mapping
+  inkl. linkem Analogstick als Steuerkreuz) dieselben Tasten auslösen.
 - **FR-007**: Das System MUSS eine eigene DotMerlinGame-Boot-ROM mit eigenem Logo enthalten, die
   nur im Emulator verwendet wird, selbst geschrieben ist und keinen Code oder Daten der
   Nintendo-Boot-ROM enthält.

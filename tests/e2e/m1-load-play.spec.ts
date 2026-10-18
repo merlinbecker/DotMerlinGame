@@ -76,3 +76,46 @@ test('replaces and restarts ROMs on a touch screen (phone)', async ({ browser })
   await expect.poll(() => frameOf(page)).toBeGreaterThan(5);
   await context.close();
 });
+
+test('plays with the keyboard (J = A, K = B) even when the controller view is not shown (FR-006)', async ({ page }) => {
+  await openApp(page);
+  await loadRom(page, 'input');
+  await expect.poll(() => canvasColors(page)).toEqual(['255,255,255']);
+  const controller = page.locator('[data-view="controller"]');
+  await controller.getByRole('button', { name: 'Next view' }).click(); // controller view gone
+  await expect(page.locator('[data-view="controller"]')).toHaveCount(0);
+  await page.locator('body').click({ position: { x: 5, y: 5 } }); // focus away from buttons
+  await page.keyboard.down('KeyJ');
+  await page.keyboard.down('KeyK');
+  await expect.poll(() => canvasColors(page)).toEqual(['0,0,0']);
+  await page.keyboard.up('KeyK');
+  await expect.poll(() => canvasColors(page)).toEqual(['170,170,170']);
+  await page.keyboard.up('KeyJ');
+  await expect.poll(() => canvasColors(page)).toEqual(['255,255,255']);
+});
+
+test('shows connected game controllers in ROM Info (FR-006)', async ({ page }) => {
+  await page.addInitScript(() => {
+    const pad = { id: 'Test Pad (STANDARD GAMEPAD)', index: 0, connected: true, mapping: 'standard', axes: [0, 0, 0, 0], buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 })), timestamp: 0 };
+    Object.defineProperty(navigator, 'getGamepads', { value: () => [pad] });
+    (window as unknown as { testPad: typeof pad }).testPad = pad;
+  });
+  await openApp(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('gamepadconnected')));
+  await expect(page.getByTestId('gamepads')).toHaveText('Test Pad (STANDARD GAMEPAD)');
+  await loadRom(page, 'input');
+  await expect.poll(() => canvasColors(page)).toEqual(['255,255,255']);
+  const setButton = (index: number, pressed: boolean) =>
+    page.evaluate(
+      ([i, p]) => {
+        const pad = (window as unknown as { testPad: { buttons: { pressed: boolean }[] } }).testPad;
+        const button = pad.buttons[i as number];
+        if (button) button.pressed = p as boolean;
+      },
+      [index, pressed],
+    );
+  await setButton(1, true); // right face button = A
+  await expect.poll(() => canvasColors(page)).toEqual(['170,170,170']);
+  await setButton(1, false);
+  await expect.poll(() => canvasColors(page)).toEqual(['255,255,255']);
+});

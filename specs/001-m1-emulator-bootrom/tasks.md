@@ -136,6 +136,14 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 **Checkpoint**: US1 voll funktionsfähig und testbar (MVP).
 
+### Extension of User Story 1: keyboard and game controllers (decision of the project owner, 2026-10-18)
+
+- [X] T104 [US1] Update spec (Clarifications, US1-AS5, FR-006) and research.md R12: keyboard WASD = d-pad, J = A, K = B, Enter = Start, Space = Select; game controllers via the Gamepad API (Bluetooth/USB, standard mapping, left stick as d-pad); both work without the controller view
+- [X] T105 [P] [US1] Write `tests/unit/input-adapters.test.ts`: key map, repeat ignored, Space default prevented, unmapped keys ignored, release on blur; gamepad standard mapping (right face = A, bottom = B, 8/9, 12–15), stick threshold 0.5, per-frame polling reports changes only, stop on disconnect; input mux keeps a button down while another source holds it
+- [X] T106 [US1] Implement `src/adapters/input/keyboard.ts`, `src/adapters/input/gamepad.ts`, `src/adapters/input/input-mux.ts`; remove the keyboard handling from `src/views/controller/`; wire both into `src/app/main.tsx`
+- [X] T107 [US1] Add `SessionState.gamepads` (`src/core/view/view-contract.ts`), `EmulatorSession.setGamepads`, and show connected controllers on the ROM page of `src/views/rom-info/` ("none – press a button on it to connect")
+- [X] T108 [US1] Extend `tests/e2e/m1-load-play.spec.ts`: J+K play the `input` ROM with the controller view switched away; a fake standard gamepad is listed in ROM Info and its A button reaches the game
+
 ---
 
 ## Phase 4: User Story 2 – Eigene, kompatible Boot-ROM (Priority: P1)

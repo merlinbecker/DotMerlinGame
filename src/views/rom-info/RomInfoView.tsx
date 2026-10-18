@@ -83,6 +83,10 @@ function RomPage({ session, dispatch, pending, onPick, onReplace, onCancel }: Ro
         <dd data-testid="run-state">{session.runState}</dd>
         <dt>File</dt>
         <dd className={styles.ellipsis}>{session.fileName ?? 'No ROM loaded'}</dd>
+        <dt>Controller</dt>
+        <dd className={styles.ellipsis} data-testid="gamepads">
+          {session.gamepads.length > 0 ? session.gamepads.join(', ') : 'none – press a button on it to connect'}
+        </dd>
       </dl>
     </>
   );

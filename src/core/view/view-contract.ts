@@ -44,6 +44,8 @@ export interface SessionState {
   readonly notice: Notice | null;
   /** Measured on the device for SC-003 and SC-007; null until measured. */
   readonly diagnostics: Diagnostics;
+  /** Names of connected game controllers (Gamepad API); empty until one reports a button press. */
+  readonly gamepads: readonly string[];
 }
 
 export interface Diagnostics {

@@ -120,6 +120,7 @@ src/
 │   │   ├── sameboy/                # wrapper.c, sameboy-emulator.ts, generated/{sameboy.mjs,sameboy.wasm,BUILD-INFO.json}
 │   │   └── bootrom/                # dmg-boot.asm, generated/{dmg-boot.ts,BUILD-INFO.json}
 │   ├── audio/                      # web-audio-output.ts, audio-worklet-processor.ts, ring-buffer.ts
+│   ├── input/                      # keyboard.ts (WASD, J/K, Enter/Space), gamepad.ts (Gamepad API), input-mux.ts
 │   └── storage/                    # indexeddb-rom-store.ts
 ├── app/
 │   ├── session/                    # emulator-session.ts (Orchestrierung, ohne React), settings-store.ts

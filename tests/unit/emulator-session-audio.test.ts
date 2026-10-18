@@ -114,3 +114,12 @@ describe('emulator session audio (US4)', () => {
     expect(session.session.getSnapshot().diagnostics.frameTimeP95Ms).toBe(1.5);
   });
 });
+
+describe('emulator session game controllers (FR-006)', () => {
+  it('shows connected game controllers in the session state', () => {
+    const session = createEmulatorSession({ emulator: fakeEmulator(), romStore: memoryRomStore() });
+    expect(session.session.getSnapshot().gamepads).toEqual([]);
+    session.setGamepads(['8BitDo SN30 Pro']);
+    expect(session.session.getSnapshot().gamepads).toEqual(['8BitDo SN30 Pro']);
+  });
+});

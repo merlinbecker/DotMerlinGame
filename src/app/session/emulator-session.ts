@@ -46,6 +46,8 @@ export interface SessionDeps {
 export const DIAGNOSTICS_INTERVAL_MS = 1000;
 
 export interface EmulatorSession extends AppServices {
+  /** Reported by the gamepad adapter (FR-006). */
+  setGamepads(names: readonly string[]): void;
   /** Checks for a stored ROM; does not start it (US1-AS4: start without file picker on request). */
   init(): Promise<void>;
   /** Resolves when all dispatched actions are processed (tests). */
@@ -78,6 +80,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     audio: { muted: settings.muted, volume: settings.volume, unlocked: audio?.unlocked ?? false },
     notice: null,
     diagnostics: { frameTimeP95Ms: null, audioUnderflows: 0, audioOverflows: 0 },
+    gamepads: [],
   };
   let queue: Promise<void> = Promise.resolve();
   let pausedByPage = false;
@@ -321,6 +324,9 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       update({ storedRomAvailable: stored !== null });
     },
     idle: () => queue,
+    setGamepads(names) {
+      update({ gamepads: [...names] });
+    },
     dispose() {
       stopBatteryTimer();
       unsubscribeHalt();

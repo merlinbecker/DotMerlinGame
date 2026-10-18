@@ -42,7 +42,9 @@ Erwartet: alles grün. Was die Tests abdecken:
 1. `npm run build && npm run preview`, mit dem Smartphone im WLAN öffnen.
 2. Im View **ROM Info** ein ROM laden. Erwartet: eigenes Logo, danach das Spiel. Zeit von der
    Dateiauswahl bis zum Spiel unter 5 s (SC-005).
-3. Spielen über **Controller**. Flüssig ohne Ruckeln (SC-003), die Reaktion fühlt sich unmittelbar an
+3. Spielen über das **Controller**-Quadrat, die Tastatur (WASD, J = A, K = B, Enter = Start,
+   Leertaste = Select) und einen Bluetooth-Game-Controller. Ein Controller erscheint in ROM Info nach
+   dem ersten Tastendruck. Flüssig ohne Ruckeln (SC-003), die Reaktion fühlt sich unmittelbar an
    (SC-004).
 4. Ton: erstes Tippen gibt ihn frei. Stumm in der Kopfleiste des Screens, Lautstärke in ROM Info.
    10 Minuten spielen ohne Aussetzer, synchron zum Bild (SC-007).

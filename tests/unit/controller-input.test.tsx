@@ -50,17 +50,4 @@ describe('controller view', () => {
     fireEvent.pointerCancel(screen.getByRole('button', { name: 'B' }), { pointerId: 1 });
     expect(actions.at(-1)).toEqual({ type: 'ButtonUp', button: 'B' });
   });
-
-  it('maps the keyboard (arrows, X, Z, Enter, Shift)', () => {
-    const actions = setup();
-    fireEvent.keyDown(window, { code: 'KeyX' });
-    fireEvent.keyUp(window, { code: 'KeyX' });
-    fireEvent.keyDown(window, { code: 'ArrowLeft' });
-    fireEvent.keyDown(window, { code: 'ArrowLeft', repeat: true });
-    expect(actions).toEqual([
-      { type: 'ButtonDown', button: 'A' },
-      { type: 'ButtonUp', button: 'A' },
-      { type: 'ButtonDown', button: 'Left' },
-    ]);
-  });
 });

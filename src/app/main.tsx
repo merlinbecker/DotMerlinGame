@@ -2,6 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createWebAudioOutput } from '../adapters/audio/web-audio-output.ts';
 import { createSameBoyEmulator } from '../adapters/emulator/sameboy/sameboy-emulator.ts';
+import { attachGamepads, browserGamepads } from '../adapters/input/gamepad.ts';
+import { createInputMux } from '../adapters/input/input-mux.ts';
+import { attachKeyboard } from '../adapters/input/keyboard.ts';
 import { createIndexedDbRomStore } from '../adapters/storage/indexeddb-rom-store.ts';
 import { createEmulatorSession } from './session/emulator-session.ts';
 import { AppShell } from './shell/AppShell.tsx';
@@ -28,6 +31,15 @@ const session = createEmulatorSession({
   }),
 });
 await session.init();
+
+// Keyboard and game controllers work whether or not the controller view is shown (FR-006).
+const input = createInputMux((button, pressed) => {
+  session.dispatch({ type: pressed ? 'ButtonDown' : 'ButtonUp', button });
+});
+attachKeyboard(window, input('keyboard'));
+attachGamepads(browserGamepads(), input('gamepad'), (names) => {
+  session.setGamepads(names);
+});
 
 createRoot(root).render(
   <StrictMode>

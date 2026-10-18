@@ -144,6 +144,7 @@ flowchart LR
 | Eigene Boot-ROM | `src/adapters/emulator/bootrom/` | 256-Byte-Boot-ROM (ADR-0004), generiert nach `generated/dmg-boot.ts` |
 | Web Audio | `src/adapters/audio/` | `AudioOutputPort`: AudioWorklet mit Ringpuffer, Ein- und Ausblenden, Lautstärke und Stumm per GainNode, kein `SharedArrayBuffer` |
 | IndexedDB | `src/adapters/storage/` | `RomStorePort`: genau ein ROM samt Spielstand |
+| Eingabe | `src/adapters/input/` | Tastatur (WASD, J/K, Enter/Leertaste) und Game-Controller (Gamepad API, Bluetooth/USB, Standard-Mapping), über einen Multiplexer zusammengeführt; wirken unabhängig davon, ob der Controller-View angezeigt wird |
 | ROM-Header, Memory Map | `src/core/rom/` | Header parsen, Ladeprüfung, Logo-Hash, Adressbereiche nach Pan Docs |
 | Eventkanäle | `src/core/events/` | Event-Bus (Kanal 2), Frame-State-Hub mit verzögertem Snapshot-Aufbau (Kanal 1) |
 | Emulator-Session | `src/app/session/` | einziger Empfänger der View-Aktionen: Laden, Ersetzen, Startmodus, Pause/Reset, Spielstand speichern, Pause im Hintergrund, Ton, Hinweise, Diagnose |

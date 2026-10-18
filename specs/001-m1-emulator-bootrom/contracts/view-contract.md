@@ -59,6 +59,8 @@ export interface SessionState {
   readonly notice: Notice | null;
   /** Measured on the device (SC-003, SC-007), refreshed once per second while running. */
   readonly diagnostics: { readonly frameTimeP95Ms: number | null; readonly audioUnderflows: number; readonly audioOverflows: number };
+  /** Names of connected game controllers (Gamepad API), FR-006. */
+  readonly gamepads: readonly string[];
 }
 
 export type Notice =
@@ -86,7 +88,7 @@ export type Notice =
 | `typeId` | Titel (UI, Englisch) | Liest | Dispatcht |
 |---|---|---|---|
 | `screen` | Screen | `frameState.screen`, `session.audio` | `SetFrameRate`, `SetMuted` (Kopfleiste), `UnlockAudio` |
-| `controller` | Controller | – | `ButtonDown`/`ButtonUp`, `UnlockAudio` |
+| `controller` | Controller | – | `ButtonDown`/`ButtonUp` (nur Touch; Tastatur und Gamepad laufen über `src/adapters/input/`, verdrahtet in `main.tsx`, unabhängig von der Sichtbarkeit des Views) |
 | `rom-info` | ROM Info | `session` | `LoadRom`, `StartStoredRom`, `SetBootMode`, `SetHardwareChecks`, `Pause`/`Resume`/`Reset`, `SetVolume`, `UnlockAudio` |
 | `memory-map` | Memory Map | `session.rom` (Bankzahl) | – |
 

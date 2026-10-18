@@ -1,6 +1,5 @@
-import { useEffect, type PointerEvent } from 'react';
+import type { PointerEvent } from 'react';
 import type { Button, ViewInstanceProps } from '../../core/index.ts';
-import { KEY_MAP } from './definition.ts';
 import styles from './ControllerView.module.css';
 
 interface PadButtonProps {
@@ -43,27 +42,11 @@ function PadButton({ button, label, className, press }: PadButtonProps) {
   );
 }
 
-/** The eight DMG buttons by touch and keyboard (FR-006); only dispatches actions. */
+/** The eight DMG buttons by touch (FR-006); keyboard and game controllers live in src/adapters/input. */
 export function ControllerView({ context }: ViewInstanceProps<null>) {
   const press = (button: Button, pressed: boolean) => {
     context.dispatch({ type: pressed ? 'ButtonDown' : 'ButtonUp', button });
   };
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      const button = KEY_MAP[event.code];
-      if (!button || event.repeat) return;
-      if (event.target instanceof HTMLInputElement) return;
-      event.preventDefault();
-      context.dispatch({ type: event.type === 'keydown' ? 'ButtonDown' : 'ButtonUp', button });
-    };
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('keyup', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('keyup', onKey);
-    };
-  }, [context]);
 
   return (
     <div className={styles.pad}>

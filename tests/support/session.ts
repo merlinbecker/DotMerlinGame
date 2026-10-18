@@ -9,6 +9,7 @@ export const EMPTY_SESSION: SessionState = {
   audio: { muted: false, volume: 0.5, unlocked: false },
   notice: null,
   diagnostics: { frameTimeP95Ms: null, audioUnderflows: 0, audioOverflows: 0 },
+  gamepads: [],
 };
 
 /** A static session source for view tests. */
