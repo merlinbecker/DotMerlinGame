@@ -22,7 +22,16 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Disabled is shown by a dashed border, not by color. */
-.switch[aria-disabled="true"] {
-  border-style: dashed;
+.action {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-2);
+  border: var(--border-width-control) solid var(--color-border);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Pressed state is shown by inversion, not by color. */
+.action[aria-pressed="true"] {
+  background: var(--color-fg);
+  color: var(--color-bg);
 }

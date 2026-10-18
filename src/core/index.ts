@@ -20,6 +20,7 @@ export type {
   SessionStateSource,
   ViewContext,
   ViewDefinition,
+  ViewInstanceProps,
   ViewSize,
   ViewTypeId,
 } from './view/view-contract.ts';

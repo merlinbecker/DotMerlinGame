@@ -76,6 +76,13 @@ export interface ViewContext {
   readonly visible: boolean;
 }
 
+/** What a mounted view instance gets from the grid; framework-independent (the React binding is in src/app). */
+export interface ViewInstanceProps<S> {
+  readonly context: ViewContext;
+  readonly state: S;
+  setState(next: S): void;
+}
+
 /** What a view provides. `deserialize(serialize(s))` must yield an equivalent state. */
 export interface ViewDefinition<S> {
   readonly typeId: ViewTypeId;
