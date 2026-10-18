@@ -11,7 +11,7 @@ Diese Befehle sind die Schnittstelle für Menschen, Agenten und CI (FR-010). Sie
 | `npm test` | Vitest (Unit, Vertrag, Typ-Tests) | grün; `it.todo` erlaubt |
 | `npm run test:e2e` | Playwright gegen `preview`, nur Chromium | grün |
 | `npm run lint` | ESLint + Stylelint | 0 Fehler |
-| `npm run typecheck` | `tsc --noEmit` über `src`, `tests`, `build`, `scripts` | 0 Fehler |
+| `npm run typecheck` | `tsc` mit `tsconfig.app.json` (`src`) und `tsconfig.node.json` (`tests`, `build`, `scripts`, Konfigurationen) | 0 Fehler |
 | `npm run licenses` | zweistufiger Lizenz-Check + Aktualitätsprüfung `THIRD_PARTY_LICENSES` | exit 0 |
 | `npm run licenses:generate` | erzeugt `THIRD_PARTY_LICENSES` neu | – |
 | `npm run secrets` | secretlint über `git ls-files` | exit 0 |

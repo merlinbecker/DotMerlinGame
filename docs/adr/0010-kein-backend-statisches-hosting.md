@@ -18,6 +18,8 @@ Alles soll lokal im Browser laufen, ohne Account und ohne Daten auf einem Server
 
 Keine Laufzeit-Netzwerkzugriffe. Node.js wird nur für Entwicklung, Build und CI gebraucht.
 
+**Offener Punkt**: Manifest, Icons und `start_url` nutzen absolute Pfade (`/…`), Vite baut mit `base: '/'`. Das setzt Hosting im Wurzelverzeichnis voraus (passt für Replit). Für einen Hoster mit Unterpfad (z. B. GitHub-Pages-Projektseiten) wären `base: './'` und relative Pfade nötig.
+
 ## Bezüge
 
 Constitution IX; Briefing Abschnitt 12 (Änderungen vom 2026-10-18); Spec M0 FR-020.
