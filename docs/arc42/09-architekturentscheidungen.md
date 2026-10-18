@@ -1,19 +1,19 @@
 # 9. Architekturentscheidungen
 
-Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Die ADR-Vorlage entsteht in M0.
+Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Vorlage: [`docs/adr/0000-template.md`](../adr/0000-template.md).
 
 | ADR | Thema | Meilenstein | Status |
 |---|---|---|---|
-| ADR-0001 | Web-Stack (TypeScript, Vite, Vitest, React) | M0 | geplant |
-| ADR-0002 | Persistenz in IndexedDB, ZIP für Export/Import | M0 | geplant |
-| ADR-0003 | Fremdkomponenten-Strategie (Vorlage statt Fundament, Ports/Adapter, `third_party/`) | M0 | geplant |
-| ADR-0004 | Boot-ROM-Strategie (eigene Boot-ROM nur im Emulator, Header bleibt original, Modi) | M0/M1 | geplant |
-| ADR-0005 | Quelltext als einzige Wahrheit | M0 | geplant |
+| ADR-0001 | [Web-Stack](../adr/0001-web-stack.md) | M0 | akzeptiert |
+| ADR-0002 | [Persistenz in IndexedDB, ZIP für Export/Import](../adr/0002-persistenz-indexeddb-zip.md) | M0 | akzeptiert |
+| ADR-0003 | [Fremdkomponenten-Strategie und zweistufiger Lizenz-Check](../adr/0003-fremdkomponenten-strategie.md) | M0 | akzeptiert |
+| ADR-0004 | Boot-ROM-Strategie (eigene, Nintendo-kompatible Boot-ROM nur im Emulator) | M1 | geplant |
+| ADR-0005 | [Quelltext als einzige Wahrheit](../adr/0005-quelltext-einzige-wahrheit.md) | M0 | akzeptiert |
 | ADR-0006 | Emulator-Core-Auswahl | M1 | offen |
-| ADR-0007 | Lizenz (MIT) und Umgang mit Marke/Namen | M0 | geplant |
-| ADR-0008 | Eventmodell sowie Strategie für Service Worker und Offline | M0 | geplant |
-| ADR-0009 | UI-Prinzipien für E-Ink | M0 | geplant |
-| ADR-0010 | Kein Backend, statische Auslieferung, Hosting vorerst über Replit | M0 | geplant |
+| ADR-0007 | [Lizenz (MIT) und Umgang mit Marke/Namen](../adr/0007-lizenz-und-marke.md) | M0 | akzeptiert |
+| ADR-0008 | [Eventmodell sowie Service Worker und Offline](../adr/0008-eventmodell-und-offline.md) | M0 | akzeptiert |
+| ADR-0009 | [UI-Prinzipien für E-Ink](../adr/0009-ui-prinzipien-eink.md) | M0 | akzeptiert |
+| ADR-0010 | [Kein Backend, statische Auslieferung](../adr/0010-kein-backend-statisches-hosting.md) | M0 | akzeptiert |
 
 ## Offene Punkte
 

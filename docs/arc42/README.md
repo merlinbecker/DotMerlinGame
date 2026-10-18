@@ -11,7 +11,7 @@ Grundlage ist das freigegebene [Bootstrap-Briefing](../BOOTSTRAP-BRIEFING.md). B
 | [05](05-bausteinsicht.md) | Bausteinsicht | angelegt |
 | 06 | Laufzeitsicht | folgt (ab M1) |
 | [07](07-verteilungssicht.md) | Verteilungssicht | angelegt |
-| 08 | Querschnittliche Konzepte | folgt |
+| [08](08-querschnittliche-konzepte.md) | Querschnittliche Konzepte | angelegt (M0) |
 | [09](09-architekturentscheidungen.md) | Architekturentscheidungen | angelegt |
 | 10 | Qualitätsanforderungen | folgt (Qualitätsziele siehe Kapitel 1) |
 | 11 | Risiken und technische Schulden | folgt |

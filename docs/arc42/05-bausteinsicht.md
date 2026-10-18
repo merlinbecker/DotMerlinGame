@@ -73,3 +73,28 @@ Die Interfaces beider Kanäle entstehen in M0, die Umsetzung in M1.
 | Archiv | Projekte als ZIP exportieren und importieren | MIT-lizenzierte ZIP-Bibliothek |
 
 Offener Punkt: Umfang des Debug-Zugriffs am Emulator-Port (Speicher-Watch, Schreib-Breakpoints, Bank-Info).
+
+## 5.3 Umsetzungsstand M0
+
+```text
+src/
+├── config/project.ts      PROJECT_NAME (einzige Stelle im Code)
+├── core/                  frameworkfrei, per ESLint abgesichert
+│   ├── types.ts           Unsubscribe, JsonValue, Button
+│   ├── events/            frame-state.ts (Kanal 1), domain-events.ts (Kanal 2)
+│   ├── view/              view-contract.ts, view-actions.ts
+│   ├── ports/             emulator.ts, assembler.ts, project-store.ts, archive.ts
+│   ├── layout/            layout-state.ts
+│   └── index.ts           öffentliche Verträge
+├── app/
+│   ├── main.tsx           Einstieg
+│   ├── shell/             AppShell, Footer (Build-Version)
+│   ├── layout/            grid.ts (reine Rasterberechnung), Grid, Slot, SlotHeader
+│   └── theme/             tokens.css, base.css
+├── views/                 leer bis M1
+└── adapters/              leer bis M1
+build/                     build-version.ts, manifest-plugin.ts (nur Build-Zeit)
+scripts/                   Lizenz-, Secret- und Icon-Skripte (nur Werkzeuge)
+```
+
+Die Verträge sind in M0 nur als Typen umgesetzt und durch Typ- und Vertragstests in `tests/contract/` abgesichert. Implementierungen der Ports folgen ab M1 in `src/adapters/`.

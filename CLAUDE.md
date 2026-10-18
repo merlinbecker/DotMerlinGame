@@ -65,13 +65,17 @@ TypeScript, Vite, Vitest, React. Zielbrowser in M0–M3: nur aktuelles Chrome (i
 
 ## Befehle
 
-Die Skripte werden in M0 angelegt und hier eingetragen:
-
-- `npm run dev` – Dev-Server (ohne Service Worker)
-- `npm run build` – Produktions-Build
-- `npm test` – Vitest
-- `npm run lint` – Linting
-- `npm run check` – Lint, Typprüfung, Tests, Lizenz- und Secret-Check (wie in der CI)
+- `npm run dev` – Dev-Server, auch im WLAN erreichbar (ohne Service Worker)
+- `npm run build` – Typprüfung und Produktions-Build nach `dist/` (nur statische Dateien)
+- `npm run preview` – liefert `dist/` lokal aus
+- `npm test` – Vitest (Unit-, Vertrags- und Typ-Tests)
+- `npm run test:e2e` – Playwright-Abnahmetests in Chromium (braucht vorher `npm run build`)
+- `npm run lint` – ESLint (inkl. Architekturregeln) und Stylelint (Token- und E-Ink-Regeln)
+- `npm run typecheck` – TypeScript für App, Tests, Build- und Hilfsskripte
+- `npm run licenses` – zweistufiger Lizenz-Check und Aktualität von `THIRD_PARTY_LICENSES`
+- `npm run licenses:generate` – erzeugt `THIRD_PARTY_LICENSES` und `third_party/npm.md` neu (nach Änderung von `dependencies`)
+- `npm run secrets` – Secret-Scan über alle versionierten Dateien
+- `npm run check` – alles oben in Reihenfolge, genau wie die CI
 
 ## Verzeichnisse
 
