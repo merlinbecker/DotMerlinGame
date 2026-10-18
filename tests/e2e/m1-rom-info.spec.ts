@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loadRom, openApp } from './support.ts';
+import { loadRom, openApp, romInfoPage } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -17,6 +17,7 @@ test.beforeEach(async ({ page }) => {
 test('shows header data and the matching bank count (US8-AS1, AS2)', async ({ page }) => {
   await openApp(page);
   await loadRom(page, 'mbc5');
+  await romInfoPage(page, 'Header');
   const header = page.getByTestId('rom-header');
   await expect(header).toContainText('MBC5');
   await expect(header).toContainText('512 KiB, 32 banks');
@@ -32,6 +33,8 @@ test('shows header data and the matching bank count (US8-AS1, AS2)', async ({ pa
 test('shows the empty states without a ROM (US8-AS3)', async ({ page }) => {
   await openApp(page);
   await expect(page.locator('[data-view="rom-info"]')).toContainText('No ROM loaded');
+  await romInfoPage(page, 'Header');
+  await expect(page.locator('[data-view="rom-info"]')).toContainText('No ROM loaded.');
   await expect(page.locator('[data-view="memory-map"]')).toContainText('No ROM loaded: bank count unknown.');
 });
 
@@ -50,4 +53,24 @@ test('pages through the regions instead of scrolling when the slot is small', as
   expect(await second.locator('li').first().textContent()).not.toBe(first);
   const overflow = await second.evaluate((el) => el.scrollHeight - el.clientHeight);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test('ROM Info pages fit a minimum-size slot without scrolling (Constitution V)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const slot = page.locator('[data-testid="slot"]').nth(1);
+  for (let i = 0; i < 4 && (await slot.getAttribute('data-view')) !== 'rom-info'; i++) {
+    await slot.getByRole('button', { name: 'Next view' }).click();
+  }
+  await expect(slot).toHaveAttribute('data-view', 'rom-info');
+  for (const label of ['ROM', 'Start', 'Sound', 'Header'] as const) {
+    await slot.getByRole('group', { name: 'Pages' }).getByRole('button', { name: label }).click();
+    const cut = await slot.evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      return [...el.querySelectorAll('button, dd, p')]
+        .map((child) => child.getBoundingClientRect())
+        .filter((r) => r.height > 0 && r.bottom > box.bottom + 1).length;
+    });
+    expect(cut, label).toBe(0);
+  }
 });

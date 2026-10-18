@@ -12,6 +12,11 @@ export async function openApp(page: Page) {
   await expect(page.locator('[data-view="rom-info"]')).toBeVisible();
 }
 
+/** Opens a page of the ROM Info view (ROM, Start, Sound, Header). */
+export async function romInfoPage(page: Page, label: 'ROM' | 'Start' | 'Sound' | 'Header') {
+  await page.locator('[data-view="rom-info"]').getByRole('group', { name: 'Pages' }).getByRole('button', { name: label }).click();
+}
+
 export async function loadRom(page: Page, name: string) {
   await page.getByTestId('rom-file').setInputFiles(romFile(name));
   const replace = page.getByRole('button', { name: 'Replace' });

@@ -94,6 +94,11 @@ Emulator- oder ROM-Daten. `version` bleibt `1`, weil M0 nie persistiert hat.
 
 `deserialize(serialize(s))` ergibt einen gleichwertigen Zustand (View-Vertrag M0).
 
+## RomInfoState (Teil von `SlotContent.viewState`)
+
+`{ page: 'rom' | 'start' | 'sound' | 'header' }`, Standard `'rom'`. Seiten statt Scrollen (Constitution V).
+Ein neuer Hinweis (abgelehnt, angehalten, Speicher voll) schaltet auf `'rom'`.
+
 ## MemoryMapRegion (statisch, `src/core/rom/memory-map.ts`)
 
 `{ start, end, name, kind: 'rom-fixed' | 'rom-banked' | 'vram' | 'cart-ram' | 'wram' | 'echo' | 'oam' | 'unusable' | 'io' | 'hram' | 'ie' }`.

@@ -8,6 +8,36 @@
   font-size: var(--font-size-body);
 }
 
+.tabs {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+}
+
+.tab {
+  flex: 1;
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  border: var(--border-width-control) solid var(--color-border);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Current page and pressed buttons by inversion, not color. */
+.tab[aria-pressed="true"],
+.button[aria-pressed="true"] {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow: hidden;
+}
+
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -22,11 +52,6 @@
   font-weight: var(--font-weight-bold);
 }
 
-.button[aria-pressed="true"] {
-  background: var(--color-fg);
-  color: var(--color-bg);
-}
-
 .file {
   display: none;
 }
@@ -36,8 +61,13 @@
   border: var(--border-width-frame) solid var(--color-border);
 }
 
+.confirm p {
+  margin: 0 0 var(--space-2);
+}
+
 /* Notices are framed with a dashed border, not colored. */
 .notice {
+  margin: 0;
   padding: var(--space-2);
   border: var(--border-width-control) dashed var(--color-border);
   font-weight: var(--font-weight-bold);
@@ -55,29 +85,23 @@
 }
 
 .facts dd {
+  min-width: 0;
   margin: 0;
 }
 
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin: 0;
-  padding: var(--space-2);
-  border: var(--border-width-control) solid var(--color-border);
-}
-
-.group legend {
-  font-weight: var(--font-weight-bold);
-}
-
-.hint {
-  margin: 0;
-  font-size: var(--font-size-small);
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .value {
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-target-min);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-size-small);
 }

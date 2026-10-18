@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { canvasColors, frameOf, loadRom, openApp } from './support.ts';
+import { canvasColors, frameOf, loadRom, openApp, romInfoPage } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -10,6 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('shows the own logo first, then the game (US2-AS1)', async ({ page }) => {
   await openApp(page);
+  await romInfoPage(page, 'Start');
   await expect(page.getByRole('button', { name: 'Own boot ROM' })).toHaveAttribute('aria-pressed', 'true');
   await loadRom(page, 'pattern');
   // Logo phase: only white and the darkest shade (BGP $FC).
@@ -21,6 +22,7 @@ test('shows the own logo first, then the game (US2-AS1)', async ({ page }) => {
 
 test('stops a ROM with a broken logo in hardware-near mode and says why (US2-AS4)', async ({ page }) => {
   await openApp(page);
+  await romInfoPage(page, 'Start');
   await page.getByRole('button', { name: 'Hardware-near checks' }).click();
   await loadRom(page, 'bad-logo');
   await expect(page.getByRole('status')).toHaveText('Stopped: header logo does not match.', { timeout: 10_000 });

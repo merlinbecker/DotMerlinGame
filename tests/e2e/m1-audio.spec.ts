@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { frameOf, loadRom, openApp } from './support.ts';
+import { frameOf, loadRom, openApp, romInfoPage } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -50,8 +50,10 @@ test('pauses in the background and continues without a time jump (FR-020, edge c
 
 test('changes the volume in steps and remembers it (FR-019)', async ({ page }) => {
   await openApp(page);
+  await romInfoPage(page, 'Sound');
   await page.getByRole('button', { name: 'Volume up' }).click();
   await expect(page.getByTestId('volume')).toHaveText('Volume 60 %');
   await page.reload();
+  // The ROM Info page itself is remembered in the layout.
   await expect(page.getByTestId('volume')).toHaveText('Volume 60 %');
 });
