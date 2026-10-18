@@ -5,6 +5,7 @@ import { findView } from '../views/registry.ts';
 import { createFrameDemand } from './frame-demand.ts';
 import { computeGrid, type GridSpec } from './grid.ts';
 import { DEFAULT_VIEW_ORDER, loadLayout, saveLayout, withViewState } from './layout-store.ts';
+import { isSlotShown, toggleMaximize } from './layout-zoom.ts';
 import { Slot } from './Slot.tsx';
 import { useDocumentVisible } from './useDocumentVisible.ts';
 import { cycleView } from './view-cycle.ts';
@@ -17,16 +18,23 @@ function readMinSlotSize(): number {
   return Number.isFinite(value) && value > 0 ? value : FALLBACK_MIN_SLOT_SIZE;
 }
 
-function measure(element: HTMLElement | null): GridSpec {
-  if (!element) return { columns: 1, rows: 2, slotSize: 0 };
-  return computeGrid({ width: element.clientWidth, height: element.clientHeight }, readMinSlotSize());
+interface Measured extends GridSpec {
+  /** Side of the largest square that fits the grid area (used by a maximized slot). */
+  readonly fullSize: number;
+}
+
+function measure(element: HTMLElement | null): Measured {
+  if (!element) return { columns: 1, rows: 2, slotSize: 0, fullSize: 0 };
+  const width = element.clientWidth;
+  const height = element.clientHeight;
+  return { ...computeGrid({ width, height }, readMinSlotSize()), fullSize: Math.floor(Math.min(width, height)) };
 }
 
 /** Raster of square slots. Holds only the layout (which view in which slot), never emulator state. */
 export function Grid() {
   const services = useContext(ServicesContext);
   const container = useRef<HTMLDivElement>(null);
-  const [grid, setGrid] = useState<GridSpec>({ columns: 1, rows: 2, slotSize: 0 });
+  const [grid, setGrid] = useState<Measured>({ columns: 1, rows: 2, slotSize: 0, fullSize: 0 });
   const slotCount = grid.columns * grid.rows;
   const [layout, setLayout] = useState<LayoutState>(() => loadLayout(slotCount));
   const demand = useMemo(() => createFrameDemand(services.frameState), [services]);
@@ -65,23 +73,29 @@ export function Grid() {
     update({ ...layout, slots });
   };
 
+  const maximized = layout.maximizedSlot !== null;
+  const slotSize = maximized ? grid.fullSize : grid.slotSize;
   const style = {
-    '--grid-columns': String(grid.columns),
-    '--slot-size': `${grid.slotSize}px`,
+    '--grid-columns': String(maximized ? 1 : grid.columns),
+    '--slot-size': `${slotSize}px`,
   } as CSSProperties;
 
   return (
     <div ref={container} className={styles.container}>
       <div className={styles.grid} style={style}>
         {layout.slots.map((slot, index) => {
-          const shown = layout.maximizedSlot === null || layout.maximizedSlot === index;
+          const shown = isSlotShown(layout, index);
           return (
             <Slot
               key={index}
               content={slot}
               shown={shown}
               visible={shown && documentVisible}
-              size={grid.slotSize}
+              size={slotSize}
+              maximized={layout.maximizedSlot === index}
+              onToggleMaximize={() => {
+                update(toggleMaximize(layout, index));
+              }}
               demand={demand}
               onCycle={(direction) => {
                 cycle(index, direction);

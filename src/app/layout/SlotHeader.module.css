@@ -9,6 +9,10 @@
 
 .title {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: center;
   font-size: var(--font-size-title);
   font-weight: var(--font-weight-bold);
@@ -32,6 +36,11 @@
 
 /* Pressed state is shown by inversion, not by color. */
 .action[aria-pressed="true"] {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.switch[aria-pressed="true"] {
   background: var(--color-fg);
   color: var(--color-bg);
 }

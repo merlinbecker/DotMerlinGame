@@ -228,10 +228,10 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 **Independent Test**: Vergrößern/zurück per Schalter; Inhalte bleiben; verdeckte Slots ohne Updates; Doppeltipp zoomt nicht.
 
-- [ ] T088 [P] [US7] Write `tests/unit/layout-zoom.test.ts` for reducer functions in `src/app/layout/layout-zoom.ts`: `toggleMaximize(state, index)` on an occupied slot sets/clears `maximizedSlot`; empty slot → unchanged; `isSlotVisible(state, index)` false for slots hidden by maximize
-- [ ] T089 [P] [US7] Write `tests/unit/slot-header-zoom.test.tsx` for `src/app/layout/SlotHeader.tsx`: every occupied slot header renders a zoom button (label "Maximize"/"Restore", `aria-pressed` reflects state, at least `--touch-target-min`); empty slots render none; the slot registers no double-tap/zoom gesture handler
-- [ ] T090 [US7] Implement `src/app/layout/layout-zoom.ts`, zoom button in `src/app/layout/SlotHeader.tsx` (no gesture), maximized rendering in `src/app/layout/Grid.tsx` (no animation), hidden slots get `visible: false`, persistence through `layout-store`
-- [ ] T091 [US7] Write `tests/e2e/m1-zoom.spec.ts`: zoom button on the screen maximizes immediately, again restores; same on the controller; double tap on any slot content does not change the size; emulation frame counter keeps running while maximized; reload keeps the maximized slot
+- [X] T088 [P] [US7] Write `tests/unit/layout-zoom.test.ts` for reducer functions in `src/app/layout/layout-zoom.ts`: `toggleMaximize(state, index)` on an occupied slot sets/clears `maximizedSlot`; empty slot → unchanged; `isSlotVisible(state, index)` false for slots hidden by maximize
+- [X] T089 [P] [US7] Write `tests/unit/slot-header-zoom.test.tsx` for `src/app/layout/SlotHeader.tsx`: every occupied slot header renders a zoom button (label "Maximize"/"Restore", `aria-pressed` reflects state, at least `--touch-target-min`); empty slots render none; the slot registers no double-tap/zoom gesture handler
+- [X] T090 [US7] Implement `src/app/layout/layout-zoom.ts`, zoom button in `src/app/layout/SlotHeader.tsx` (no gesture), maximized rendering in `src/app/layout/Grid.tsx` (no animation), hidden slots get `visible: false`, persistence through `layout-store`
+- [X] T091 [US7] Write `tests/e2e/m1-zoom.spec.ts`: zoom button on the screen maximizes immediately, again restores; same on the controller; double tap on any slot content does not change the size; emulation frame counter keeps running while maximized; reload keeps the maximized slot
 
 ---
 

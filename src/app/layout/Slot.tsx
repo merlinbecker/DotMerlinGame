@@ -17,10 +17,12 @@ interface SlotProps {
   readonly demand: ReturnType<typeof createFrameDemand>;
   readonly onCycle: (direction: 1 | -1) => void;
   readonly onViewStateChange: (viewState: SlotContent['viewState']) => void;
+  readonly maximized?: boolean;
+  readonly onToggleMaximize?: () => void;
 }
 
 /** One square of the grid. Renders the assigned view with its own throttled frame source. */
-export function Slot({ content, shown, visible, size, demand, onCycle, onViewStateChange }: SlotProps) {
+export function Slot({ content, shown, visible, size, demand, onCycle, onViewStateChange, maximized = false, onToggleMaximize }: SlotProps) {
   const services = useContext(ServicesContext);
   const frameSource = useMemo(() => createSlotFrameSource(services.frameState, demand.changed), [services, demand]);
   useEffect(() => demand.register(frameSource), [demand, frameSource]);
@@ -68,6 +70,7 @@ export function Slot({ content, shown, visible, size, demand, onCycle, onViewSta
         onAction={(action) => {
           context.dispatch(action.action);
         }}
+        {...(content && onToggleMaximize ? { zoom: { maximized, onToggle: onToggleMaximize } } : {})}
       />
       <div className={styles.content}>
         {view && (

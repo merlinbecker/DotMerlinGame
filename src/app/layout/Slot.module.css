@@ -15,3 +15,8 @@
   min-height: 0;
   overflow: hidden;
 }
+
+/* Slots covered by a maximized slot (the hidden attribute alone loses against display: flex). */
+.slot[hidden] {
+  display: none;
+}
