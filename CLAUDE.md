@@ -8,10 +8,11 @@ Lies zuerst `docs/BOOTSTRAP-BRIEFING.md`. Es ist die freigegebene Grundlage für
 - Dokumentation (arc42, ADRs, Briefing): Deutsch
 - Code, Bezeichner, Commit-Messages, Kommentare: Englisch
 - Antworten an den Menschen: Deutsch, direkt und ohne Umschweife
+- UI-Texte der App: nur Englisch, direkt im Code (keine Übersetzungsinfrastruktur)
 
 ## Stack
 
-TypeScript, Vite, Vitest, React. IndexedDB für Persistenz, ZIP für Export/Import. RGBDS als WASM. Emulator-Core wird in M1 per ADR gewählt.
+TypeScript, Vite, Vitest, React. Zielbrowser in M0–M3: nur aktuelles Chrome (inkl. Android und E-Ink). IndexedDB für Persistenz, ZIP für Export/Import. RGBDS als WASM. Emulator-Core wird in M1 per ADR gewählt.
 
 ## Architekturregeln (nicht verhandelbar)
 

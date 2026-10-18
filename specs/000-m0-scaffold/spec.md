@@ -12,6 +12,14 @@ für Roundtrip und Boot-Zustand. Interfaces für View-Vertrag und Eventmodell. P
 ohne Service Worker. Design-Tokens und Schwarz-Weiß-Theme als Standard, Bewegung per Token
 abschaltbar.
 
+## Clarifications
+
+### Session 2026-10-18
+
+- Q: In welcher Sprache erscheinen die Texte der Oberfläche? → A: Nur Englisch, Texte direkt im Code (keine Übersetzungsinfrastruktur, um Komplexität zu sparen; nachträglich revidiert).
+- Q: Welche Lizenzen sind für Abhängigkeiten erlaubt? → A: Freizügige Lizenzen: MIT, BSD-2-Clause, BSD-3-Clause, ISC, Apache-2.0, Zlib, 0BSD, CC0-1.0, Unlicense. Alles andere nur als Einzelausnahme mit ADR.
+- Q: Auf welchen Browsern und Geräten muss die App für die Abnahme laufen? → A: Nur aktuelles Chrome (Android, Desktop, E-Ink-Geräte mit Android); automatische Tests nur in Chromium. Wichtig ist der funktionierende Rundlauf, nicht breite Kompatibilität. Weitere Browser sind nicht Teil der ersten Meilensteine (nachträglich revidiert).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Lauffähige App-Shell auf dem Gerät (Priority: P1)
@@ -85,8 +93,8 @@ ausführen; Push auf einen Branch löst die CI aus, die grün wird.
    Secret-Scan und Lizenz-Check und ist grün.
 3. **Given** ein Commit mit einem absichtlich eingefügten Test-Secret, **When** der Secret-Scan
    läuft, **Then** schlägt er fehl.
-4. **Given** eine Abhängigkeit mit GPL-Lizenz, **When** der Lizenz-Check läuft, **Then** schlägt
-   er fehl.
+4. **Given** eine Abhängigkeit mit einer Lizenz außerhalb der Freigabeliste (z. B. GPL, LGPL,
+   MPL) oder ohne erkennbare Lizenz, **When** der Lizenz-Check läuft, **Then** schlägt er fehl.
 5. **Given** eine Datei mit ROM-Endung (z. B. `.gb`, `.gbc`) im Arbeitsverzeichnis, **When**
    `git status` ausgeführt wird, **Then** wird sie ignoriert.
 
@@ -171,8 +179,10 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
   eine Gesamtprüfung geben; die Gesamtprüfung entspricht der CI.
 - **FR-011**: Die CI MUSS bei jedem Push Build, Lint, Typprüfung, Tests, Secret-Scan und
   Lizenz-Check ausführen.
-- **FR-012**: Der Lizenz-Check MUSS Abhängigkeiten mit GPL- oder anderer nicht freigegebener
-  Lizenz ablehnen.
+- **FR-012**: Der Lizenz-Check MUSS nur Abhängigkeiten mit einer Lizenz aus der Freigabeliste
+  durchlassen: MIT, BSD-2-Clause, BSD-3-Clause, ISC, Apache-2.0, Zlib, 0BSD, CC0-1.0, Unlicense.
+  Jede andere Lizenz (insbesondere GPL, LGPL, MPL) und Abhängigkeiten ohne erkennbare Lizenz
+  MÜSSEN den Check scheitern lassen, sofern sie nicht als Einzelausnahme mit ADR freigegeben sind.
 - **FR-013**: Die Ignorier-Regeln des Repos MÜSSEN ROM-Dateien ausschließen.
 - **FR-014**: Es MUSS einen framework-unabhängigen View-Vertrag geben (Eingaben: Größe,
   Emulator-Zustand read-only und abonnierbar, Projektzustand, Aktionskanal; Ausgaben:
@@ -190,6 +200,11 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
   -0002, -0003, -0005, -0007, -0008, -0009 laut Briefing sowie ADR-0010 zu Backend und Hosting).
 - **FR-020**: Der Produktions-Build MUSS ausschließlich statische Dateien erzeugen, die ohne
   Server-Logik von jedem statischen Hoster ausgeliefert werden können.
+- **FR-021**: Die Oberflächensprache MUSS Englisch sein. Texte stehen direkt im Code; eine
+  Übersetzungsinfrastruktur ist nicht vorgesehen.
+- **FR-022**: Die App MUSS im jeweils aktuellen Chrome funktionieren (Android, Desktop,
+  E-Ink-Geräte mit Android). Die automatischen Oberflächentests (u. a. kein Service Worker, keine
+  Animationen) laufen in Chromium. Andere Browser werden nicht gezielt unterstützt.
 
 ### Key Entities
 
@@ -216,6 +231,7 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
 - **SC-006**: Ein frischer Klon ist mit höchstens zwei Befehlen (Installieren, Starten) lauffähig.
 - **SC-007**: Ein absichtlich eingefügtes Test-Secret und eine GPL-Abhängigkeit werden jeweils von
   der CI erkannt und führen zu einem roten Lauf.
+- **SC-008**: Die automatischen Oberflächentests sind in Chromium grün.
 
 ## Assumptions
 
@@ -228,3 +244,5 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
   Einrichten des Hostings ist nicht Abnahmekriterium von M0; die Abnahme erfolgt lokal bzw. über
   den Dev-Server im WLAN. Der Build MUSS aber rein statische Dateien erzeugen.
 - Ein farbiges Theme ist nicht Teil von M0.
+- Unterstützung weiterer Browser (Safari, Firefox) und weiterer UI-Sprachen ist nicht Teil der
+  ersten Meilensteine (M0–M3).

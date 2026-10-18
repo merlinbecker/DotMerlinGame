@@ -14,6 +14,8 @@
 | Emulator-Core | Bewusst offen, Auswahl in M1 per ADR-0006. Nur permissive Lizenzen, Tonausgabe erforderlich. |
 | Boot-ROM | Eigene DotMerlinGame-Boot-ROM, kompatibel zur Nintendo-Boot-ROM. Keine fremden Boot-ROMs. |
 | Zielgeräte | Mittelklasse-Smartphones, Tablets, E-Ink-Geräte, Desktop. Touch zuerst. |
+| Browser | In M0–M3 nur aktuelles Chrome (Android, Desktop, E-Ink-Geräte mit Android). Weitere Browser sind nicht Teil der ersten Meilensteine. |
+| UI-Sprache | Nur Englisch, Texte direkt im Code, keine Übersetzungsinfrastruktur. |
 | Service Worker | Erst ab M7 oder vorher nur hinter Build-Flag. Im Dev- und Test-Betrieb aus. |
 
 ## 2.2 Organisatorische Randbedingungen

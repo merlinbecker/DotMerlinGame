@@ -1,6 +1,7 @@
 <!--
 Sync Impact Report
-- Version: 1.0.0 → 1.1.0 (MINOR: Prinzipien wesentlich erweitert)
+- Version: 1.1.0 → 1.1.1 (PATCH: Randbedingungen Browser und UI-Sprache ergänzt)
+- Vorher: 1.0.0 → 1.1.0 (MINOR: Prinzipien wesentlich erweitert)
 - Geändert: VII. Hardware-Treue des Exports (eigene, Nintendo-kompatible Boot-ROM; keine fremden
   Boot-ROMs; nur DMG-01 inkl. Ton); IX. Lokal und offline (grundsätzlich kein Backend, statische
   Auslieferung, Hosting austauschbar, vorerst Replit)
@@ -123,6 +124,9 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
 
 - Zielplattform: DMG-01 (kein Game Boy Color).
 - Auslieferung: statische Dateien, vorerst über Replit gehostet.
+- Browser: In M0–M3 nur aktuelles Chrome (inkl. Android und E-Ink-Geräte mit Android). Der
+  funktionierende Rundlauf hat Vorrang vor breiter Kompatibilität.
+- UI-Sprache: nur Englisch, Texte direkt im Code.
 - Stack: TypeScript, Vite, Vitest, React. RGBDS als WASM. Emulator-Core wird in M1 per ADR gewählt
   (nur permissive Lizenzen).
 - Dokumentation (arc42, ADRs, Specs) auf Deutsch; Code, Bezeichner, Commits und Kommentare auf Englisch.
@@ -152,4 +156,4 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
 - Jede Spec, jeder Plan (`/speckit-plan`, Constitution Check) und jedes Review prüft die
   Einhaltung. Abweichungen MÜSSEN im Plan begründet und dokumentiert werden.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.1.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
