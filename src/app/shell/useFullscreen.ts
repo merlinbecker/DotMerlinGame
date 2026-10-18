@@ -15,7 +15,9 @@ const isFullscreen = () => document.fullscreenElement !== null;
  */
 export function useFullscreen() {
   const active = useSyncExternalStore(subscribe, isFullscreen);
-  const supported = document.fullscreenEnabled;
+  // The installed app already runs fullscreen (manifest display: fullscreen); no button needed there.
+  const installedFullscreen = window.matchMedia('(display-mode: fullscreen)').matches && !active;
+  const supported = document.fullscreenEnabled && !installedFullscreen;
 
   const toggle = () => {
     if (isFullscreen()) void document.exitFullscreen();

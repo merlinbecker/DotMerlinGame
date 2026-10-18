@@ -214,7 +214,8 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
   Animationen) laufen in Chromium. Andere Browser werden nicht gezielt unterstützt.
 - **FR-023**: Die Fußzeile MUSS einen Vollbild-Schalter bieten ("Fullscreen" / "Exit fullscreen"), der
   per Fullscreen-API Adresszeile und Systemleisten ausblendet; unterstützt der Browser kein Vollbild,
-  wird der Schalter nicht angezeigt. Die installierte App startet im Vollbild (`display: fullscreen`).
+  wird der Schalter nicht angezeigt. Die installierte App startet im Vollbild (`display: fullscreen`) und
+  zeigt den Schalter nicht.
 
 ### Key Entities
 

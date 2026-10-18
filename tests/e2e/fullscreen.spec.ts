@@ -23,3 +23,17 @@ test('hides the fullscreen button when the browser does not support it', async (
   await expect(page.getByTestId('build-version')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fullscreen' })).toHaveCount(0);
 });
+
+test('hides the fullscreen button in the installed app', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = window.matchMedia.bind(window);
+    window.matchMedia = (query: string) => {
+      const result = original(query);
+      if (query === '(display-mode: fullscreen)') Object.defineProperty(result, 'matches', { value: true });
+      return result;
+    };
+  });
+  await page.goto('/');
+  await expect(page.getByTestId('build-version')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fullscreen' })).toHaveCount(0);
+});
