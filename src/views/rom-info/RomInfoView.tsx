@@ -72,6 +72,37 @@ export function RomInfoView({ context }: ViewInstanceProps<null>) {
         </p>
       )}
 
+      <fieldset className={styles.group}>
+        <legend>Start mode</legend>
+        <div className={styles.row}>
+          <button
+            type="button"
+            className={styles.button}
+            aria-pressed={session.settings.bootMode === 'own-boot-rom'}
+            onClick={() => { context.dispatch({ type: 'SetBootMode', bootMode: 'own-boot-rom' }); }}
+          >
+            Own boot ROM
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            aria-pressed={session.settings.bootMode === 'direct-start'}
+            onClick={() => { context.dispatch({ type: 'SetBootMode', bootMode: 'direct-start' }); }}
+          >
+            Direct start
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            aria-pressed={session.settings.hardwareChecks}
+            onClick={() => { context.dispatch({ type: 'SetHardwareChecks', enabled: !session.settings.hardwareChecks }); }}
+          >
+            Hardware-near checks
+          </button>
+        </div>
+        <p className={styles.hint}>Takes effect on the next start or reset.</p>
+      </fieldset>
+
       <dl className={styles.facts}>
         <dt>State</dt>
         <dd data-testid="run-state">{session.runState}</dd>

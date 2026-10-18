@@ -10,7 +10,8 @@ declare module '*/generated/sameboy.mjs' {
     _dmg_set_sample_rate(sampleRate: number): void;
     _dmg_load_rom(pointer: number, size: number): number;
     _dmg_load_boot_rom(pointer: number, size: number): number;
-    _dmg_reset(directStart: number): void;
+    _dmg_capture_handoff(): number;
+    _dmg_reset(directStart: number): number;
     _dmg_set_halt_at_handoff(on: number): void;
     _dmg_run_frame(): number;
     _dmg_halt(): void;

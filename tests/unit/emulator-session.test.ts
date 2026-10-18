@@ -169,6 +169,28 @@ describe('emulator session (US1)', () => {
     });
   });
 
+  it('turns a hardware-near halt into run state halted with a notice (US2)', async () => {
+    const emulator = fakeEmulator();
+    const session = createEmulatorSession({ emulator, romStore: memoryRomStore() });
+    const events = recordEvents(session);
+    session.dispatch({ type: 'SetHardwareChecks', enabled: true });
+    session.dispatch({ type: 'LoadRom', bytes: testRom('bad-logo'), fileName: 'x.gb' });
+    await session.idle();
+    emulator.events.publish({ type: 'EmulatorHalted', reason: 'header-logo' });
+    expect(session.session.getSnapshot()).toMatchObject({ runState: 'halted', notice: { kind: 'halted', reason: 'header-logo' } });
+    expect(events).toContainEqual({ type: 'EmulatorHalted', reason: 'header-logo' });
+  });
+
+  it('applies boot mode and hardware checks on the next start', async () => {
+    const emulator = fakeEmulator();
+    const session = createEmulatorSession({ emulator, romStore: memoryRomStore() });
+    session.dispatch({ type: 'SetBootMode', bootMode: 'own-boot-rom' });
+    session.dispatch({ type: 'SetHardwareChecks', enabled: true });
+    session.dispatch({ type: 'LoadRom', bytes: testRom('marker'), fileName: 'm.gb' });
+    await session.idle();
+    expect(emulator.loadRom).toHaveBeenLastCalledWith(expect.any(Uint8Array), { bootMode: 'own-boot-rom', hardwareChecks: true });
+  });
+
   it('persists settings with defaults from data-model.md', async () => {
     expect(loadSettings()).toEqual(DEFAULT_SETTINGS);
     expect(DEFAULT_SETTINGS.hardwareChecks).toBe(false);

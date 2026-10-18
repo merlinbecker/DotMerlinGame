@@ -6,6 +6,7 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <emscripten.h>
 #include "Core/gb.h"
@@ -33,6 +34,10 @@ static bool handoff_seen;
 static bool halt_at_handoff;
 static bool halted;
 static double cycles;
+static uint8_t *handoff_state;
+static size_t handoff_size;
+/* Neutral cartridge for capturing the hand-off snapshot: 32 KiB of zeros (ROM only, no RAM). */
+static const uint8_t neutral_rom[0x8000];
 
 /* Shade index 0 (lightest) .. 3 (darkest) encoded in the red channel; colors[4] is "LCD off" (lightest). */
 static const GB_palette_t shade_palette = {{{3, 3, 3}, {2, 2, 2}, {1, 1, 1}, {0, 0, 0}, {0, 0, 0}}};
@@ -112,10 +117,8 @@ EMSCRIPTEN_KEEPALIVE int dmg_load_boot_rom(const uint8_t *boot, size_t size)
     return 0;
 }
 
-EMSCRIPTEN_KEEPALIVE void dmg_reset(int direct_start)
+static void clear_run_state(void)
 {
-    GB_random_seed(SEED);
-    GB_reset(gb);
     memset(dirty, 0, sizeof(dirty));
     memset(screen, 0, sizeof(screen));
     battery_dirty = false;
@@ -123,11 +126,60 @@ EMSCRIPTEN_KEEPALIVE void dmg_reset(int direct_start)
     cycles = 0;
     halted = false;
     handoff_seen = false;
-    if (direct_start) {
-        /* GB_INTERNAL: skip the boot ROM; the full hand-off state follows in T063. */
-        gb->boot_rom_finished = true;
-        GB_get_registers(gb)->pc = 0x0100;
+}
+
+static bool started_direct;
+
+/*
+ * Brings the boot ROM path to exactly the state a direct start restores: a save state round trip resets
+ * the emulator's audio output rendering (not DMG hardware state) the same way GB_load_state does.
+ */
+static void normalize_handoff(void)
+{
+    if (started_direct) return;
+    size_t size = GB_get_save_state_size(gb);
+    uint8_t *buffer = malloc(size);
+    if (!buffer) return;
+    GB_save_state_to_buffer(gb, buffer);
+    GB_load_state_from_buffer(gb, buffer, size);
+    free(buffer);
+}
+
+/*
+ * Captures the machine state at the hand-off of our boot ROM, run once with a neutral cartridge
+ * (research.md R6). Direct start applies this snapshot to any game without executing boot code for it.
+ * Needs the boot ROM loaded; leaves the neutral cartridge loaded, so load the game ROM afterwards.
+ */
+EMSCRIPTEN_KEEPALIVE int dmg_capture_handoff(void)
+{
+    GB_load_rom_from_buffer(gb, neutral_rom, sizeof(neutral_rom));
+    GB_random_seed(SEED);
+    GB_reset(gb);
+    /* GB_INTERNAL: boot_rom_finished marks the hand-off to $0100. */
+    for (unsigned guard = 0; !at_handoff(); guard++) {
+        if (guard > 50000000u) return -1;
+        GB_run(gb);
     }
+    free(handoff_state);
+    handoff_size = GB_get_save_state_size(gb);
+    handoff_state = malloc(handoff_size);
+    if (!handoff_state) return -1;
+    GB_save_state_to_buffer(gb, handoff_state);
+    return 0;
+}
+
+EMSCRIPTEN_KEEPALIVE int dmg_reset(int direct_start)
+{
+    GB_random_seed(SEED);
+    GB_reset(gb);
+    clear_run_state();
+    started_direct = direct_start != 0;
+    if (!direct_start) return 0;
+    if (!handoff_state) return -1;
+    if (GB_load_state_from_buffer(gb, handoff_state, handoff_size) != 0) return -1;
+    /* F: Z set, H and C set unless the header checksum byte is $00 (Pan Docs "Power Up Sequence"). */
+    GB_get_registers(gb)->af = 0x0100 | (GB_safe_read_memory(gb, 0x014D) ? 0xB0 : 0x80);
+    return 0;
 }
 
 EMSCRIPTEN_KEEPALIVE void dmg_set_halt_at_handoff(int on)
@@ -143,6 +195,7 @@ EMSCRIPTEN_KEEPALIVE int dmg_run_frame(void)
     while (!frame_done) {
         if (!handoff_seen && at_handoff()) {
             handoff_seen = true;
+            normalize_handoff();
             if (halt_at_handoff) return RUN_HANDOFF;
         }
         cycles += GB_run(gb) / 2.0; /* GB_run returns 8 MHz ticks */

@@ -155,7 +155,12 @@ beobachtbar, weil sie nie ausgeführt werden.
 
 ## R6 – Direktstart ohne Boot-ROM
 
-**Decision**: Wrapper-Funktion `dmg_direct_start()` in `wrapper.c` (unser Code, MIT). Sie setzt CPU-
+**Umsetzung (2026-10-18, ADR-0004)**: Der Snapshot ist ein SameBoy-Save-State vom Übergabepunkt der eigenen
+Boot-ROM, einmalig mit einem neutralen Modul erzeugt (`dmg_capture_handoff`). Er wird beim Direktstart
+geladen, danach wird F nach `$014D` gesetzt. So bleibt der Direktstart ohne Boot-Code für das Spiel und
+trotzdem identisch. Die ursprüngliche Planung folgt unten.
+
+**Decision (Planung)**: Wrapper-Funktion `dmg_direct_start()` in `wrapper.c` (unser Code, MIT). Sie setzt CPU-
 und I/O-Register auf die Pan-Docs-Werte, F abhängig von `$014D`, und `boot_rom_finished = true`. Zusätzlich
 setzt sie die internen Zustände, die unsere Boot-ROM zeitabhängig hinterlässt: Feinanteil des
 Teilerzählers, PPU-Zeile und -Punkt sowie APU-Zustand. Grundlage dafür ist ein **gemessener Snapshot

@@ -11,8 +11,8 @@ export interface Settings {
 
 export const SETTINGS_KEY = `${PROJECT_NAME.toLowerCase()}:settings`;
 
-/** Defaults from data-model.md. Direct start until the own boot ROM exists (US2, T068). */
-export const DEFAULT_SETTINGS: Settings = { bootMode: 'direct-start', hardwareChecks: false, muted: false, volume: 0.5 };
+/** Defaults from data-model.md. */
+export const DEFAULT_SETTINGS: Settings = { bootMode: 'own-boot-rom', hardwareChecks: false, muted: false, volume: 0.5 };
 
 function clampVolume(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? Math.min(1, Math.max(0, Math.round(value * 10) / 10)) : DEFAULT_SETTINGS.volume;

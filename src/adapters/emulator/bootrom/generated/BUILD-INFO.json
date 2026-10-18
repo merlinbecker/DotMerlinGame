@@ -1,0 +1,7 @@
+{
+  "component": "DotMerlinGame boot ROM",
+  "source": "src/adapters/emulator/bootrom/dmg-boot.asm",
+  "rgbds": "1.0.4",
+  "size": 256,
+  "sha256": "c220c69a829f08df7cc7f1b41f696b15379ad10544bbb43eb56ed18500af76c4"
+}

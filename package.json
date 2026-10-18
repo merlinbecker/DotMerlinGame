@@ -1,6 +1,6 @@
 {
   "name": "dotmerlingame",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -20,10 +20,11 @@
     "core:build": "sh scripts/build-core.sh",
     "core:verify": "sh scripts/build-core.sh && git diff --exit-code -- src/adapters/emulator/sameboy/generated",
     "roms:build": "node scripts/build-test-roms.ts",
+    "bootrom:build": "node scripts/build-bootrom.ts",
     "licenses": "node scripts/check-licenses.ts",
     "licenses:generate": "node scripts/generate-third-party.ts",
     "secrets": "node scripts/check-secrets.ts",
-    "check": "npm run lint && npm run test && git diff --exit-code -- src/core/rom/logo-hash.generated.ts && npm run build && npm run test:e2e && npm run licenses && npm run secrets"
+    "check": "npm run lint && npm run test && npm run bootrom:build && git diff --exit-code -- src/core/rom/logo-hash.generated.ts src/adapters/emulator/bootrom/generated && npm run build && npm run test:e2e && npm run licenses && npm run secrets"
   },
   "dependencies": {
     "react": "19.3.1",

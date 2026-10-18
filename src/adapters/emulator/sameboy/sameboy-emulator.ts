@@ -9,8 +9,10 @@ import {
   type FrameSnapshot,
   type LoadRomOptions,
   type MemoryRange,
+  type Registers,
   type RomHeaderInfo,
 } from '../../../core/index.ts';
+import { DMG_BOOT_ROM } from '../bootrom/generated/dmg-boot.ts';
 import { browserClock, type FrameClock } from '../frame-clock.ts';
 import createSameBoy, { type SameBoyModule } from './generated/sameboy.mjs';
 
@@ -31,12 +33,19 @@ export interface SameBoyEmulator extends EmulatorPort {
   readonly running: boolean;
   /** Side-effect-free memory read (tests, later the debugger). */
   peek(address: number): number;
+  /** Current CPU registers (tests, later the debugger). */
+  cpuRegisters(): Registers;
   /** Header of the loaded ROM, null before the first successful load. */
   readonly header: RomHeaderInfo | null;
+  /**
+   * Test helper: emulates until the hand-off to $0100 (own boot ROM) or returns at once (direct start).
+   * Only for valid ROMs; hardware checks are not applied here. Returns false if no hand-off came.
+   */
+  runUntilHandoff(maxFrames?: number): boolean;
 }
 
 export interface SameBoyOptions {
-  /** Own boot ROM (256 bytes); required for boot mode 'own-boot-rom'. */
+  /** Boot ROM (256 bytes); defaults to the own DotMerlinGame boot ROM (ADR-0004). */
   readonly bootRom?: Uint8Array;
   /**
    * Creates the real-time clock that calls advance() while running. Default: requestAnimationFrame in
@@ -81,6 +90,9 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
   const module = await createSameBoy();
   if (module._dmg_init(DEFAULT_SAMPLE_RATE) !== 0) throw new Error('SameBoy core failed to initialize');
 
+  const bootRom = options.bootRom ?? DMG_BOOT_ROM;
+  withHeapCopy(module, bootRom, (p) => module._dmg_load_boot_rom(p, bootRom.length));
+  let handoffCaptured = false;
   const frameState = createFrameStateHub();
   const events = createDomainEventBus();
   const registersPointer = module._malloc(12);
@@ -94,16 +106,20 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
   const clockFactory = options.clock === undefined ? (typeof requestAnimationFrame === 'function' ? browserClock : null) : options.clock;
   const clock: FrameClock | null = clockFactory ? clockFactory((frames) => { emulator.advance(frames); }) : null;
 
-  const snapshot = (): FrameSnapshot => {
+  const readRegisters = (): Registers => {
     module._dmg_registers(registersPointer);
-    const r = module.HEAPU16.subarray(registersPointer / 2, registersPointer / 2 + 6);
-    const [af = 0, bc = 0, de = 0, hl = 0, sp = 0, pc = 0] = r;
-    const f = af & 0xff;
+    const [af = 0, bc = 0, de = 0, hl = 0, sp = 0, pc = 0] = module.HEAPU16.subarray(registersPointer / 2, registersPointer / 2 + 6);
+    return { a: af >> 8, f: af & 0xff, b: bc >> 8, c: bc & 0xff, d: de >> 8, e: de & 0xff, h: hl >> 8, l: hl & 0xff, sp, pc };
+  };
+
+  const snapshot = (): FrameSnapshot => {
+    const registers = readRegisters();
+    const f = registers.f;
     const screenStart = module._dmg_screen();
     return {
       frame,
       cycles: module._dmg_cycles(),
-      registers: { a: af >> 8, f, b: bc >> 8, c: bc & 0xff, d: de >> 8, e: de & 0xff, h: hl >> 8, l: hl & 0xff, sp, pc },
+      registers,
       // Flag bits of F: Z=7, N=6, H=5, C=4 (Pan Docs "CPU Registers and Flags").
       flags: { z: (f & 0x80) !== 0, n: (f & 0x40) !== 0, h: (f & 0x20) !== 0, c: (f & 0x10) !== 0 },
       changedMemory: changedRanges(module),
@@ -135,7 +151,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
     if (!loadOptions) return;
     const direct = loadOptions.bootMode === 'direct-start';
     module._dmg_set_halt_at_handoff(loadOptions.hardwareChecks ? 1 : 0);
-    module._dmg_reset(direct ? 1 : 0);
+    if (module._dmg_reset(direct ? 1 : 0) !== 0) throw new Error('Direct start failed: no hand-off snapshot');
     module._dmg_set_keys(keys);
     halted = false;
     frame = 0;
@@ -157,9 +173,10 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
     async loadRom(rom, nextOptions) {
       const validation = await validateForLoad(rom);
       if (!validation.ok) throw new RomLoadError(validation.reason);
-      if (nextOptions.bootMode === 'own-boot-rom') {
-        if (!options.bootRom) throw new Error('No boot ROM available for boot mode own-boot-rom');
-        withHeapCopy(module, options.bootRom, (p) => module._dmg_load_boot_rom(p, options.bootRom?.length ?? 0));
+      if (nextOptions.bootMode === 'direct-start' && !handoffCaptured) {
+        // Snapshot of our boot ROM's hand-off, taken once with a neutral cartridge (research.md R6).
+        if (module._dmg_capture_handoff() !== 0) throw new Error('Could not capture the hand-off state');
+        handoffCaptured = true;
       }
       withHeapCopy(module, rom, (p) => module._dmg_load_rom(p, rom.length));
       header = validation.info;
@@ -186,6 +203,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
       for (let i = 0; i < frames && running; i++) {
         let result = module._dmg_run_frame();
         if (result === RUN_HANDOFF) {
+          flushAudio(); // boot ROM samples belong before the hand-off
           if (!headerValid()) {
             halt();
             return;
@@ -199,12 +217,32 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
       }
     },
 
+    runUntilHandoff(maxFrames = 600) {
+      module._dmg_set_halt_at_handoff(1);
+      try {
+        for (let i = 0; i < maxFrames; i++) {
+          const result = module._dmg_run_frame();
+          if (result === RUN_HANDOFF) {
+            flushAudio();
+            return true;
+          }
+          if (result !== RUN_FRAME) return false;
+          frame++;
+          flushAudio();
+        }
+        return false;
+      } finally {
+        module._dmg_set_halt_at_handoff(loadOptions?.hardwareChecks ? 1 : 0);
+      }
+    },
+
     setButton(button, pressed) {
       keys = pressed ? keys | KEY_BITS[button] : keys & ~KEY_BITS[button];
       module._dmg_set_keys(keys);
     },
 
     peek: (address) => module._dmg_peek(address & 0xffff),
+    cpuRegisters: readRegisters,
 
     readBatteryRam() {
       if (!header?.cartridgeType.battery) return null;

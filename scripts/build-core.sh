@@ -26,7 +26,7 @@ CORE_FILES="gb sgb apu memory mbc timing display camera sm83_cpu joypad save_sta
 SOURCES=""
 for f in $CORE_FILES; do SOURCES="$SOURCES Core/$f.c"; done
 
-EXPORTS="_malloc,_free,_dmg_init,_dmg_set_sample_rate,_dmg_load_rom,_dmg_load_boot_rom,_dmg_reset,_dmg_set_halt_at_handoff,\
+EXPORTS="_malloc,_free,_dmg_init,_dmg_set_sample_rate,_dmg_load_rom,_dmg_load_boot_rom,_dmg_capture_handoff,_dmg_reset,_dmg_set_halt_at_handoff,\
 _dmg_run_frame,_dmg_halt,_dmg_set_keys,_dmg_screen,_dmg_audio,_dmg_audio_count,_dmg_audio_clear,_dmg_cycles,_dmg_registers,\
 _dmg_peek,_dmg_dirty_pages,_dmg_dirty_clear,_dmg_battery_size,_dmg_battery_save,_dmg_battery_load,_dmg_battery_dirty,_dmg_rom_bank"
 
