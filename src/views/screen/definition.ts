@@ -17,4 +17,8 @@ export const screenDefinition: ViewDefinition<ScreenViewState> = {
   initialState: INITIAL_SCREEN_STATE,
   serialize: (state) => ({ mode: state.mode }),
   deserialize: (json) => (isObject(json) && json.mode === 'eink' ? { mode: 'eink' } : INITIAL_SCREEN_STATE),
+  // Mute sits in the screen header so it is at hand while playing (FR-027).
+  headerActions: (session) => [
+    { id: 'mute', label: session.audio.muted ? 'Unmute' : 'Mute', pressed: session.audio.muted, action: { type: 'SetMuted', muted: !session.audio.muted } },
+  ],
 };

@@ -28,6 +28,7 @@ export const IDLE_SESSION: SessionState = {
   settings: { bootMode: 'own-boot-rom', hardwareChecks: false },
   audio: { muted: false, volume: 0.5, unlocked: false },
   notice: null,
+  diagnostics: { frameTimeP95Ms: null, audioUnderflows: 0, audioOverflows: 0 },
 };
 
 /** Services without an emulator, for tests and as a fallback. */

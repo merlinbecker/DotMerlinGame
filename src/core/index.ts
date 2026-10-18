@@ -11,6 +11,7 @@ export type {
 export type { DomainEvent, DomainEventBus, DomainEventSubscriber, DomainEventType, EventOf, HaltReason, RunState } from './events/domain-events.ts';
 export type { ViewAction } from './view/view-actions.ts';
 export type {
+  Diagnostics,
   HeaderAction,
   IconId,
   Notice,

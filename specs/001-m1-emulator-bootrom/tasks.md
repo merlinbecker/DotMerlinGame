@@ -177,20 +177,20 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 ### Tests for User Story 4
 
-- [ ] T069 [P] [US4] Write `tests/emulator/audio-channels.test.ts`: `apu-ch1`…`apu-ch4` each produce non-silent samples; sample count per frame ≈ sample rate / DMG frame rate (Pan Docs value, tolerance ±2)
-- [ ] T070 [P] [US4] Write `tests/unit/audio-pacing.test.ts` for `src/adapters/emulator/frame-clock.ts`: with audio unlocked, frames per tick follow the buffer fill level (below target → +1, above → −1, bounded); locked/muted without output → time-based; no drift over a simulated 10 minutes (SC-007)
-- [ ] T071 [P] [US4] Write `tests/unit/audio-worklet-processor.test.ts` for the pure ring-buffer core `src/adapters/audio/ring-buffer.ts`: push/pull, underflow fills silence and counts, overflow drops and counts, fade-out/fade-in ramps on suspend/resume
-- [ ] T072 [P] [US4] Write `tests/unit/emulator-session-audio.test.ts`: `UnlockAudio` calls `unlock`; first pointer event in the app triggers unlock; `SetMuted`/`SetVolume` persist and apply immediately without touching emulation; pause/background → `suspend`, resume → `resume`; notice `audio-locked` until unlocked
+- [X] T069 [P] [US4] Write `tests/emulator/audio-channels.test.ts`: `apu-ch1`…`apu-ch4` each produce non-silent samples; sample count per frame ≈ sample rate / DMG frame rate (Pan Docs value, tolerance ±2)
+- [X] T070 [P] [US4] Write `tests/unit/audio-pacing.test.ts` for `src/adapters/emulator/frame-clock.ts`: with audio unlocked, frames per tick follow the buffer fill level (below target → +1, above → −1, bounded); locked/muted without output → time-based; no drift over a simulated 10 minutes (SC-007)
+- [X] T071 [P] [US4] Write `tests/unit/audio-worklet-processor.test.ts` for the pure ring-buffer core `src/adapters/audio/ring-buffer.ts`: push/pull, underflow fills silence and counts, overflow drops and counts, fade-out/fade-in ramps on suspend/resume
+- [X] T072 [P] [US4] Write `tests/unit/emulator-session-audio.test.ts`: `UnlockAudio` calls `unlock`; first pointer event in the app triggers unlock; `SetMuted`/`SetVolume` persist and apply immediately without touching emulation; pause/background → `suspend`, resume → `resume`; notice `audio-locked` until unlocked
 
 ### Implementation for User Story 4
 
-- [ ] T073 [US4] Implement `src/adapters/audio/ring-buffer.ts` and `src/adapters/audio/audio-worklet-processor.ts` (AudioWorkletProcessor using the ring buffer, reports fill level via `port.postMessage`)
-- [ ] T074 [US4] Implement `src/adapters/audio/web-audio-output.ts` (`AudioOutputPort`): `AudioContext`, worklet loaded via `new URL('./audio-worklet-processor.ts', import.meta.url)`, `GainNode` for volume/mute, samples posted per frame with transfer, no `SharedArrayBuffer`, `suspend`/`resume` with fade
-- [ ] T075 [US4] Connect audio in `src/adapters/emulator/sameboy/sameboy-emulator.ts` (`setAudioSink`, sample rate from sink → `dmg_init`) and in `src/app/session/emulator-session.ts` (audio settings, unlock, suspend/resume, notices)
-- [ ] T076 [P] [US4] Screen header mute action: `headerActions` in `src/views/screen/definition.ts` (label "Mute"/"Unmute", pressed state) dispatching `SetMuted`; render header actions in `src/app/layout/SlotHeader.tsx`
-- [ ] T077 [US4] Audio-driven pacing in `src/adapters/emulator/frame-clock.ts` using `AudioOutputPort.bufferedSamples`
-- [ ] T078 [P] [US4] Extend `src/views/rom-info/` with volume steps (0.1 steps, buttons "−"/"+", value shown as text) and the audio-locked hint "Tap anywhere to enable sound"; a "Diagnostics" text block showing frame compute time p95 (rolling 5 min, measured in `frame-clock.ts`) and audio underflow/overflow counters (from the worklet) for SC-003/SC-007
-- [ ] T079 [US4] Write `tests/e2e/m1-audio.spec.ts`: after first tap the `AudioContext` state is `running`; mute in the screen header sets gain to 0 immediately and the frame counter keeps increasing; hidden tab suspends
+- [X] T073 [US4] Implement `src/adapters/audio/ring-buffer.ts` and `src/adapters/audio/audio-worklet-processor.ts` (AudioWorkletProcessor using the ring buffer, reports fill level via `port.postMessage`)
+- [X] T074 [US4] Implement `src/adapters/audio/web-audio-output.ts` (`AudioOutputPort`): `AudioContext`, worklet loaded via `new URL('./audio-worklet-processor.ts', import.meta.url)`, `GainNode` for volume/mute, samples posted per frame with transfer, no `SharedArrayBuffer`, `suspend`/`resume` with fade
+- [X] T075 [US4] Connect audio in `src/adapters/emulator/sameboy/sameboy-emulator.ts` (`setAudioSink`, sample rate from sink → `dmg_init`) and in `src/app/session/emulator-session.ts` (audio settings, unlock, suspend/resume, notices)
+- [X] T076 [P] [US4] Screen header mute action: `headerActions` in `src/views/screen/definition.ts` (label "Mute"/"Unmute", pressed state) dispatching `SetMuted`; render header actions in `src/app/layout/SlotHeader.tsx`
+- [X] T077 [US4] Audio-driven pacing in `src/adapters/emulator/frame-clock.ts` using `AudioOutputPort.bufferedSamples`
+- [X] T078 [P] [US4] Extend `src/views/rom-info/` with volume steps (0.1 steps, buttons "−"/"+", value shown as text) and the audio-locked hint "Tap anywhere to enable sound"; a "Diagnostics" text block showing frame compute time p95 (rolling 5 min, measured in `frame-clock.ts`) and audio underflow/overflow counters (from the worklet) for SC-003/SC-007
+- [X] T079 [US4] Write `tests/e2e/m1-audio.spec.ts`: after first tap the `AudioContext` state is `running`; mute in the screen header sets gain to 0 immediately and the frame counter keeps increasing; hidden tab suspends
 
 **Checkpoint**: Ton vollständig; P1-Stories abgeschlossen.
 

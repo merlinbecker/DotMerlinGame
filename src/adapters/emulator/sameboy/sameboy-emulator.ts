@@ -3,6 +3,7 @@ import { createFrameStateHub } from '../../../core/events/frame-state-hub.ts';
 import {
   RomLoadError,
   validateForLoad,
+  type AudioOutputPort,
   type AudioSink,
   type Button,
   type EmulatorPort,
@@ -13,7 +14,7 @@ import {
   type RomHeaderInfo,
 } from '../../../core/index.ts';
 import { DMG_BOOT_ROM } from '../bootrom/generated/dmg-boot.ts';
-import { browserClock, type FrameClock } from '../frame-clock.ts';
+import { browserClock, bufferPacing, type FrameClock } from '../frame-clock.ts';
 import createSameBoy, { type SameBoyModule } from './generated/sameboy.mjs';
 
 const SCREEN_BYTES = 160 * 144;
@@ -23,6 +24,12 @@ const PAGE = 256;
 const DEFAULT_SAMPLE_RATE = 48000;
 const RUN_FRAME = 0;
 const RUN_HANDOFF = 1;
+/** About 5 minutes of frames for the frame time statistics. */
+const FRAME_TIME_WINDOW = 18_000;
+
+function isAudioOutput(sink: AudioSink): sink is AudioOutputPort {
+  return 'bufferedSamples' in sink && 'unlocked' in sink;
+}
 
 /** Key bits in the order of SameBoy's GB_key_t (wrapper.c dmg_set_keys). */
 const KEY_BITS: Record<Button, number> = { Right: 1, Left: 2, Up: 4, Down: 8, A: 16, B: 32, Select: 64, Start: 128 };
@@ -35,6 +42,8 @@ export interface SameBoyEmulator extends EmulatorPort {
   peek(address: number): number;
   /** Current CPU registers (tests, later the debugger). */
   cpuRegisters(): Registers;
+  /** 95th percentile of the emulation time per frame over the last ~5 minutes (SC-003). */
+  frameTimeP95Ms(): number | null;
   /** Header of the loaded ROM, null before the first successful load. */
   readonly header: RomHeaderInfo | null;
   /**
@@ -51,7 +60,7 @@ export interface SameBoyOptions {
    * Creates the real-time clock that calls advance() while running. Default: requestAnimationFrame in
    * browsers, none elsewhere (tests drive advance() themselves).
    */
-  readonly clock?: ((onFrames: (frames: number) => void) => FrameClock) | null;
+  readonly clock?: ((onFrames: (frames: number) => void, pacing: () => number) => FrameClock) | null;
 }
 
 /** Copies bytes into the WASM heap, calls `use`, frees the copy. */
@@ -104,7 +113,14 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
   let keys = 0;
   let sink: AudioSink | null = null;
   const clockFactory = options.clock === undefined ? (typeof requestAnimationFrame === 'function' ? browserClock : null) : options.clock;
-  const clock: FrameClock | null = clockFactory ? clockFactory((frames) => { emulator.advance(frames); }) : null;
+  const pacing = () => (sink && isAudioOutput(sink) && sink.unlocked ? bufferPacing(sink.bufferedSamples, sink.sampleRate) : 0);
+  const clock: FrameClock | null = clockFactory
+    ? clockFactory((frames) => {
+        emulator.advance(frames);
+      }, pacing)
+    : null;
+  const frameTimes = new Float32Array(FRAME_TIME_WINDOW);
+  let frameTimeCount = 0;
 
   const readRegisters = (): Registers => {
     module._dmg_registers(registersPointer);
@@ -201,6 +217,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
 
     advance(frames) {
       for (let i = 0; i < frames && running; i++) {
+        const started = performance.now();
         let result = module._dmg_run_frame();
         if (result === RUN_HANDOFF) {
           flushAudio(); // boot ROM samples belong before the hand-off
@@ -211,10 +228,18 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
           result = module._dmg_run_frame();
         }
         if (result !== RUN_FRAME) return;
+        frameTimes[frameTimeCount++ % FRAME_TIME_WINDOW] = performance.now() - started;
         frame++;
         flushAudio();
         frameState.offer(frame, snapshot);
       }
+    },
+
+    frameTimeP95Ms() {
+      const count = Math.min(frameTimeCount, FRAME_TIME_WINDOW);
+      if (count === 0) return null;
+      const sorted = frameTimes.slice(0, count).sort();
+      return sorted[Math.min(count - 1, Math.floor(count * 0.95))] ?? null;
     },
 
     runUntilHandoff(maxFrames = 600) {

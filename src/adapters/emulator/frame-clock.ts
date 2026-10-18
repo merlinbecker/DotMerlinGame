@@ -4,6 +4,20 @@
  */
 export const DMG_FRAME_RATE = 4_194_304 / 70_224;
 const MAX_CATCH_UP = 3;
+/** Target fill level of the playback buffer in seconds (research.md R8: 60–100 ms). */
+const AUDIO_TARGET_SECONDS = 0.08;
+
+/**
+ * Frame correction from the audio buffer fill level: the audio clock, not the display clock, decides
+ * how much emulation is needed, so picture and sound never drift apart.
+ */
+export function bufferPacing(buffered: number, sampleRate: number): number {
+  const perFrame = sampleRate / DMG_FRAME_RATE;
+  const target = sampleRate * AUDIO_TARGET_SECONDS;
+  if (buffered < target - perFrame) return 1;
+  if (buffered > target + 2 * perFrame) return -1;
+  return 0;
+}
 
 export interface FrameClockOptions {
   readonly now: () => number;
@@ -33,7 +47,7 @@ export function createFrameClock(options: FrameClockOptions): FrameClock {
     last = time;
     let frames = Math.floor(carry);
     carry -= frames;
-    frames += options.pacing?.() ?? 0;
+    frames = Math.max(0, frames + (options.pacing?.() ?? 0));
     if (frames > MAX_CATCH_UP) {
       frames = MAX_CATCH_UP;
       carry = 0;

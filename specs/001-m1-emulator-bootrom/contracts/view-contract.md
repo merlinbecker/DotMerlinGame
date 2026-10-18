@@ -57,6 +57,8 @@ export interface SessionState {
   readonly settings: { readonly bootMode: BootMode; readonly hardwareChecks: boolean };
   readonly audio: { readonly muted: boolean; readonly volume: number; readonly unlocked: boolean };
   readonly notice: Notice | null;
+  /** Measured on the device (SC-003, SC-007), refreshed once per second while running. */
+  readonly diagnostics: { readonly frameTimeP95Ms: number | null; readonly audioUnderflows: number; readonly audioOverflows: number };
 }
 
 export type Notice =

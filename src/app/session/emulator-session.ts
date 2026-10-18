@@ -4,6 +4,7 @@ import {
   RomLoadError,
   StorageFullError,
   type AudioOutputPort,
+  type Diagnostics,
   type DomainEvent,
   type EmulatorPort,
   type Notice,
@@ -30,7 +31,11 @@ export interface SessionDeps {
   readonly romStore: RomStorePort;
   readonly audio?: AudioOutputPort | null;
   readonly page?: Page | null;
+  /** Measured values for SC-003/SC-007, refreshed once per second while running. */
+  readonly diagnostics?: () => Diagnostics;
 }
+
+export const DIAGNOSTICS_INTERVAL_MS = 1000;
 
 export interface EmulatorSession extends AppServices {
   /** Checks for a stored ROM; does not start it (US1-AS4: start without file picker on request). */
@@ -64,10 +69,12 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     settings: { bootMode: settings.bootMode, hardwareChecks: settings.hardwareChecks },
     audio: { muted: settings.muted, volume: settings.volume, unlocked: audio?.unlocked ?? false },
     notice: null,
+    diagnostics: { frameTimeP95Ms: null, audioUnderflows: 0, audioOverflows: 0 },
   };
   let queue: Promise<void> = Promise.resolve();
   let pausedByPage = false;
   let batteryTimer: ReturnType<typeof setInterval> | null = null;
+  let diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
 
   const update = (patch: Partial<SessionState>) => {
     state = { ...state, ...patch };
@@ -105,11 +112,19 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     batteryTimer ??= setInterval(() => {
       void saveBattery();
     }, BATTERY_SAVE_INTERVAL_MS);
+    const measure = deps.diagnostics;
+    if (measure) {
+      diagnosticsTimer ??= setInterval(() => {
+        update({ diagnostics: measure() });
+      }, DIAGNOSTICS_INTERVAL_MS);
+    }
   };
 
   const stopBatteryTimer = () => {
     if (batteryTimer !== null) clearInterval(batteryTimer);
+    if (diagnosticsTimer !== null) clearInterval(diagnosticsTimer);
     batteryTimer = null;
+    diagnosticsTimer = null;
   };
 
   const run = () => {
@@ -251,6 +266,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     publish(event);
   });
 
+  if (audio) emulator.setAudioSink(audio);
   page?.addEventListener('visibilitychange', onVisibility);
   page?.addEventListener('pagehide', onPageHide);
   page?.addEventListener('pointerdown', onFirstPointer);

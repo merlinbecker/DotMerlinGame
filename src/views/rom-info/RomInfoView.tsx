@@ -3,6 +3,8 @@ import type { ViewInstanceProps } from '../../core/index.ts';
 import { noticeText } from './notice-text.ts';
 import styles from './RomInfoView.module.css';
 
+const VOLUME_STEP = 0.1;
+
 interface PendingFile {
   readonly bytes: Uint8Array;
   readonly fileName: string;
@@ -103,11 +105,46 @@ export function RomInfoView({ context }: ViewInstanceProps<null>) {
         <p className={styles.hint}>Takes effect on the next start or reset.</p>
       </fieldset>
 
+      <fieldset className={styles.group}>
+        <legend>Sound</legend>
+        <div className={styles.row}>
+          <button
+            type="button"
+            className={styles.button}
+            aria-label="Volume down"
+            onClick={() => { context.dispatch({ type: 'SetVolume', volume: Math.max(0, session.audio.volume - VOLUME_STEP) }); }}
+          >
+            −
+          </button>
+          <span className={styles.value} data-testid="volume">
+            Volume {Math.round(session.audio.volume * 100)} %
+          </span>
+          <button
+            type="button"
+            className={styles.button}
+            aria-label="Volume up"
+            onClick={() => { context.dispatch({ type: 'SetVolume', volume: Math.min(1, session.audio.volume + VOLUME_STEP) }); }}
+          >
+            +
+          </button>
+        </div>
+        {!session.audio.unlocked && <p className={styles.hint}>Tap anywhere to enable sound.</p>}
+      </fieldset>
+
       <dl className={styles.facts}>
         <dt>State</dt>
         <dd data-testid="run-state">{session.runState}</dd>
         <dt>File</dt>
         <dd>{session.fileName ?? 'No ROM loaded'}</dd>
+      </dl>
+
+      <dl className={styles.facts} aria-label="Diagnostics">
+        <dt>Frame time p95</dt>
+        <dd data-testid="frame-time">{session.diagnostics.frameTimeP95Ms === null ? '–' : `${session.diagnostics.frameTimeP95Ms.toFixed(2)} ms`}</dd>
+        <dt>Audio underflows</dt>
+        <dd>{session.diagnostics.audioUnderflows}</dd>
+        <dt>Audio overflows</dt>
+        <dd>{session.diagnostics.audioOverflows}</dd>
       </dl>
     </div>
   );

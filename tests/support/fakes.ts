@@ -67,3 +67,23 @@ export function fakePage() {
     },
   };
 }
+
+export function fakeAudio(unlocked = false) {
+  const audio = {
+    sampleRate: 48000,
+    unlocked,
+    bufferedSamples: 0,
+    underflows: 0,
+    overflows: 0,
+    push: vi.fn(),
+    unlock: vi.fn(() => {
+      audio.unlocked = true;
+      return Promise.resolve();
+    }),
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+    suspend: vi.fn(() => Promise.resolve()),
+    resume: vi.fn(() => Promise.resolve()),
+  };
+  return audio;
+}

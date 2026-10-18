@@ -74,6 +74,9 @@ export interface AudioOutputPort extends AudioSink {
   setMuted(muted: boolean): void;    // takes effect immediately, emulation unaffected
   /** Fill level of the playback buffer in samples; drives emulation pacing (research.md R8). */
   readonly bufferedSamples: number;
+  /** Times the buffer ran empty or overflowed (diagnostics, SC-007). */
+  readonly underflows: number;
+  readonly overflows: number;
   suspend(): Promise<void>;    // pause / background, short fade-out to avoid clicks
   resume(): Promise<void>;     // short fade-in
 }

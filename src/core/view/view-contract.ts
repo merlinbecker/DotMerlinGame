@@ -42,6 +42,15 @@ export interface SessionState {
   readonly settings: { readonly bootMode: BootMode; readonly hardwareChecks: boolean };
   readonly audio: { readonly muted: boolean; readonly volume: number; readonly unlocked: boolean };
   readonly notice: Notice | null;
+  /** Measured on the device for SC-003 and SC-007; null until measured. */
+  readonly diagnostics: Diagnostics;
+}
+
+export interface Diagnostics {
+  /** 95th percentile of the emulation time per frame (ms) over the last minutes. */
+  readonly frameTimeP95Ms: number | null;
+  readonly audioUnderflows: number;
+  readonly audioOverflows: number;
 }
 
 export interface SessionStateSource {
