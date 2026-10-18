@@ -29,3 +29,53 @@ flowchart LR
 | Produktion ab M7 | an | versionierte Caches, Hinweis "Update verfügbar", Button "Cache leeren / Neu laden" |
 
 Die Build-Version (Commit-Hash) ist immer in der Oberfläche sichtbar, damit am Gerät erkennbar ist, welcher Stand läuft. Service Worker brauchen HTTPS oder localhost.
+
+## 7.3 Emulator-Core: Herkunft und Bauweg
+
+Der Emulator-Core ist ein Binärartefakt im Repo. Woher er stammt und wie er entsteht, muss ohne
+Vorwissen nachvollziehbar sein ([ADR-0006](../adr/0006-emulator-core.md)).
+
+| Eigenschaft | Wert |
+|---|---|
+| Quelle | https://github.com/LIJI32/SameBoy |
+| Version | Release v1.0.4, Commit `26a56bd6a122a6318a456abd80558408742d5adf` |
+| Lizenz | Expat (SPDX `MIT`), Text in `third_party/licenses/sameboy-LICENSE` |
+| Verwendet | nur `Core/`: `gb.c`, `sgb.c`, `apu.c`, `memory.c`, `mbc.c`, `timing.c`, `display.c`, `camera.c`, `sm83_cpu.c`, `joypad.c`, `save_state.c`, `random.c`, `rumble.c`, `printer.c`, `workboy.c` |
+| Nicht verwendet | `BootROMs/`, `iOS/`, `HexFiend/`, Frontends, Debugger, Rewind, Cheats |
+| Eigener Code | `src/adapters/emulator/sameboy/wrapper.c` (MIT), keine Änderungen am Core |
+| Compiler | Emscripten 6.0.11 im Image `emscripten/emsdk@sha256:cdefec943f04fd4b2b2fe23b0a1a346be9fc560ef5784a83faa27dd351381372` |
+| Flags | `-O3 -std=gnu11 -D_GNU_SOURCE -DGB_INTERNAL -DGB_DISABLE_TIMEKEEPING -DGB_DISABLE_REWIND -DGB_DISABLE_DEBUGGER -DGB_DISABLE_CHEATS -DGB_DISABLE_CHEAT_SEARCH`, `GB_VERSION` = SameBoy-Commit; Linker: `MODULARIZE`, `EXPORT_ES6`, `ENVIRONMENT=web,node`, `FILESYSTEM=0`, `ALLOW_MEMORY_GROWTH`, explizite Exportliste |
+| Gelinkte Laufzeit | `libc.a` (musl, MIT), `libdlmalloc.a` (CC0), `libstubs.a` (Emscripten, MIT/NCSA), siehe `third_party/emscripten.md` |
+| Ausgabe | `src/adapters/emulator/sameboy/generated/sameboy.mjs`, `sameboy.wasm`, `BUILD-INFO.json` (Commit, Image, Flags, SHA-256) |
+| Skript | `scripts/build-core.sh` (`npm run core:build`) |
+
+```mermaid
+flowchart LR
+    SRC[SameBoy-Repo<br/>Commit 26a56bd] -->|git clone nach .build/sameboy| DOCKER[emsdk-Image<br/>per Digest festgelegt]
+    WRAP[wrapper.c<br/>eigener Code] --> DOCKER
+    DOCKER -->|emcc, feste Pfade /work| ART[generated/<br/>sameboy.mjs + .wasm<br/>BUILD-INFO.json]
+    ART -->|committet| REPO[(Git-Repo)]
+    REPO --> CI[CI-Job core-reproducible<br/>baut neu, git diff muss leer sein]
+    REPO --> VITE[Vite-Build] --> DIST[dist/ inkl.<br/>THIRD_PARTY_LICENSES]
+```
+
+**Prüfung**: Der CI-Job `core-reproducible` baut mit demselben Skript neu und schlägt fehl, sobald sich das
+Ergebnis vom committeten Artefakt unterscheidet (`npm run core:verify`). `tests/unit/build-info.test.ts`
+prüft, dass Commit und Image in Skript, `BUILD-INFO.json` und `third_party/` übereinstimmen und die
+SHA-256-Werte zu den Dateien passen.
+
+**Core aktualisieren**:
+
+1. Neuen Commit wählen und die LICENSE-Datei dieses Commits lesen.
+2. `SAMEBOY_COMMIT` (und bei Bedarf `EMSDK_IMAGE` mit neuem Digest) in `scripts/build-core.sh` ändern.
+3. `npm run core:build` ausführen und die Link-Ausgabe `.build/link-trace.txt` auf neue System-Bibliotheken
+   prüfen.
+4. `third_party/sameboy.md` und `third_party/emscripten.md` (Front Matter und Text), bei Bedarf
+   `third_party/licenses/*`, dann `npm run licenses:generate`.
+5. `npm test` und `npm run check`, danach Artefakt, `BUILD-INFO.json`, `third_party/` und
+   `THIRD_PARTY_LICENSES` **in einem Commit**.
+
+**Eigene Boot-ROM**: Sie entsteht aus `src/adapters/emulator/bootrom/dmg-boot.asm` mit RGBDS v1.0.4
+(Linux-x86_64-Release, SHA-256 `3e19e50ea602e316be709160acaf0a708b1fa6d32d219ec541f244442895dbb7`, geladen
+von `scripts/fetch-rgbds.ts` nach `.tools/`). Ausgabe ist `src/adapters/emulator/bootrom/generated/`.
+`npm run check` baut sie neu und prüft per `git diff` ([ADR-0004](../adr/0004-boot-rom-strategie.md)).
