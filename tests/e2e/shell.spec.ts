@@ -87,3 +87,11 @@ test('links a manifest named after the project', async ({ page }) => {
   expect(sizes).toContain('192x192');
   expect(sizes).toContain('512x512');
 });
+
+test('links the third-party licenses, which are served with the app', async ({ page, request }) => {
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Licenses' })).toHaveAttribute('href', '/THIRD_PARTY_LICENSES');
+  const response = await request.get('/THIRD_PARTY_LICENSES');
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toContain('Third-party software');
+});
