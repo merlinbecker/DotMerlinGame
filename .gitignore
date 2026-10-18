@@ -20,6 +20,8 @@ tests/roms/build/
 *.gbc
 *.sgb
 roms/
+# Own test ROM sources are committed (MIT); only their built output is ignored.
+!tests/roms/
 dmg_boot.bin
 dmg0_boot.bin
 

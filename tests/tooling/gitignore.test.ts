@@ -24,6 +24,9 @@ describe('.gitignore', () => {
     'src/adapters/emulator/sameboy/generated/sameboy.wasm',
     'src/adapters/emulator/sameboy/generated/BUILD-INFO.json',
     'src/adapters/emulator/bootrom/generated/dmg-boot.ts',
+    'tests/roms/src/mbc.asm',
+    'tests/roms/src/roms.json',
+    'tests/roms/src/hardware.inc',
   ])('keeps committed artifact %s', (path) => {
     expect(isIgnored(path)).toBe(false);
   });

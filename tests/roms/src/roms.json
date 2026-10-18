@@ -1,0 +1,21 @@
+{
+  "boot-regs": { "source": "boot-regs.asm", "title": "BOOTREGS" },
+  "boot-regs-cs00": { "source": "boot-regs.asm", "title": "BOOTREGS00", "patch": ["header-checksum-zero"] },
+  "mbc-none": { "source": "mbc.asm", "defines": { "BANKS": 2 }, "mbc": "0x00", "title": "MBCNONE" },
+  "mbc1": { "source": "mbc.asm", "defines": { "BANKS": 8 }, "mbc": "0x01", "title": "MBC1" },
+  "mbc3": { "source": "mbc.asm", "defines": { "BANKS": 8 }, "mbc": "0x11", "title": "MBC3" },
+  "mbc5": { "source": "mbc.asm", "defines": { "BANKS": 32, "MBC5": 1 }, "mbc": "0x19", "title": "MBC5" },
+  "mbc5-battery": { "source": "battery.asm", "mbc": "0x1B", "ramSize": "0x02", "title": "MBC5BATT" },
+  "apu-ch1": { "source": "apu.asm", "defines": { "CHANNEL": 1 }, "title": "APUCH1" },
+  "apu-ch2": { "source": "apu.asm", "defines": { "CHANNEL": 2 }, "title": "APUCH2" },
+  "apu-ch3": { "source": "apu.asm", "defines": { "CHANNEL": 3 }, "title": "APUCH3" },
+  "apu-ch4": { "source": "apu.asm", "defines": { "CHANNEL": 4 }, "title": "APUCH4" },
+  "input": { "source": "input.asm", "title": "INPUT" },
+  "pattern": { "source": "pattern.asm", "title": "PATTERN" },
+  "marker": { "source": "marker.asm", "title": "MARKER" },
+  "cgb-only": { "source": "marker.asm", "title": "CGBONLY", "cgb": "only" },
+  "cgb-compatible": { "source": "marker.asm", "title": "CGBCOMPAT", "cgb": "compatible" },
+  "bad-logo": { "source": "marker.asm", "title": "BADLOGO", "patch": ["break-logo"] },
+  "bad-checksum": { "source": "marker.asm", "title": "BADCHECKSUM", "patch": ["break-header-checksum"] },
+  "bad-cart-type": { "source": "marker.asm", "title": "BADCART", "patch": ["undefined-cart-type"] }
+}
