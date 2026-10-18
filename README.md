@@ -4,7 +4,7 @@ A mobile-first web IDE for Game Boy (DMG-01) homebrew: load ROMs as source code,
 
 Everything runs locally in the browser. There is no backend: the app is a static site. The UI is designed for E-Ink devices first (black and white, no motion).
 
-**Status:** milestone M0 (scaffold). See [`docs/`](docs/) for the briefing, architecture (arc42, German) and decisions (ADRs).
+**Status:** milestone M0 (scaffold) accepted, version 0.2.0. Next: M1 (emulator core and boot ROM). See [`docs/`](docs/) for the briefing, architecture (arc42, German) and decisions (ADRs).
 
 ## Getting started
 

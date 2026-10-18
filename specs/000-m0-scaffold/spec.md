@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Draft
+**Status**: Abgenommen (2026-10-18, Version 0.2.0)
 
 **Input**: Meilenstein M0 aus `docs/BOOTSTRAP-BRIEFING.md`, Abschnitt 8: Repo-Setup mit Build,
 Test, CI, arc42-Skelett, ADR-Vorlage, `third_party/`, MIT-Lizenz, Secret-Scan, leerer Test-Rahmen
