@@ -19,5 +19,7 @@ Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Vorlage: [`docs/adr/0
 
 - Lässt sich RGBDS inklusive `rgbfix` sauber als WASM bauen, oder gibt es ein gepflegtes WASM-Paket mit passender Lizenz?
 - Lizenz und Pflegezustand von hUGEDriver und hardware.inc zum Zeitpunkt der Einbindung.
-- Umfang des Debug-Zugriffs am Emulator-Port (Speicher-Watch, Schreib-Breakpoints, Bank-Info).
+- Umfang des Debug-Zugriffs am Emulator-Port (Speicher-Watch, Schreib-Breakpoints): Hooks sind laut ADR-0006 vorhanden, die Umsetzung folgt in M4.
+- Der erste Lauf des CI-Jobs `core-reproducible` muss bestätigen, dass das WASM-Artefakt auch auf dem CI-Runner byte-identisch entsteht (arc42 7.3).
+- RGBDS wird nur für Linux x86_64 automatisch geladen (`scripts/fetch-rgbds.ts`); macOS/Windows sind offen.
 - Lizenzangaben im Briefing sind nicht verifiziert und müssen anhand der LICENSE-Dateien geprüft werden.

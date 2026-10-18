@@ -77,6 +77,8 @@ TypeScript, Vite, Vitest, React. Zielbrowser in M0–M3: nur aktuelles Chrome (i
 - `npm run licenses:generate` – erzeugt `THIRD_PARTY_LICENSES` und `third_party/npm.md` neu (nach Änderung von `dependencies`)
 - `npm run secrets` – Secret-Scan über alle versionierten Dateien
 - `npm run tools:rgbds` – lädt RGBDS v1.0.4 (SHA-256-geprüft) nach `.tools/`
+- `npm run roms:build` – baut die eigenen Test-ROMs nach `tests/roms/build/` (läuft als `pretest`) und erzeugt den Logo-Hash
+- `npm run bootrom:build` – baut die eigene Boot-ROM nach `src/adapters/emulator/bootrom/generated/`
 - `npm run core:build` – baut den SameBoy-Core nach WASM (Docker, festgelegtes emsdk-Image)
 - `npm run core:verify` – baut den Core neu und prüft, dass das committete Artefakt identisch ist
 - `npm run check` – alles oben in Reihenfolge, genau wie die CI (außer dem Core-Nachbau, der im CI-Job `core-reproducible` läuft)

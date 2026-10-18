@@ -4,6 +4,8 @@ Herkunftsnachweise für **ausgelieferten** Fremdcode (Constitution VI, ADR-0003)
 
 ## Inhalt
 
+Ausgelieferte Komponenten außerhalb von npm (Stand M1): `sameboy.md` (Emulator-Core, Expat) und `emscripten.md` (Emscripten-Laufzeit im WASM, MIT und CC0). Die eigene Boot-ROM und die Test-ROMs sind eigener Code und keine Fremdkomponenten.
+
 - `npm.md`: npm-Laufzeitabhängigkeiten (Paket, Version, Lizenz, Quelle). Erzeugt von `npm run licenses:generate`, nicht von Hand bearbeiten.
 - `license-exceptions.json`: Ausnahmen vom Lizenz-Check. Jeder Eintrag `{ "package", "license", "adr" }` braucht ein begründendes ADR.
 - `licenses/`: Lizenztexte der Komponenten außerhalb von npm, wörtlich aus deren LICENSE-Dateien.

@@ -26,4 +26,9 @@
 - Export erzeugt `.gb` per `rgbfix`: Header-Logo `$0104–$0133` unverändert, Header-Checksumme `$014D` korrekt.
 - Die eigene DotMerlinGame-Boot-ROM existiert nur im Emulator, ist kompatibel zur Nintendo-Boot-ROM und hinterlässt den Zustand nach Pan Docs ("Power Up Sequence"). Fremde Boot-ROMs werden nicht eingebunden.
 - Spiele dürfen sich nie auf den Inhalt der Boot-ROM verlassen. Test-ROMs laufen mit eigener Boot-ROM und ohne Boot-ROM identisch.
+- Umsetzung M1 ([ADR-0004](../adr/0004-boot-rom-strategie.md)):
+  - Eigene 256-Byte-Boot-ROM mit eigenem Logo. Endzustand bei `$0100` exakt nach Pan Docs (Spalte DMG), inklusive DIV=`$AB`, LY=`$00` und STAT=`$85`. VRAM wird vor der Übergabe gelöscht.
+  - Der Direktstart wendet den Übergabe-Snapshot der eigenen Boot-ROM an, ohne für das Spiel Boot-Code auszuführen.
+  - „Hardware-nah“ prüft Header-Logo (per SHA-256, ohne Logo-Bytes im Repo) und Header-Checksumme in eigenem Code und hält bei Abweichung vor `$0100` an.
+- Emulator-Core: SameBoy (`Core/`, Expat) als WASM, Herkunft und Bauweg in Kapitel 7.3 ([ADR-0006](../adr/0006-emulator-core.md)).
 - Zielplattform ist ausschließlich der DMG-01 inklusive Ton.
