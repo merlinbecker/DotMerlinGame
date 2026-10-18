@@ -20,6 +20,7 @@ abschaltbar.
 - Q: Welche Lizenzen sind für Abhängigkeiten erlaubt? → A: Freizügige Lizenzen: MIT, BSD-2-Clause, BSD-3-Clause, ISC, Apache-2.0, Zlib, 0BSD, CC0-1.0, Unlicense. Alles andere nur als Einzelausnahme mit ADR.
 - Q: Auf welchen Browsern und Geräten muss die App für die Abnahme laufen? → A: Nur aktuelles Chrome (Android, Desktop, E-Ink-Geräte mit Android); automatische Tests nur in Chromium. Wichtig ist der funktionierende Rundlauf, nicht breite Kompatibilität. Weitere Browser sind nicht Teil der ersten Meilensteine (nachträglich revidiert).
 - Q: Wie streng gilt der Lizenz-Check für Entwicklungswerkzeuge, die nicht ausgeliefert werden? → A: Zweistufig: ausgelieferter Code strikt gegen die Freigabeliste; Entwicklungswerkzeuge blockieren nur bei GPL, AGPL, LGPL, SSPL (alle Varianten) oder fehlender Lizenz, alles andere wird aufgelistet.
+- Q: Kann die Adresszeile im mobilen Browser verschwinden? → A: Ja: Vollbild-Schalter in der Fußzeile (Fullscreen-API) und Manifest `display: fullscreen` für die installierte App (Ergänzung nach Umsetzung, Version 0.1.1).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -149,6 +150,9 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
 
 ### Edge Cases
 
+- Mobiler Browser-Tab: Die Adresszeile lässt sich nur per Vollbild-Schalter ausblenden (Browser
+  verlangen dafür ein Tippen); die Slots vergrößern sich danach sofort.
+
 - Gerät meldet `prefers-reduced-motion`: Die Shell verhält sich identisch zum Bewegungs-Token "aus".
 - Build außerhalb eines Git-Repos (z. B. aus einem Archiv): Statt Commit-Hash wird ein eindeutiger
   Platzhalter (`unknown`) angezeigt, der Build bricht nicht ab.
@@ -208,6 +212,9 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
 - **FR-022**: Die App MUSS im jeweils aktuellen Chrome funktionieren (Android, Desktop,
   E-Ink-Geräte mit Android). Die automatischen Oberflächentests (u. a. kein Service Worker, keine
   Animationen) laufen in Chromium. Andere Browser werden nicht gezielt unterstützt.
+- **FR-023**: Die Fußzeile MUSS einen Vollbild-Schalter bieten ("Fullscreen" / "Exit fullscreen"), der
+  per Fullscreen-API Adresszeile und Systemleisten ausblendet; unterstützt der Browser kein Vollbild,
+  wird der Schalter nicht angezeigt. Die installierte App startet im Vollbild (`display: fullscreen`).
 
 ### Key Entities
 

@@ -17,7 +17,7 @@ export function createManifest(tokensCss: string) {
     short_name: PROJECT_SHORT_NAME,
     start_url: '/',
     scope: '/',
-    display: 'standalone',
+    display: 'fullscreen',
     background_color: readToken(tokensCss, '--color-bg'),
     theme_color: readToken(tokensCss, '--color-fg'),
     icons: [

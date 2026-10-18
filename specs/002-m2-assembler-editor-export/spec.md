@@ -99,7 +99,7 @@ Ein neuer Nutzer legt ein Projekt aus dem mitgelieferten Beispiel an, baut es un
 ### User Story 5 - Quelltext auf dem Handy und E-Ink-Gerät bearbeiten (Priority: P2)
 
 Der Editor ist auf kleinen Touch-Screens und E-Ink-Geräten bedienbar: Hervorhebung ohne Farbe,
-kein blinkender Cursor, Blättern statt Dauer-Scrollen, Vollbild per Doppeltipp.
+kein blinkender Cursor, Blättern statt Dauer-Scrollen, Vollbild über den Slot-Zoom des Rasters (M1).
 
 **Why this priority**: Mobile-first und E-Ink-first sind Kernprinzipien.
 
@@ -111,8 +111,9 @@ kein blinkender Cursor, Blättern statt Dauer-Scrollen, Vollbild per Doppeltipp.
    Kommentare und Zahlen ohne Farbe unterscheidbar (z. B. fett, kursiv, unterstrichen).
 2. **Given** eine lange Datei, **When** weitergeblättert wird, **Then** springt die Ansicht
    seitenweise ohne Animation.
-3. **Given** das Editor-Quadrat, **When** doppelt getippt wird, **Then** füllt es den Bildschirm
-   und kehrt beim nächsten Doppeltipp zurück.
+3. **Given** das Editor-Quadrat, **When** der Slot-Zoom des Rasters (Doppeltipp oder Zoom-Schalter, M1)
+   genutzt wird, **Then** füllt der Editor die Rasterfläche; Doppeltipps im Textbereich dienen weiter
+   der Textauswahl, der Zoom erfolgt dort über den Schalter in der Kopfleiste.
 
 ---
 
@@ -147,7 +148,7 @@ kein blinkender Cursor, Blättern statt Dauer-Scrollen, Vollbild per Doppeltipp.
 - **FR-008**: Der ZIP-Import MUSS ungültige Archive, Pfade außerhalb des Projekts und übergroße
   Inhalte ablehnen.
 - **FR-009**: Es MUSS ein Editor-View mit farbunabhängiger Syntax-Hervorhebung, ohne blinkenden
-  Cursor, mit seitenweisem Blättern und Vollbild pro Slot geben.
+  Cursor und mit seitenweisem Blättern geben; Vollbild nutzt den Slot-Zoom des Rasters aus M1.
 - **FR-010**: Es MUSS mindestens ein selbst geschriebenes, lizenzfreies Beispielprojekt in
   `examples/` geben, das als neues Projekt angelegt werden kann.
 - **FR-011**: Die Einbindung des Assemblers MUSS lizenzrechtlich geprüft und in `third_party/` und

@@ -160,6 +160,31 @@ Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt n
 
 ---
 
+### User Story 7 - Einzelnes Quadrat vergrößern (Priority: P2)
+
+Die Nutzerin vergrößert ein Quadrat per Doppeltipp auf den Inhalt oder per Zoom-Schalter in der
+Kopfleiste auf die ganze Fläche, z. B. den Screen auf einem kleinen Handy. Erneuter Doppeltipp oder
+Schalter stellt das Raster wieder her. Die Funktion gehört zum Raster und gilt für jeden View.
+
+**Why this priority**: Kleine Displays und E-Ink-Geräte profitieren sofort; Editor und
+Disassembly (M2/M3) nutzen dieselbe Funktion.
+
+**Independent Test**: Quadrat per Doppeltipp und per Schalter vergrößern und zurückschalten;
+Raster und Inhalte bleiben unverändert erhalten.
+
+**Acceptance Scenarios**:
+
+1. **Given** das Raster mit mehreren Slots, **When** auf einen Slot doppelt getippt wird, **Then**
+   füllt er sofort (ohne Animation) die gesamte Rasterfläche, die anderen Slots sind ausgeblendet.
+2. **Given** ein vergrößerter Slot, **When** erneut doppelt getippt oder der Zoom-Schalter in der
+   Kopfleiste betätigt wird, **Then** erscheint wieder das vorherige Raster.
+3. **Given** ein vergrößerter Screen-View, **When** das Spiel läuft, **Then** läuft die Emulation
+   ununterbrochen weiter; ausgeblendete Views erhalten keine Frame-Updates.
+4. **Given** ein vergrößerter Slot, **When** die App neu geladen wird, **Then** ist er weiterhin
+   vergrößert (gespeichert im Layout-Zustand).
+
+---
+
 ### Edge Cases
 
 - Datei ist kein gültiges ROM (zu klein, falsche Größe, beschädigt): klare Fehlermeldung, der
@@ -223,6 +248,11 @@ Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt n
   Ton laufen dabei mit voller Geschwindigkeit weiter.
 - **FR-022**: Der E-Ink-Modus des Screen-Views MUSS auf der drosselbaren Rate des
   Frame-Zustand-Kanals aufbauen, ohne Sonderlogik im Emulator; seine Einstellungen bleiben erhalten.
+- **FR-023**: Jeder Slot MUSS sich per Doppeltipp auf den Inhalt und per Zoom-Schalter in der
+  Kopfleiste auf die gesamte Rasterfläche vergrößern und ebenso zurückschalten lassen, sofort und
+  ohne Animation. Die Funktion liegt im Raster (`src/app/layout`), nicht in einzelnen Views.
+- **FR-024**: Welcher Slot vergrößert ist, MUSS ausschließlich im Layout-Zustand gespeichert werden;
+  ausgeblendete Slots gelten als nicht sichtbar (keine Frame-Updates).
 
 ### Key Entities
 
@@ -232,7 +262,7 @@ Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt n
 - **Screen-Einstellungen**: normaler Modus oder E-Ink-Modus mit Rate, Graustufen-Mapping, Dithering.
 - **Emulator-Zustand**: Register, Flags, Speicher, Zyklen; veröffentlicht als Frame-Snapshot.
 - **Eingabezustand**: gedrückte Tasten des Controllers.
-- **Layout**: Slot-Belegung, getrennt von ROM und Emulatorzustand.
+- **Layout**: Slot-Belegung und ggf. vergrößerter Slot, getrennt von ROM und Emulatorzustand.
 
 ## Success Criteria *(mandatory)*
 

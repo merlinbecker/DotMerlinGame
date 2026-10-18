@@ -54,7 +54,7 @@ test('never scrolls horizontally on very small screens', async ({ page }) => {
 test('shows app version and build version in the footer', async ({ page }) => {
   await page.goto('/');
   expect(buildInfo.appVersion).toBe(packageJson.version);
-  await expect(page.getByRole('contentinfo')).toHaveText(`v${buildInfo.appVersion} · Build ${buildInfo.version}`);
+  await expect(page.getByTestId('build-version')).toHaveText(`v${buildInfo.appVersion} · Build ${buildInfo.version}`);
 });
 
 test('registers no service worker', async ({ page }) => {
@@ -78,7 +78,7 @@ test('links a manifest named after the project', async ({ page }) => {
     icons: { sizes: string }[];
   };
   expect(manifest.name).toBe(PROJECT_NAME);
-  expect(manifest.display).toBe('standalone');
+  expect(manifest.display).toBe('fullscreen');
   expect(manifest.start_url).toBeTruthy();
   const sizes = manifest.icons.map((icon) => icon.sizes);
   expect(sizes).toContain('192x192');

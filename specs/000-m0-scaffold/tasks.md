@@ -85,6 +85,8 @@ Fußzeile mit `dist/build-info.json` vergleichen, Gerät drehen.
 - [X] T025 [US1] Implement Vite plugin `build/manifest-plugin.ts`: emits `manifest.webmanifest` from `PROJECT_NAME`/`PROJECT_SHORT_NAME` (`start_url: "/"`, `display: "standalone"`, icons 192/512 PNG + SVG; `background_color`/`theme_color` parsed from `--color-bg`/`--color-fg` in `src/app/theme/tokens.css`, build fails if missing, research.md R16), injects `<link rel="manifest">` and `<title>` via `transformIndexHtml`, writes `dist/build-info.json` (`{ "version": <__BUILD_VERSION__> }`); register in `vite.config.ts`; no service worker code anywhere
 - [X] T026 [P] [US1] Create own monochrome logo `public/icons/logo.svg` (simple geometric "dot" mark, black on white, no Nintendo/Game Boy elements) and script `scripts/render-icons.ts` that renders it with Playwright Chromium to `public/icons/icon-192.png` and `public/icons/icon-512.png`; run it once and commit the PNGs
 
+- [X] T059 [US1] Fullscreen toggle (FR-023): test `tests/e2e/fullscreen.spec.ts`, hook `src/app/shell/useFullscreen.ts`, button in `src/app/shell/Footer.tsx`, manifest `display: 'fullscreen'` in `build/manifest-plugin.ts`; version 0.1.1
+
 **Checkpoint**: US1 vollständig und unabhängig prüfbar
 
 ---
