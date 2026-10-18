@@ -1,0 +1,269 @@
+# Feature Specification: M1 – Emulator-Kern und eigene Boot-ROM
+
+**Feature Branch**: `feature/firstSteps`
+
+**Created**: 2026-10-18
+
+**Status**: Draft
+
+**Input**: Meilenstein M1 aus `docs/BOOTSTRAP-BRIEFING.md`, Abschnitt 8: Emulator-Core im Browser
+als Headless Service. Screen-Quadrat und Controller-Quadrat. ROM aus dem lokalen Speicher laden.
+Eigene Boot-ROM mit eigenem Logo (nur im Emulator). ADR zur Core-Auswahl.
+
+Ergänzt durch Entscheidungen des Projektinhabers vom 2026-10-18: ausschließlich DMG-01 (kein Game
+Boy Color, auch nicht in der Emulation), Tonausgabe ist Teil von M1, E-Ink-Modus des Screen-Views
+ist Teil von M1, die eigene DotMerlinGame-Boot-ROM ist kompatibel zur Nintendo-Boot-ROM; eine
+fremde freie Boot-ROM wird nicht eingebunden.
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - ROM laden und spielen (Priority: P1)
+
+Die Nutzerin wählt eine ROM-Datei vom Gerät aus. Im Screen-Quadrat startet das Spiel, im
+Controller-Quadrat bedient sie es per Touch (Steuerkreuz, A, B, Start, Select) oder per Tastatur.
+
+**Why this priority**: Der lauffähige Emulator ist der Kern aller weiteren Meilensteine.
+
+**Independent Test**: Ein freies Test-ROM laden, auf dem Screen erscheint das erwartete Bild,
+Eingaben über das Controller-Quadrat wirken sich im Spiel aus.
+
+**Acceptance Scenarios**:
+
+1. **Given** die App mit leeren Slots, **When** eine gültige ROM-Datei vom Gerät gewählt wird,
+   **Then** startet sie im Screen-Quadrat und ein `RomLoaded`-Ereignis wird veröffentlicht.
+2. **Given** ein laufendes Spiel, **When** eine Taste im Controller-Quadrat gedrückt wird, **Then**
+   reagiert das Spiel darauf wie auf die entsprechende Hardware-Taste.
+3. **Given** ein laufendes Spiel, **When** mehrere Tasten gleichzeitig gedrückt werden (z. B.
+   Richtung + A), **Then** werden alle gleichzeitig erkannt.
+4. **Given** ein zuvor geladenes ROM, **When** die App neu geöffnet wird, **Then** kann es ohne
+   erneute Dateiauswahl aus dem lokalen Speicher wieder gestartet werden.
+
+---
+
+### User Story 2 - Eigene, kompatible Boot-ROM (Priority: P1)
+
+Beim Start eines ROMs läuft die eigene DotMerlinGame-Boot-ROM mit eigenem Logo. Sie ist
+kompatibel zur Nintendo-Boot-ROM des DMG-01: Danach befindet sich das System exakt in dem Zustand,
+den die Original-Hardware nach dem Boot hinterlässt, und Spiele merken keinen Unterschied.
+
+**Why this priority**: Rechtlich sauberer Boot ohne Nintendo-Boot-ROM und Grundlage der
+Hardware-Treue.
+
+**Independent Test**: Automatischer Vergleich von CPU- und I/O-Registern nach dem Boot mit den
+Werten aus Pan Docs ("Power Up Sequence").
+
+**Acceptance Scenarios**:
+
+1. **Given** ein beliebiges gültiges ROM, **When** es mit eigener Boot-ROM gestartet wird, **Then**
+   erscheint zuerst das eigene Logo und danach das Spiel.
+2. **Given** die eigene Boot-ROM ist durchgelaufen, **When** CPU- und I/O-Register gelesen werden,
+   **Then** stimmen sie mit den Pan-Docs-Werten für das DMG überein (automatischer Test).
+3. **Given** ein freies Test-ROM, **When** es mit eigener Boot-ROM und ohne Boot-ROM
+   (Direktstart) ausgeführt wird, **Then** ist das Verhalten ab dem Sprung nach `$0100`
+   identisch (gleiche Bild- und Tonausgabe nach N Frames).
+4. **Given** der optionale Modus "Hardware-nah" ist aktiv, **When** ein ROM mit verändertem
+   Header-Logo oder falscher Header-Checksumme gestartet wird, **Then** bleibt das System wie die
+   Original-Hardware stehen und die Oberfläche zeigt den Grund an.
+
+---
+
+### User Story 3 - Emulator als Dienst, Views nur als Beobachter (Priority: P2)
+
+Screen- und Controller-Quadrat greifen nicht direkt auf den Emulator zu. Sie lesen den
+Frame-Zustand und abonnieren diskrete Ereignisse; Eingaben laufen über den Aktionskanal. Ein
+unsichtbarer View bekommt keine Aktualisierungen.
+
+**Why this priority**: Setzt die in M0 definierten Verträge erstmals um und sichert spätere Views.
+
+**Independent Test**: Vertragstests mit einem Test-View; Messung, dass ausgeblendete Views keine
+Updates verarbeiten.
+
+**Acceptance Scenarios**:
+
+1. **Given** ein laufender Emulator, **When** ein View über den Frame-Zustand liest, **Then**
+   erhält er Register, Flags, Zyklen und geänderte Speicherbereiche des aktuellen Frames.
+2. **Given** ein View ist nicht sichtbar, **When** Frames veröffentlicht werden, **Then** verarbeitet
+   er sie nicht.
+3. **Given** die Veröffentlichungsrate wird reduziert oder auf "nur auf Anforderung" gestellt,
+   **When** der Emulator läuft, **Then** aktualisieren sich die Views entsprechend seltener, ohne
+   dass der Emulator selbst langsamer läuft.
+4. **Given** ein Emulator-Lauf, **When** Pause, Fortsetzen oder Zurücksetzen über den
+   Aktionskanal ausgelöst wird, **Then** reagiert der Emulator entsprechend.
+
+---
+
+### User Story 4 - Ton wie auf dem DMG-01 (Priority: P1)
+
+Die Nutzerin hört die Musik und Soundeffekte des Spiels, wie sie der Original-Game-Boy mit seinen
+vier Tonkanälen erzeugt. Sie kann den Ton jederzeit stumm schalten und die Lautstärke einstellen.
+
+**Why this priority**: Ton gehört zum DMG-01 und zu jedem Spiel; ohne Ton ist die Emulation unvollständig.
+
+**Independent Test**: Test-ROM mit bekannter Tonausgabe abspielen; automatischer Vergleich der
+erzeugten Audiodaten mit einer Referenz, manuelle Hörprobe am Gerät.
+
+**Acceptance Scenarios**:
+
+1. **Given** ein Spiel mit Musik, **When** es läuft, **Then** ist der Ton hörbar und synchron zum Bild.
+2. **Given** die App wurde gerade geöffnet, **When** das erste Mal getippt wird, **Then** wird die
+   Tonausgabe freigegeben (Browser verlangen dafür eine Nutzeraktion).
+3. **Given** laufender Ton, **When** stumm geschaltet wird, **Then** verstummt er sofort, der
+   Emulator läuft unverändert weiter.
+4. **Given** der Emulator ist pausiert oder der Tab im Hintergrund, **When** der Zustand geprüft
+   wird, **Then** gibt es keinen Ton und keine Knackser beim Fortsetzen.
+5. **Given** ein Test-ROM, das jeden der vier Tonkanäle einzeln anspricht, **When** es läuft,
+   **Then** ist jeder Kanal einzeln hörbar bzw. in den Audiodaten nachweisbar.
+
+---
+
+### User Story 5 - Spielen auf E-Ink-Geräten (Priority: P2)
+
+Auf einem E-Ink-Gerät schaltet die Nutzerin den Screen-View in den E-Ink-Modus: Das Bild wird mit
+reduzierter Rate aktualisiert, die vier Graustufen werden kontrastreich abgebildet, optional mit
+Dithering. Das Spiel selbst läuft mit normaler Geschwindigkeit und normalem Ton weiter.
+
+**Why this priority**: E-Ink-Tauglichkeit ist ein Qualitätsziel; der Screen-View ist der einzige
+View mit schnell bewegtem Inhalt.
+
+**Independent Test**: E-Ink-Modus einschalten, Anzahl der Bildaktualisierungen pro Sekunde messen
+und mit der Emulationsgeschwindigkeit vergleichen; Graustufen-Screenshot prüfen.
+
+**Acceptance Scenarios**:
+
+1. **Given** ein laufendes Spiel, **When** der E-Ink-Modus des Screen-Views eingeschaltet wird,
+   **Then** wird das Bild nur noch mit der eingestellten reduzierten Rate neu gezeichnet, die
+   Emulation läuft weiter mit voller Geschwindigkeit.
+2. **Given** der E-Ink-Modus, **When** das Bild dargestellt wird, **Then** sind die vier
+   Graustufen des DMG-01 klar unterscheidbar (kontrastreiches Mapping, optional Dithering).
+3. **Given** der E-Ink-Modus, **When** die App neu geladen wird, **Then** bleibt der Modus samt
+   Einstellungen erhalten.
+4. **Given** die App im E-Ink-Theme, **When** der Screen-View zum ersten Mal geöffnet wird,
+   **Then** ist der E-Ink-Modus des Screen-Views bereits voreingestellt.
+
+---
+
+### User Story 6 - Wechsel der View-Inhalte über die Kopfleiste (Priority: P3)
+
+Die Nutzerin belegt die zwei Slots frei mit Screen und Controller und kann sie über die
+Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt nach Neustart erhalten.
+
+**Why this priority**: Erstes reales Nutzen des Rasters, aber nicht kritisch für den Emulator.
+
+**Independent Test**: Slot-Inhalt wechseln, App neu laden, Belegung ist unverändert.
+
+**Acceptance Scenarios**:
+
+1. **Given** ein Slot mit Screen, **When** in der Kopfleiste gewischt oder die Pfeiltaste getippt
+   wird, **Then** zeigt der Slot sofort den nächsten View.
+2. **Given** eine geänderte Belegung, **When** die App neu geladen wird, **Then** ist die Belegung
+   wiederhergestellt; Emulatorzustand und ROM liegen getrennt davon.
+
+---
+
+### Edge Cases
+
+- Datei ist kein gültiges ROM (zu klein, falsche Größe, beschädigt): klare Fehlermeldung, der
+  Emulator bleibt im vorherigen Zustand.
+- ROM nutzt einen vom Core nicht unterstützten Cartridge-Typ (MBC): verständliche Meldung statt Absturz.
+- Game-Boy-Color-ROM: Reine Color-ROMs werden mit verständlicher Meldung abgelehnt. ROMs, die
+  auch auf dem DMG-01 laufen, werden im DMG-Modus ausgeführt; Color-Funktionen werden nie emuliert.
+- Browser blockiert die Tonausgabe bis zur ersten Nutzeraktion: Das Spiel startet trotzdem, ein
+  Hinweis bietet das Einschalten des Tons an.
+- Gerät ohne Audioausgabe oder stumm geschaltet: Emulation läuft unverändert.
+- Tab geht in den Hintergrund oder das Gerät sperrt: Emulator pausiert und setzt ohne Zeitsprung fort.
+- Speicher des Browsers ist voll: Meldung, ROM kann trotzdem einmalig gestartet werden.
+- Mehrfaches Tippen auf Controller-Tasten in schneller Folge: keine verlorenen Eingaben.
+- Modus "Hardware-nah" aus und ROM mit ungültigem Header: ROM startet trotzdem, Hinweis wird angezeigt.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: Das System MUSS ROM-Dateien vom Gerät laden und im Emulator ausführen.
+- **FR-002**: Geladene ROMs MÜSSEN lokal im Browser gespeichert und ohne erneute Dateiauswahl
+  wieder startbar sein; sie verlassen das Gerät nie.
+- **FR-003**: Der Emulator MUSS als Dienst ohne eigene UI laufen und ausschließlich über den
+  Emulator-Port angesprochen werden.
+- **FR-004**: Der Emulator MUSS Frame-Snapshots und diskrete Ereignisse über die in M0 definierten
+  Kanäle veröffentlichen; die Rate MUSS konfigurierbar sein.
+- **FR-005**: Es MUSS ein Screen-View das Bild des Emulators mit voller Bildrate darstellen.
+- **FR-006**: Es MUSS ein Controller-View alle acht Tasten (Steuerkreuz, A, B, Start, Select) per
+  Touch bedienbar machen, mit Mehrfachdruck; zusätzlich MUSS eine Tastaturbelegung existieren.
+- **FR-007**: Das System MUSS eine eigene DotMerlinGame-Boot-ROM mit eigenem Logo enthalten, die
+  nur im Emulator verwendet wird, selbst geschrieben ist und keinen Code oder Daten der
+  Nintendo-Boot-ROM enthält.
+- **FR-008**: Die eigene Boot-ROM MUSS kompatibel zur Nintendo-Boot-ROM des DMG-01 sein: Nach
+  ihrem Ablauf MÜSSEN CPU- und I/O-Register den Pan-Docs-Werten ("Power Up Sequence", DMG)
+  entsprechen und die Ausführung MUSS bei `$0100` fortgesetzt werden; dies MUSS automatisch
+  getestet werden.
+- **FR-009**: Das System MUSS zwei Startmodi unterstützen: eigene Boot-ROM und Direktstart ohne
+  Boot-ROM. Fremde Boot-ROMs werden nicht eingebunden.
+- **FR-010**: Ein Test MUSS belegen, dass ein freies Test-ROM in beiden Startmodi identisch läuft.
+- **FR-011**: Ein optionaler Modus "Hardware-nah" MUSS Header-Logo und Header-Checksumme wie die
+  Original-Boot-ROM prüfen und bei Abweichung anhalten.
+- **FR-012**: Der Emulator MUSS Pause, Fortsetzen und Zurücksetzen über den Aktionskanal unterstützen.
+- **FR-013**: Views MÜSSEN über die Kopfleiste tauschbar sein; die Slot-Belegung MUSS getrennt vom
+  Projekt- und Emulatorzustand gespeichert werden.
+- **FR-014**: Die Wahl des Emulator-Cores MUSS als ADR-0006 nach Vergleich der Debug-Hooks
+  dokumentiert werden; nur Cores mit permissiver, geprüfter Lizenz kommen infrage. ADR-0004
+  (Boot-ROM-Strategie) MUSS ebenfalls vorliegen.
+- **FR-015**: Der gewählte Core MUSS mit Herkunftsnachweis in `third_party/` und
+  `THIRD_PARTY_LICENSES` eingetragen sein.
+- **FR-016**: Die UI-Regeln (E-Ink-first) MÜSSEN für alle neuen UI-Teile gelten; nur der
+  Spielinhalt im Screen-View ist davon ausgenommen.
+- **FR-017**: Das System MUSS ausschließlich den DMG-01 emulieren. Reine Game-Boy-Color-ROMs MÜSSEN
+  mit Meldung abgelehnt werden; kompatible ROMs laufen im DMG-Modus.
+- **FR-018**: Das System MUSS den Ton des DMG-01 (vier Tonkanäle) synchron zum Bild ausgeben.
+- **FR-019**: Ton MUSS stumm schaltbar und in der Lautstärke einstellbar sein; die Einstellung
+  bleibt erhalten. Die Tonausgabe MUSS nach der ersten Nutzeraktion freigegeben werden.
+- **FR-020**: Bei Pause, Hintergrund-Tab oder Gerätesperre MUSS der Ton verstummen und beim
+  Fortsetzen ohne Störgeräusche weiterlaufen.
+- **FR-021**: Der Screen-View MUSS einen E-Ink-Modus haben: reduzierte, einstellbare
+  Aktualisierungsrate, kontrastreiches Graustufen-Mapping und optionales Dithering. Emulation und
+  Ton laufen dabei mit voller Geschwindigkeit weiter.
+- **FR-022**: Der E-Ink-Modus des Screen-Views MUSS auf der drosselbaren Rate des
+  Frame-Zustand-Kanals aufbauen, ohne Sonderlogik im Emulator; seine Einstellungen bleiben erhalten.
+
+### Key Entities
+
+- **ROM**: Binärdatei eines Spiels; in M1 Laufzeit-Eingabe, ab M2 nur noch Build-Ergebnis.
+- **Boot-ROM-Modus**: eigene Boot-ROM oder Direktstart; optional "Hardware-nah".
+- **Audioeinstellungen**: stumm/laut, Lautstärke.
+- **Screen-Einstellungen**: normaler Modus oder E-Ink-Modus mit Rate, Graustufen-Mapping, Dithering.
+- **Emulator-Zustand**: Register, Flags, Speicher, Zyklen; veröffentlicht als Frame-Snapshot.
+- **Eingabezustand**: gedrückte Tasten des Controllers.
+- **Layout**: Slot-Belegung, getrennt von ROM und Emulatorzustand.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: 100 % der Boot-Zustandstests (alle Register laut Pan Docs) sind grün.
+- **SC-002**: Ein freies Test-ROM erzeugt mit eigener Boot-ROM und im Direktstart nach derselben
+  Anzahl Frames dieselbe Bild- und Tonausgabe.
+- **SC-003**: Auf einem Mittelklasse-Smartphone läuft der Emulator mit Screen und Controller
+  sichtbar mit voller Geschwindigkeit (ca. 60 Bilder pro Sekunde) ohne spürbares Ruckeln.
+- **SC-004**: Zwischen Tastendruck im Controller-Quadrat und Reaktion im Spiel vergeht höchstens
+  ein Frame plus Anzeigeverzögerung.
+- **SC-005**: Ein ROM ist von der Dateiauswahl bis zum laufenden Spiel in unter 5 Sekunden gestartet.
+- **SC-006**: Ausgeblendete Views verarbeiten 0 Frame-Updates.
+- **SC-007**: Der Ton läuft auf einem Mittelklasse-Smartphone ohne hörbare Aussetzer und bleibt
+  über 10 Minuten Spielzeit synchron zum Bild.
+- **SC-008**: Im E-Ink-Modus wird das Bild höchstens mit der eingestellten Rate neu gezeichnet,
+  während die Emulation weiterhin ca. 60 Frames pro Sekunde berechnet.
+
+## Assumptions
+
+- In M1 werden ROMs direkt ausgeführt, weil Assembler (M2) und Disassembler (M3) noch fehlen. Das
+  ist eine Übergangslösung zu Prinzip I der Constitution ("Quelltext als einzige Wahrheit") und
+  wird in ADR-0004/-0005 festgehalten. Ab M3 werden importierte ROMs disassembliert.
+- Zielplattform ist ausschließlich der DMG-01 (Original-Game-Boy). Game Boy Color wird weder
+  unterstützt noch emuliert (Entscheidung des Projektinhabers). Die Tonausgabe ist Pflicht und
+  geht in die Core-Auswahl (ADR-0006) ein.
+- Ob die Gesamtlaufzeit und das Timing der eigenen Boot-ROM der Nintendo-Boot-ROM entsprechen
+  müssen, wird in ADR-0004 entschieden; verbindlich ist der Endzustand laut Pan Docs.
+- Test-ROMs sind selbst gebaut oder frei lizenziert; ihre Lizenz wird vor Aufnahme geprüft. Sind
+  sie nicht im Repo erlaubt, werden sie im Test selbst erzeugt oder lokal bereitgestellt.
+- Fremde Boot-ROMs (z. B. von SameBoy) werden nicht eingebunden. Das weicht vom ursprünglichen
+  Briefing ab; das Briefing wurde entsprechend angepasst.
+- Debugger-Funktionen (Breakpoints, Step im UI) gehören zu M4; der Port muss sie nur vorsehen.

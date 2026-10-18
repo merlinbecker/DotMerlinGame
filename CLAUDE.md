@@ -1,0 +1,84 @@
+# CLAUDE.md – DotMerlinGame
+
+Mobile-first Web-IDE für Game-Boy-Homebrew (nur DMG-01, kein Game Boy Color). Alles läuft lokal im Browser. Es gibt kein Backend: Die App ist rein clientseitig und wird statisch ausgeliefert (vorerst über Replit).
+Lies zuerst `docs/BOOTSTRAP-BRIEFING.md`. Es ist die freigegebene Grundlage für Vision, Architektur, Meilensteine und Regeln. Bei Widersprüchen gilt: Briefing > ADRs > diese Datei > eigene Annahmen. Frag nach, wenn etwas unklar ist, statt zu raten.
+
+## Sprache
+
+- Dokumentation (arc42, ADRs, Briefing): Deutsch
+- Code, Bezeichner, Commit-Messages, Kommentare: Englisch
+- Antworten an den Menschen: Deutsch, direkt und ohne Umschweife
+
+## Stack
+
+TypeScript, Vite, Vitest, React. IndexedDB für Persistenz, ZIP für Export/Import. RGBDS als WASM. Emulator-Core wird in M1 per ADR gewählt.
+
+## Architekturregeln (nicht verhandelbar)
+
+1. **Der Quelltext ist die einzige Wahrheit.** ROMs werden beim Import disassembliert. Jeder Lauf ist Assemblieren, dann Emulieren. Das ROM ist nur Build-Ergebnis.
+2. **Der Emulator ist ein Headless Service.** Views lesen nur Zustand und abonnieren Events, sie greifen nie direkt in den Emulator.
+3. **Ports und Adapter.** Emulator-Core, Assembler, Projektspeicher und ZIP stehen hinter eigenen Interfaces in `src/core/`. Fremdcode lebt nur in `src/adapters/` bzw. `third_party/`.
+4. **Zwei Eventkanäle, kein String-Bus:** Frame-Zustand als Snapshot (Views ziehen, nur wenn sichtbar, Rate drosselbar) und diskrete Ereignisse als getypte Union.
+5. **Layout getrennt vom Zustand.** Das Raster speichert nur, welcher View in welchem Slot liegt.
+6. **Projektname nur an einer Stelle** (Konstante/Config).
+
+## UI-Regeln (E-Ink-first)
+
+- Schwarz-Weiß, hoher Kontrast, Graustufen. Farbe ist nie der alleinige Bedeutungsträger.
+- Keine UI-Animationen, keine Transitions, kein blinkender Cursor. `prefers-reduced-motion` respektieren. Ausnahme: Spielinhalt im Screen-View.
+- Blättern statt Dauer-Scrolling in langen Listen und Hex-/Code-Ansichten.
+- Farben, Abstände und Zeiten nur über Design-Tokens, nie als Einzelwerte in Komponenten.
+- Große Touch-Ziele, keine Hover-Zustände. Wechsel des View-Inhalts nur über die Kopfleiste des Quadrats.
+- Service Worker bleibt bis M7 aus (oder hinter Build-Flag). Es gibt nur ein Manifest. Die Build-Version (Commit-Hash) ist immer sichtbar.
+
+## Lizenzen und Recht
+
+- Projektlizenz ist MIT.
+- **Kein GPL-Code.** Nichts übernehmen, abschreiben oder "nachbauen", was unter GPL steht (z. B. Gambatte). Im Zweifel stoppen und fragen.
+- Fremdkomponenten nur mit Eintrag in `third_party/` (Quelle, Version, Lizenz, Commit-Hash) und `THIRD_PARTY_LICENSES`, im selben Commit wie die Übernahme. Lizenz anhand der LICENSE-Datei prüfen, nicht aus dem Gedächtnis.
+- Übernahme aus Vorlage-Repos (z. B. rgbds-live) nur bewusst und mit ADR. Vorlagen sind Referenz, kein Fundament.
+- **Nie committen:** ROMs (auch Homebrew nur, wenn die Lizenz es erlaubt und ein ADR existiert), Disassemblies kommerzieller ROMs, Nintendo-Boot-ROMs, Secrets, persönliche Pfade. `.gitignore` schließt ROMs aus. Tests nutzen nur selbst gebaute oder frei lizenzierte ROMs.
+- Kein "Game Boy" oder "Boy" im Projektnamen, Logo oder Paketnamen. Beschreibend ("für Game-Boy-Homebrew") ist erlaubt.
+
+## Arbeitsweise
+
+1. **Ein Modul pro Auftrag.** Änderungen außerhalb des eigenen Moduls nur nach Rückfrage.
+2. **Plan zuerst:** Vor größerem Code kurz die Schritte benennen und bei echten Entscheidungen fragen. Kleine, klar abgegrenzte Aufgaben direkt umsetzen.
+3. **Tests pro Baustein.** Ohne grüne Tests (`npm test`) und grüne CI ist nichts fertig. Fehlschlagende Tests nicht abschwächen oder auskommentieren, um grün zu werden.
+4. **Definition of Done je Aufgabe:**
+   - Tests geschrieben und grün
+   - betroffene arc42-Kapitel in `docs/arc42/` aktualisiert
+   - Entscheidungen als ADR in `docs/adr/` (Vorlage dort)
+   - `third_party/` und `THIRD_PARTY_LICENSES` aktuell, falls Fremdcode berührt
+   - Abnahmekriterien des Meilensteins geprüft
+5. **Kleine, nachvollziehbare Commits** mit sprechenden Messages. Das Repo ist öffentlich: Historie bleibt, also nichts Privates und keine Secrets, auch nicht "vorübergehend".
+6. **Nichts erfinden.** Keine Annahmen zu Lizenzen, Hardware-Verhalten oder Registerwerten aus dem Gedächtnis. Maßgeblich sind Pan Docs, die RGBDS-Dokumentation und die LICENSE-Dateien. Unsicheres als offenen Punkt notieren.
+7. **Meilensteine strikt in Reihenfolge** (M0 → M1 → M2 → M3). Nicht vorgreifen, nicht "nebenbei" Features aus späteren Meilensteinen bauen.
+
+## Hardware-Treue (wichtig für Export)
+
+- Exportierte `.gb` müssen auf echter Hardware starten: Header-Logo `$0104–$0133` unverändert, Header-Checksumme (`$014D`) korrekt, Erzeugung per `rgbfix` in der Build-Pipeline.
+- Die eigene DotMerlinGame-Boot-ROM existiert nur im Emulator und ist kompatibel zur Nintendo-Boot-ROM: Sie hinterlässt den Zustand nach dem Boot exakt wie das Original (Werte aus Pan Docs, "Power Up Sequence", als Tests). Fremde Boot-ROMs werden nicht eingebunden.
+- Spiele dürfen sich nie auf den Inhalt der Boot-ROM verlassen. Jedes Test-ROM muss mit eigener Boot-ROM und ohne Boot-ROM identisch laufen.
+
+## Befehle
+
+Die Skripte werden in M0 angelegt und hier eingetragen:
+
+- `npm run dev` – Dev-Server (ohne Service Worker)
+- `npm run build` – Produktions-Build
+- `npm test` – Vitest
+- `npm run lint` – Linting
+- `npm run check` – Lint, Typprüfung, Tests, Lizenz- und Secret-Check (wie in der CI)
+
+## Verzeichnisse
+
+- `docs/arc42/` – Architekturdokumentation (Deutsch)
+- `docs/adr/` – Architekturentscheidungen
+- `third_party/` – Herkunftsnachweise für Fremdkomponenten
+- `src/core/` – Ports, Projektmodell, Events
+- `src/adapters/` – Emulator, RGBDS-WASM, Storage, ZIP
+- `src/views/` – ein Ordner pro View
+- `src/app/` – Raster, Navigation, PWA-Shell
+- `tests/` – Roundtrip, Boot-Zustand, View-Vertrag
+- `examples/` – selbst geschriebene, lizenzfreie Beispielprojekte
