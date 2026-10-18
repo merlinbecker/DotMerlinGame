@@ -39,6 +39,8 @@ export interface FrameSnapshot {
   readonly registers: Registers;
   readonly flags: Flags;
   readonly changedMemory: readonly MemoryRange[];
+  /** 160×144 bytes, row-major, values 0–3 (DMG shade, 0 = lightest). A copy, never shared with the core. */
+  readonly screen: Uint8Array;
 }
 
 /**

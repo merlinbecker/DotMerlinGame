@@ -52,6 +52,8 @@ export interface SessionState {
   readonly runState: 'empty' | 'running' | 'paused' | 'halted';
   readonly rom: RomHeaderInfo | null;
   readonly fileName: string | null;
+  /** A ROM is stored locally and can be started without a file picker. */
+  readonly storedRomAvailable: boolean;
   readonly settings: { readonly bootMode: BootMode; readonly hardwareChecks: boolean };
   readonly audio: { readonly muted: boolean; readonly volume: number; readonly unlocked: boolean };
   readonly notice: Notice | null;
@@ -87,5 +89,12 @@ export type Notice =
 | `memory-map` | Memory Map | `session.rom` (Bankzahl) | – |
 
 Der Stumm-Schalter in der Kopfleiste des Screen-Views (FR-027) ist ein vom View bereitgestelltes
-Kopfleisten-Element. Die Kopfleiste bleibt Teil des Rasters. Mechanik: Erweiterung von `ViewDefinition`
-um optionale `headerActions`, genau festgelegt in `tasks.md`.
+Kopfleisten-Element. Die Kopfleiste bleibt Teil des Rasters:
+
+```ts
+export interface HeaderAction { readonly id: string; readonly label: string; readonly pressed?: boolean; readonly action: ViewAction }
+// ViewDefinition<S>:
+readonly headerActions?: (session: SessionState) => readonly HeaderAction[];
+```
+
+Zoom-Schalter und Pfeiltasten für den View-Wechsel fügt das Raster selbst hinzu.

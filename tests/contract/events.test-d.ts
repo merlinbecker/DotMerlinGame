@@ -30,10 +30,26 @@ describe('domain events', () => {
     });
   });
 
-  it('only knows the four M0 event types', () => {
+  it('knows the M0 and M1 event types and nothing else', () => {
     expectTypeOf<DomainEvent['type']>().toEqualTypeOf<
-      'RomLoaded' | 'BuildFinished' | 'BreakpointHit' | 'ProjectChanged'
+      | 'RomLoaded'
+      | 'RomRejected'
+      | 'EmulatorHalted'
+      | 'RunStateChanged'
+      | 'StorageFailed'
+      | 'BuildFinished'
+      | 'BreakpointHit'
+      | 'ProjectChanged'
     >();
+  });
+
+  it('types the M1 event fields exactly', () => {
+    expectTypeOf<EventOf<'RomRejected'>['reason']>().toEqualTypeOf<'invalid' | 'cgb-only' | 'unsupported-cartridge'>();
+    expectTypeOf<EventOf<'EmulatorHalted'>['reason']>().toEqualTypeOf<'header-logo' | 'header-checksum'>();
+    expectTypeOf<EventOf<'RunStateChanged'>['runState']>().toEqualTypeOf<'empty' | 'running' | 'paused' | 'halted'>();
+    expectTypeOf<EventOf<'StorageFailed'>['operation']>().toEqualTypeOf<'save-rom' | 'save-battery'>();
+    // @ts-expect-error a halt always names its reason
+    bus.publish({ type: 'EmulatorHalted' });
   });
 });
 
@@ -44,6 +60,10 @@ describe('frame state', () => {
     expectTypeOf(reduced).toExtend<PublishRate>();
     // @ts-expect-error reduced rate needs everyNthFrame
     expectTypeOf({ kind: 'reduced' } as const).toExtend<PublishRate>();
+  });
+
+  it('carries the screen as shade indices', () => {
+    expectTypeOf<FrameSnapshot['screen']>().toEqualTypeOf<Uint8Array>();
   });
 
   it('fits React useSyncExternalStore', () => {

@@ -1,6 +1,8 @@
-import type { DomainEventSubscriber } from '../events/domain-events.ts';
+import type { DomainEventSubscriber, HaltReason, RunState } from '../events/domain-events.ts';
 import type { FrameStateSource } from '../events/frame-state.ts';
 import type { JsonValue, Unsubscribe } from '../types.ts';
+import type { BootMode } from '../ports/emulator.ts';
+import type { RomHeaderInfo, RomRejectReason } from '../rom/header.ts';
 import type { ViewAction } from './view-actions.ts';
 
 export type ViewTypeId = string;
@@ -22,14 +24,52 @@ export interface ProjectStateSource {
   getSnapshot(): ProjectInfo | null;
 }
 
+/** A hint the session shows until the next ROM start or until it is resolved. */
+export type Notice =
+  | { readonly kind: 'header-invalid' }
+  | { readonly kind: 'halted'; readonly reason: HaltReason }
+  | { readonly kind: 'rejected'; readonly reason: RomRejectReason }
+  | { readonly kind: 'storage-full' }
+  | { readonly kind: 'audio-locked' };
+
+/** Read-only emulator session state for views (contracts/view-contract.md). */
+export interface SessionState {
+  readonly runState: RunState;
+  readonly rom: RomHeaderInfo | null;
+  readonly fileName: string | null;
+  /** A ROM is stored locally and can be started without a file picker. */
+  readonly storedRomAvailable: boolean;
+  readonly settings: { readonly bootMode: BootMode; readonly hardwareChecks: boolean };
+  readonly audio: { readonly muted: boolean; readonly volume: number; readonly unlocked: boolean };
+  readonly notice: Notice | null;
+}
+
+export interface SessionStateSource {
+  subscribe(onChange: () => void): Unsubscribe;
+  getSnapshot(): SessionState;
+}
+
+/** A button a view places in its slot header, e.g. mute on the screen (FR-027). */
+export interface HeaderAction {
+  readonly id: string;
+  readonly label: string;
+  readonly pressed?: boolean;
+  readonly action: ViewAction;
+}
+
 /** What a view receives. Framework-independent; the React binding lives in src/app. */
 export interface ViewContext {
   readonly size: ViewSize;
-  /** Read-only and subscribable; compatible with useSyncExternalStore. */
+  /**
+   * Read-only and subscribable; compatible with useSyncExternalStore. Per slot: throttled by
+   * SetFrameRate and silent while the slot is not visible.
+   */
   readonly frameState: FrameStateSource;
   /** Subscribe only, never publish. */
   readonly events: DomainEventSubscriber;
   readonly project: ProjectStateSource;
+  /** Read-only emulator session: ROM header, run state, settings, audio. */
+  readonly session: SessionStateSource;
   /** The only way to change anything. */
   dispatch(action: ViewAction): void;
   /** False while the slot is not visible; then frame updates must not be processed. */
@@ -44,4 +84,6 @@ export interface ViewDefinition<S> {
   readonly initialState: S;
   serialize(state: S): JsonValue;
   deserialize(json: JsonValue): S;
+  /** Buttons for the slot header; zoom and view switching are added by the grid itself. */
+  readonly headerActions?: (session: SessionState) => readonly HeaderAction[];
 }

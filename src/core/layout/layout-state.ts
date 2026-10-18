@@ -13,4 +13,6 @@ export interface SlotContent {
 export interface LayoutState {
   readonly version: 1;
   readonly slots: readonly (SlotContent | null)[];
+  /** Index of the maximized slot (must be occupied) or null. Only layout, never emulator state. */
+  readonly maximizedSlot: number | null;
 }

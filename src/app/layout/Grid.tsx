@@ -18,7 +18,7 @@ function measure(element: HTMLElement | null): GridSpec {
 
 /** Layout with only empty slots; views are assigned from M1 on. */
 function emptyLayout(slotCount: number): LayoutState {
-  return { version: 1, slots: Array.from({ length: slotCount }, () => null) };
+  return { version: 1, slots: Array.from({ length: slotCount }, () => null), maximizedSlot: null };
 }
 
 /** Raster of square slots. Layout only; no project or emulator state lives here. */
