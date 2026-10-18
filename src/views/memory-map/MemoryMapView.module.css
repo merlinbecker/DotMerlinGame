@@ -1,0 +1,73 @@
+.map {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  overflow: hidden;
+  font-size: var(--font-size-small);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.region {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  border: var(--border-width-control) solid var(--color-border);
+}
+
+/* ROM areas are told apart by shape, not color: fixed bank thick, switchable bank dashed. */
+.region[data-kind="rom-fixed"] {
+  border-width: var(--border-width-frame);
+  font-weight: var(--font-weight-bold);
+}
+
+.region[data-kind="rom-banked"] {
+  border-width: var(--border-width-frame);
+  border-style: dashed;
+  font-weight: var(--font-weight-bold);
+}
+
+.region[data-kind="unusable"],
+.region[data-kind="echo"] {
+  border-style: dotted;
+}
+
+.range {
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.name {
+  flex: 1;
+}
+
+.pager {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.button {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-2);
+  border: var(--border-width-control) solid var(--color-border);
+  font-weight: var(--font-weight-bold);
+}
+
+.button:disabled {
+  border-style: dashed;
+}
+
+.legend {
+  margin: 0;
+}

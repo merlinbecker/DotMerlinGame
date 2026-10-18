@@ -1,5 +1,6 @@
 import { useRef, useState, useSyncExternalStore } from 'react';
 import type { ViewInstanceProps } from '../../core/index.ts';
+import { cartridgeName, formatSize } from './cartridge-name.ts';
 import { noticeText } from './notice-text.ts';
 import styles from './RomInfoView.module.css';
 
@@ -152,6 +153,27 @@ export function RomInfoView({ context }: ViewInstanceProps<null>) {
         <dt>File</dt>
         <dd>{session.fileName ?? 'No ROM loaded'}</dd>
       </dl>
+
+      {session.rom ? (
+        <dl className={styles.facts} aria-label="Cartridge header" data-testid="rom-header">
+          <dt>Title</dt>
+          <dd>{session.rom.title || '–'}</dd>
+          <dt>Type</dt>
+          <dd>
+            {cartridgeName(session.rom.cartridgeType)} (${session.rom.cartridgeType.code.toString(16).toUpperCase().padStart(2, '0')})
+          </dd>
+          <dt>ROM</dt>
+          <dd>
+            {formatSize(session.rom.romSizeBytes)}, {session.rom.romBanks} banks
+          </dd>
+          <dt>RAM</dt>
+          <dd>{formatSize(session.rom.ramSizeBytes)}</dd>
+          <dt>Battery</dt>
+          <dd>{session.rom.cartridgeType.battery ? 'yes' : 'no'}</dd>
+        </dl>
+      ) : (
+        <p className={styles.hint}>No ROM loaded.</p>
+      )}
 
       <dl className={styles.facts} aria-label="Diagnostics">
         <dt>Frame time p95</dt>

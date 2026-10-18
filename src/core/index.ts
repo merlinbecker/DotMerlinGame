@@ -36,3 +36,5 @@ export type { ArchivePort } from './ports/archive.ts';
 export type { LayoutState, SlotContent } from './layout/layout-state.ts';
 export type { CartridgeType, LoadValidation, Mbc, RomHeaderInfo, RomRejectReason } from './rom/header.ts';
 export { computeHeaderChecksum, logoMatches, parseHeader, validateForLoad } from './rom/header.ts';
+export type { MemoryRegion, MemoryRegionKind } from './rom/memory-map.ts';
+export { MEMORY_MAP } from './rom/memory-map.ts';

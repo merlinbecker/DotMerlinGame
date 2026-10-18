@@ -241,11 +241,11 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 **Independent Test**: Test-ROM laden; ROM Info zeigt erwartete Header-Werte; Memory Map zeigt Bereiche mit passender Bankzahl.
 
-- [ ] T092 [P] [US8] Write `tests/unit/memory-map.test.ts`: `MEMORY_MAP` regions from Pan Docs „Memory Map“ are contiguous, non-overlapping, cover `$0000–$FFFF`, kinds `'rom-fixed' | 'rom-banked' | 'vram' | 'cart-ram' | 'wram' | 'echo' | 'oam' | 'unusable' | 'io' | 'hram' | 'ie'`
-- [ ] T093 [US8] Implement `src/core/rom/memory-map.ts` (constant with Pan Docs source comment) and export it
-- [ ] T094 [P] [US8] Extend `src/views/rom-info/` with header data from `session.rom`: title, cartridge type (code + readable name), ROM size + bank count, RAM size, battery yes/no; text "No ROM loaded" when empty (US8-AS1/AS3)
-- [ ] T095 [P] [US8] Implement view `src/views/memory-map/` (`typeId: 'memory-map'`, title `Memory Map`): list of regions with start/end addresses and names; fixed bank 0 and switchable bank „Bank 1 bis n“ visually distinct by shape/pattern, not color; n from `session.rom.romBanks - 1`, without ROM no bank count; paging instead of scrolling if the list does not fit (Constitution V); register in `src/app/views/registry.ts`
-- [ ] T096 [US8] Write `tests/e2e/m1-rom-info.spec.ts`: after loading `mbc5` the ROM Info shows the expected header values and Memory Map shows the matching bank count; without ROM both show the empty states
+- [X] T092 [P] [US8] Write `tests/unit/memory-map.test.ts`: `MEMORY_MAP` regions from Pan Docs „Memory Map“ are contiguous, non-overlapping, cover `$0000–$FFFF`, kinds `'rom-fixed' | 'rom-banked' | 'vram' | 'cart-ram' | 'wram' | 'echo' | 'oam' | 'unusable' | 'io' | 'hram' | 'ie'`
+- [X] T093 [US8] Implement `src/core/rom/memory-map.ts` (constant with Pan Docs source comment) and export it
+- [X] T094 [P] [US8] Extend `src/views/rom-info/` with header data from `session.rom`: title, cartridge type (code + readable name), ROM size + bank count, RAM size, battery yes/no; text "No ROM loaded" when empty (US8-AS1/AS3)
+- [X] T095 [P] [US8] Implement view `src/views/memory-map/` (`typeId: 'memory-map'`, title `Memory Map`): list of regions with start/end addresses and names; fixed bank 0 and switchable bank „Bank 1 bis n“ visually distinct by shape/pattern, not color; n from `session.rom.romBanks - 1`, without ROM no bank count; paging instead of scrolling if the list does not fit (Constitution V); register in `src/app/views/registry.ts`
+- [X] T096 [US8] Write `tests/e2e/m1-rom-info.spec.ts`: after loading `mbc5` the ROM Info shows the expected header values and Memory Map shows the matching bank count; without ROM both show the empty states
 
 ---
 
