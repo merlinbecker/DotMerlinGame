@@ -32,7 +32,7 @@ export function createManifest(tokensCss: string) {
  * Generates the web app manifest and the page title from the single project name and writes
  * build-info.json for the acceptance tests. Deliberately no service worker (FR-004).
  */
-export function manifestPlugin(buildVersion: string): Plugin {
+export function manifestPlugin(versions: { appVersion: string; buildVersion: string }): Plugin {
   const manifestJson = () => JSON.stringify(createManifest(readFileSync(TOKENS_FILE, 'utf8')), null, 2);
 
   return {
@@ -51,7 +51,7 @@ export function manifestPlugin(buildVersion: string): Plugin {
     },
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'manifest.webmanifest', source: manifestJson() });
-      this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ version: buildVersion }) });
+      this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ appVersion: versions.appVersion, version: versions.buildVersion }) });
     },
   };
 }

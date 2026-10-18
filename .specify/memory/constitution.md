@@ -1,6 +1,7 @@
 <!--
 Sync Impact Report
-- Version: 1.1.1 → 1.1.2 (PATCH: VI. klargestellt, was als Fremdkomponente gilt)
+- Version: 1.1.2 → 1.2.0 (MINOR: Regel zur Versionsnummer der App ergänzt)
+- Vorher: 1.1.1 → 1.1.2 (PATCH: VI. klargestellt, was als Fremdkomponente gilt)
 - Vorher: 1.1.0 → 1.1.1 (PATCH: Randbedingungen Browser und UI-Sprache ergänzt)
 - Vorher: 1.0.0 → 1.1.0 (MINOR: Prinzipien wesentlich erweitert)
 - Geändert: VII. Hardware-Treue des Exports (eigene, Nintendo-kompatible Boot-ROM; keine fremden
@@ -148,6 +149,12 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
   `THIRD_PARTY_LICENSES` aktuell; Abnahmekriterien des Meilensteins geprüft.
 - Kleine, nachvollziehbare Commits mit sprechenden Messages. CI prüft Build, Lint, Typen, Tests,
   Secret-Scan und Lizenzen.
+- **Versionsnummer** (SemVer, einzige Quelle: `version` in `package.json`), Start bei `0.1.0`:
+  - Jeder Commit, der Code ändert (alles außer reiner Doku in `docs/`, `specs/`, `*.md`), MUSS die
+    Patch-Stelle um eins erhöhen.
+  - Mit der Abnahme einer Spec (Meilenstein) MUSS die Minor-Stelle um eins steigen, Patch auf 0.
+  - Die Major-Stelle bleibt bei 0 bis zu einer ausdrücklichen Entscheidung des Projektinhabers.
+  - Die UI zeigt Versionsnummer und Commit-Hash immer gemeinsam an.
 
 ## Governance
 
@@ -160,4 +167,4 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
 - Jede Spec, jeder Plan (`/speckit-plan`, Constitution Check) und jedes Review prüft die
   Einhaltung. Abweichungen MÜSSEN im Plan begründet und dokumentiert werden.
 
-**Version**: 1.1.2 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.2.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18

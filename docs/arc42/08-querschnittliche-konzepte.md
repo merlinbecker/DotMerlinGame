@@ -16,7 +16,12 @@ Alle Farben, Abstände, Rahmen, Größen und Zeiten stehen ausschließlich in `s
 
 Fokus ist immer als dicker schwarzer Rahmen sichtbar (`--focus-outline-*`). Noch nicht nutzbare Bedienelemente sind `aria-disabled` statt `disabled`, damit sie per Tastatur erreichbar und vorlesbar bleiben; optisch erkennbar am gestrichelten Rahmen.
 
-## 8.4 Build-Version
+## 8.4 Versionsnummer und Build-Version
+
+Die Fußzeile zeigt `v<Version> · Build <Commit-Hash>`.
+
+- **Versionsnummer**: `version` in `package.json` ist die einzige Quelle, Vite setzt sie als `__APP_VERSION__` ein. Start bei `0.1.0`. Jeder Commit mit Codeänderung erhöht die Patch-Stelle; die Abnahme einer Spec erhöht die Minor-Stelle und setzt Patch auf 0 (Constitution, Entwicklungsablauf).
+- **Build-Version**:
 
 `build/build-version.ts` ermittelt beim Build den kurzen Commit-Hash, mit `-dirty` bei uncommitteten Änderungen und `unknown` ohne Git. Vite setzt ihn als `__BUILD_VERSION__` ein; die Fußzeile zeigt ihn immer an. Der Build schreibt ihn zusätzlich nach `dist/build-info.json` für die Abnahmetests.
 

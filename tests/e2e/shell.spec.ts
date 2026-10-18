@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { PROJECT_NAME } from '../../src/config/project.ts';
 
-const buildInfo = JSON.parse(readFileSync('dist/build-info.json', 'utf8')) as { version: string };
+const buildInfo = JSON.parse(readFileSync('dist/build-info.json', 'utf8')) as { appVersion: string; version: string };
+const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
 
 async function slotBoxes(page: Page) {
   const slots = page.getByTestId('slot');
@@ -50,9 +51,10 @@ test('never scrolls horizontally on very small screens', async ({ page }) => {
   expect((await slotBoxes(page)).length).toBeGreaterThanOrEqual(2);
 });
 
-test('shows the build version in the footer', async ({ page }) => {
+test('shows app version and build version in the footer', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('contentinfo')).toHaveText(`Build ${buildInfo.version}`);
+  expect(buildInfo.appVersion).toBe(packageJson.version);
+  await expect(page.getByRole('contentinfo')).toHaveText(`v${buildInfo.appVersion} · Build ${buildInfo.version}`);
 });
 
 test('registers no service worker', async ({ page }) => {
