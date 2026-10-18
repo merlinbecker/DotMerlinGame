@@ -9,7 +9,7 @@ der LICENSE-Dateien in `node_modules` geprüft (Testinstallation im Scratchpad).
 React/React-DOM 19.3.1, Vitest 5.0.5, jsdom 30.1.3, @testing-library/react 16.3.3,
 @playwright/test 1.64.1, ESLint 10.13.0 + typescript-eslint 8.71.2, Stylelint 17.16.0 +
 stylelint-config-standard 40.0.0, secretlint 13.0.7 + @secretlint/secretlint-rule-preset-recommend 13.0.7,
-license-checker-rseidelsohn 5.0.1. Exakte Versionen in `package.json`, `package-lock.json` committet.
+license-checker-rseidelsohn 5.0.1, eslint-plugin-import-x 4.17.1 (MIT). Exakte Versionen in `package.json`, `package-lock.json` committet.
 
 **Rationale**: Aktuelle Major-Versionen mit passenden Peer-Abhängigkeiten. typescript-eslint 8.71.2
 verlangt `typescript >=4.8.4 <6.1.0` – deshalb TypeScript 6.0.3 statt 7.0.2. vitest 5 akzeptiert
@@ -35,6 +35,10 @@ minimatch, lru-cache, tar …), MIT-0 (@csstools/*), Python-2.0 (argparse), Arti
 (istextorbinary …), MPL-2.0 (lightningcss), CC-BY-3.0 (spdx-exceptions), WTFPL (@azu/style-format).
 Ein eigenes Skript ist nötig, weil `--failOn` exakt vergleicht und z. B. `GPL-3.0-or-later` nicht
 erfassen würde. Das Skript ist klein und per Unit-Test prüfbar (SC-007).
+
+**Absicherung der Zuordnung**: Die strikte Stufe hängt daran, dass ausgelieferter Code nur aus
+`dependencies` stammt. ESLint (`import-x/no-extraneous-dependencies`) verbietet deshalb in `src/**`
+Importe aus `devDependencies`; in `tests/`, `build/`, `scripts/` sind sie erlaubt.
 
 **Alternatives considered**: Alles strikt mit ~25 ADR-Ausnahmen (zu viel Pflege); nur Laufzeit prüfen
 (GPL in Werkzeugen fiele nicht auf); `--onlyAllow`/`--failOn` direkt (Variantenproblem).
@@ -66,7 +70,9 @@ Binary bzw. eine eigene Action). Kann später als zusätzliche CI-Stufe ergänzt
 
 **Decision**: `vite.config.ts` liest `git rev-parse --short HEAD` und injiziert den Wert per
 `define` als `__BUILD_VERSION__`. Schlägt der Befehl fehl (kein Git), wird `"unknown"` verwendet,
-der Build läuft weiter. Bei uncommitteten Änderungen wird `-dirty` angehängt.
+der Build läuft weiter. Bei uncommitteten Änderungen wird `-dirty` angehängt. Der Build schreibt den Wert zusätzlich nach
+`dist/build-info.json` (Grundlage des E2E-Tests). `dist/`, `test-results/`, `playwright-report/`
+und `coverage/` stehen in `.gitignore`, damit Testläufe den Stand nicht als `-dirty` markieren.
 
 ## R6 – Projektname an einer Stelle, Manifest ohne Service Worker
 
@@ -76,9 +82,14 @@ Kein vite-plugin-pwa (würde einen Service Worker erzeugen).
 Icons: selbst gezeichnetes SVG-Logo; PNG 192/512 werden einmalig per Skript mit Playwright aus dem
 SVG gerendert und committet (keine zusätzliche Abhängigkeit).
 
-**Offen (Constitution X)**: Ob Chrome für die Installierbarkeit PNG verlangt oder SVG genügt, wird
-nicht aus dem Gedächtnis entschieden; PNG wird mitgeliefert, die Installierbarkeit in der
-Abnahme mit den Chrome DevTools (Application → Manifest) geprüft.
+**Installierbarkeit ohne Service Worker**: Die Kriterien von Chrome (web.dev, „What does it take to
+be installable?“, https://web.dev/articles/install-criteria, Stand 2024-09-19) verlangen HTTPS, ein
+Manifest mit `name`/`short_name`, Icons in 192 px und 512 px, `start_url`, `display` (`standalone`
+u. a.) und kein `prefer_related_applications: true`. Ein Service Worker wird dort nicht gefordert.
+US1, Szenario 4 bleibt daher in M0 erfüllbar.
+
+**Offen (Constitution X)**: Die Quelle nennt Größen, aber kein Format. PNG wird mitgeliefert; die
+Installierbarkeit wird in der Abnahme mit den Chrome DevTools (Application → Manifest) geprüft.
 
 ## R7 – Design-Tokens, Schwarz-Weiß, keine Bewegung
 
@@ -88,6 +99,8 @@ Abnahme mit den Chrome DevTools (Application → Manifest) geprüft.
 - Bewegung: Zeit-Tokens stehen im Standard auf `0ms`; `<html data-motion="off">` ist Standard,
   eine globale Regel setzt dann `transition: none` und `animation: none`. `prefers-reduced-motion`
   erzwingt `off`.
+- Fokus: Der Fokusrahmen ist ausdrücklich über Tokens festgelegt (schwarz, dicke Linie, Abstand),
+  der farbige Standard-Fokusring von Chrome wird ersetzt.
 - Durchsetzung per Stylelint: keine Hex-/Farbfunktionen und keine `px`-Werte außerhalb von
   `tokens.css`; Eigenschaften `transition*` und `animation*` sind außerhalb der Motion-Regel verboten;
   kein `:hover`.
@@ -101,8 +114,8 @@ Abnahme mit den Chrome DevTools (Application → Manifest) geprüft.
 |---|---|
 | Kein Service Worker | `navigator.serviceWorker.getRegistrations()` liefert `[]` nach Laden und Warten |
 | Keine Animationen | `document.getAnimations()` ist leer; berechnete `transition-duration`/`animation-name` aller Elemente sind `0s`/`none` |
-| Ohne Farbe bedienbar | Für alle Elemente gilt bei `color`, `background-color`, `border-*-color`: R = G = B. Zusätzlich Screenshot in Graustufen als Abnahme-Dokumentation (SC-005, manuell bewertet) |
-| Build-Version sichtbar | Fußzeile enthält den Wert aus `__BUILD_VERSION__` |
+| Ohne Farbe bedienbar | Für alle Elemente gilt bei `color`, `background-color`, `border-*-color`, `outline-color`, `caret-color` sowie SVG `fill`/`stroke`: R = G = B. Der Test geht per Tab durch alle Bedienelemente und prüft auch den fokussierten Zustand. Zusätzlich Screenshot in Graustufen als Abnahme-Dokumentation (SC-005, manuell bewertet) |
+| Build-Version sichtbar | Fußzeile enthält genau den Wert, den der Build eingesetzt hat (aus `dist/build-info.json`, nicht per erneutem `git rev-parse`) |
 | Querformat | Viewport drehen → Slots nebeneinander |
 | Manifest | `link[rel=manifest]` vorhanden, Name = `PROJECT_NAME` |
 
@@ -110,7 +123,9 @@ Abnahme mit den Chrome DevTools (Application → Manifest) geprüft.
 
 **Decision**: Spaltenzahl und Zeilenzahl werden aus Viewport und einem Token für die minimale
 Slotgröße berechnet, begrenzt auf 1–4 je Richtung und mindestens zwei Slots (Hochformat 1×2,
-Querformat 2×1). Slots sind quadratisch (`aspect-ratio: 1`). Berechnung als reine Funktion in
+Querformat 2×1). Slots sind quadratisch (`aspect-ratio: 1`). Passen nicht einmal zwei Slots in
+Mindestgröße (kleine Handys im Querformat, Breite < 320 px), schrumpfen die Slots unter die
+Mindestgröße; es werden nie weniger als zwei Slots und nie horizontales Scrollen erzeugt. Berechnung als reine Funktion in
 `src/app/layout/` mit Unit-Tests; das Layout speichert nur die Belegung (Slot → View).
 
 ## R10 – Typ-Tests für Verträge
@@ -124,15 +139,25 @@ mit unbekanntem Typ nicht veröffentlicht werden kann.
 **Decision**: ESLint `no-restricted-imports`:
 - `src/core/**` darf weder `react` noch `src/adapters`, `src/views`, `src/app` importieren.
 - `src/views/**` darf `src/adapters` nicht importieren (Zugriff nur über Ports aus `src/core`).
+- `src/**` darf keine `devDependencies` importieren (`import-x/no-extraneous-dependencies`, siehe R2).
 
 ## R12 – CI
 
 **Decision**: GitHub Actions, ein Workflow `.github/workflows/ci.yml` auf `push` und `pull_request`:
 Checkout → Node 24 mit npm-Cache → `npm ci` → `npx playwright install --with-deps chromium` →
-`npm run check`. Actions per Commit-SHA gepinnt. `npm run check` ist die einzige Prüfquelle,
+`npm run check`. Actions per Commit-SHA gepinnt (ermittelt per `git ls-remote`, 2026-10-18):
+`actions/checkout` v7.0.1 = `3d3c42e5aac5ba805825da76410c181273ba90b1`,
+`actions/setup-node` v7.1.0 = `949feb2413d6458794dcd2491c4babbbce0c15c1`. `npm run check` ist die einzige Prüfquelle,
 damit lokal und CI nicht auseinanderlaufen.
 
-## R13 – Ausstehende Tests
+## R13 – Ignorier-Regeln für ROMs
+
+**Decision**: `.gitignore` schließt `*.gb`, `*.gbc`, `*.sgb`, `roms/` und typische Boot-ROM-Namen
+(`dmg_boot.bin`, `dmg0_boot.bin`, `*boot*.bin` im Wurzelverzeichnis von `roms/`) aus, aber nicht
+pauschal `*.bin`, weil RGBDS-Projekte `.bin`-Dateien per `INCBIN` einbinden (Beispiele ab M2).
+Build-Ergebnisse von Beispielprojekten liegen in ignorierten `build/`-Unterordnern der Projekte.
+
+## R14 – Ausstehende Tests
 
 **Decision**: Roundtrip- und Boot-Zustandstests als `it.todo(...)` mit Verweis auf M1/M3; sie
 erscheinen im Testbericht, brechen die Suite aber nicht.

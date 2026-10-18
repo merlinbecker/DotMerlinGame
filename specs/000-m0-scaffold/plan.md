@@ -45,7 +45,7 @@ nur Graustufen, UI-Texte Englisch im Code, Laufzeit-Lizenzen nur aus Freigabelis
 | III. Ports und Adapter | Ports in `src/core/ports/`, `src/core` per ESLint frei von React/Adaptern | ✅ |
 | IV. Getypte Eventkanäle, Layout getrennt | Zwei Kanäle als Typen, Typ-Test gegen unbekannte Ereignisse; `LayoutState` enthält nur Belegung; `PROJECT_NAME` einmalig | ✅ |
 | V. E-Ink-first UI | Tokens als einzige Literalquelle, Stylelint-Regeln, Chromium-Tests auf Animationen und Graustufen | ✅ |
-| VI. Lizenzsauberkeit | Zweistufiger Lizenz-Check, `third_party/`, `THIRD_PARTY_LICENSES`, MIT-`LICENSE`, `.gitignore` für ROMs | ✅ |
+| VI. Lizenzsauberkeit | Zweistufiger Lizenz-Check, `third_party/`, `THIRD_PARTY_LICENSES`, MIT-`LICENSE`, `.gitignore` für ROMs. **Auslegung**: „Fremdkomponente“ = ausgelieferter Code (Laufzeit-Abhängigkeiten, übernommene Komponenten); Entwicklungswerkzeuge brauchen keinen `third_party/`-Eintrag und kein ADR. Festgehalten in ADR-0003 und Constitution 1.1.2. | ✅ (mit Auslegung) |
 | VII. Hardware-Treue | Boot-Zustandstest als Rahmen (`it.todo`), Umsetzung M1 | ✅ (vorbereitet) |
 | VIII. Tests pro Baustein | Unit-, Vertrags-, Typ- und E2E-Tests; `npm run check` = CI | ✅ |
 | IX. Lokal und offline | Nur statischer Build, kein Service Worker, keine Laufzeit-Netzwerkzugriffe | ✅ |
@@ -108,7 +108,7 @@ docs/adr/                     # 0000-template.md, 0001–0003, 0005, 0007–0010
 third_party/                  # README.md, npm.md, license-exceptions.json
 LICENSE                       # MIT
 THIRD_PARTY_LICENSES
-.gitignore                    # u. a. *.gb, *.gbc, *.sgb, *.bin, roms/
+.gitignore                    # *.gb, *.gbc, *.sgb, roms/, Boot-ROM-Namen, dist/, Testberichte
 ```
 
 **Structure Decision**: Single-Project-Struktur gemäß Briefing Abschnitt 6. `build/` und `scripts/`
@@ -123,7 +123,8 @@ enthalten nur Build-Werkzeuge, kein ausgelieferter Code.
 5. Test-Rahmen (Unit, `it.todo` für Roundtrip und Boot-Zustand, Playwright-Abnahmetests)
 6. Lizenz- und Secret-Check, `third_party/`, `THIRD_PARTY_LICENSES`
 7. CI-Workflow
-8. ADRs (0000-Vorlage, 0001–0003, 0005, 0007–0010), arc42-Kapitel 5 und 8 nachziehen,
+8. ADRs (0000-Vorlage, 0001–0003, 0005, 0007–0010; ADR-0003 hält zweistufigen Lizenz-Check und
+   Umfang von `third_party/` fest), arc42-Kapitel 5 und 8 nachziehen,
    Befehle in `CLAUDE.md` eintragen
 
 ## Complexity Tracking

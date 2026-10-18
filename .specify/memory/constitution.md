@@ -1,6 +1,7 @@
 <!--
 Sync Impact Report
-- Version: 1.1.0 → 1.1.1 (PATCH: Randbedingungen Browser und UI-Sprache ergänzt)
+- Version: 1.1.1 → 1.1.2 (PATCH: VI. klargestellt, was als Fremdkomponente gilt)
+- Vorher: 1.1.0 → 1.1.1 (PATCH: Randbedingungen Browser und UI-Sprache ergänzt)
 - Vorher: 1.0.0 → 1.1.0 (MINOR: Prinzipien wesentlich erweitert)
 - Geändert: VII. Hardware-Treue des Exports (eigene, Nintendo-kompatible Boot-ROM; keine fremden
   Boot-ROMs; nur DMG-01 inkl. Ton); IX. Lokal und offline (grundsätzlich kein Backend, statische
@@ -72,6 +73,9 @@ Begründung: Die UI wird ausdrücklich auf E-Ink-Geräten bedient.
   Im Zweifel stoppen und fragen.
 - Jede Fremdkomponente MUSS im selben Commit in `third_party/` (Quelle, Version, Lizenz,
   Commit-Hash) und `THIRD_PARTY_LICENSES` eingetragen werden. Übernahmen aus Vorlage-Repos nur per ADR.
+  Fremdkomponente meint ausgelieferten Code (Laufzeit-Abhängigkeiten, übernommene Komponenten).
+  Reine Entwicklungswerkzeuge brauchen keinen Eintrag; für sie gilt nur das Copyleft-Verbot des
+  Lizenz-Checks.
 - Nie im Repo: kommerzielle ROMs und deren Disassemblies, Nintendo-Boot-ROMs, Secrets,
   persönliche Pfade. Tests nutzen nur selbst gebaute oder frei lizenzierte ROMs.
 - Kein "Game Boy" oder "Boy" im Projektnamen, Logo oder Paketnamen.
@@ -156,4 +160,4 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
 - Jede Spec, jeder Plan (`/speckit-plan`, Constitution Check) und jedes Review prüft die
   Einhaltung. Abweichungen MÜSSEN im Plan begründet und dokumentiert werden.
 
-**Version**: 1.1.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.1.2 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18

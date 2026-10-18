@@ -36,6 +36,7 @@ TypeScript, Vite, Vitest, React. Zielbrowser in M0–M3: nur aktuelles Chrome (i
 
 - Projektlizenz ist MIT.
 - **Kein GPL-Code.** Nichts übernehmen, abschreiben oder "nachbauen", was unter GPL steht (z. B. Gambatte). Im Zweifel stoppen und fragen.
+- Fremdkomponente = ausgelieferter Code (Laufzeit-Abhängigkeiten, übernommene Komponenten). Reine Entwicklungswerkzeuge (devDependencies) brauchen keinen `third_party/`-Eintrag und kein ADR, dürfen aber kein GPL/AGPL/LGPL/SSPL haben.
 - Fremdkomponenten nur mit Eintrag in `third_party/` (Quelle, Version, Lizenz, Commit-Hash) und `THIRD_PARTY_LICENSES`, im selben Commit wie die Übernahme. Lizenz anhand der LICENSE-Datei prüfen, nicht aus dem Gedächtnis.
 - Übernahme aus Vorlage-Repos (z. B. rgbds-live) nur bewusst und mit ADR. Vorlagen sind Referenz, kein Fundament.
 - **Nie committen:** ROMs (auch Homebrew nur, wenn die Lizenz es erlaubt und ein ADR existiert), Disassemblies kommerzieller ROMs, Nintendo-Boot-ROMs, Secrets, persönliche Pfade. `.gitignore` schließt ROMs aus. Tests nutzen nur selbst gebaute oder frei lizenzierte ROMs.
