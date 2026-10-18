@@ -35,8 +35,9 @@ DotMerlinGame ist eine mobile-first Web-IDE für Game-Boy-Homebrew. Man kann bes
 ## 4. UX-Konzept: Quadratische Views
 
 - Jeder View ist ein Quadrat. Hochformat: 2 Quadrate untereinander. Querformat: nebeneinander. Große Screens: Raster bis 4x4.
-- Jedes Quadrat lässt sich durch einen anderen View oder Editor ersetzen. Wechsel nur über eine **Kopfleiste am Quadrat** (Swipe dort, Pfeiltasten daneben), damit Gesten im Inhalt (Scrollen im Hex-View, Zeichnen im Tile-Editor) nicht kollidieren.
-- **Vollbild/Zoom pro Slot** (z. B. Doppeltipp) für textlastige Views wie Editor und Disassembly.
+- Jedes Quadrat lässt sich durch einen anderen View oder Editor ersetzen. Wechsel nur über eine **Kopfleiste am Quadrat** (Pfeiltasten dort, keine Wischgeste), damit nichts mit Eingaben im Inhalt (Scrollen im Hex-View, Zeichnen im Tile-Editor, Spieleingaben im Controller) kollidiert.
+- **Vollbild/Zoom pro Slot** über einen Zoom-Schalter in der Kopfleiste, keine Zoom-Geste. Wichtig z. B. für textlastige Views wie Editor und Disassembly.
+- **Sparsam mit Gesten:** Bedienung über sichtbare Schalter statt Gesten, weil Gesten fehleranfällig sind und mit Inhaltseingaben kollidieren.
 - Nicht sichtbare Views aktualisieren sich nicht. Der Emulator veröffentlicht Zustand gebündelt pro Frame.
 
 ### E-Ink-Tauglichkeit der Oberfläche
@@ -175,3 +176,4 @@ M4 Debugger (Breakpoints, Step, Register, Speicher-View, Quelltextzeilen) · M5 
 - Der E-Ink-Modus des Screen-Views ist Teil von M1.
 - Die eigene DotMerlinGame-Boot-ROM ist kompatibel zur Nintendo-Boot-ROM (gleicher Endzustand laut Pan Docs). Fremde Boot-ROMs (z. B. SameBoy) werden nicht eingebunden; Startmodi sind eigene Boot-ROM und Direktstart.
 - Es gibt grundsätzlich kein Backend. Die App ist rein clientseitig und wird statisch ausgeliefert. Hosting vorerst über Replit, ein anderer statischer Hoster ist jederzeit möglich.
+- Keine Gesten für Rahmenfunktionen: View-Wechsel nur über Pfeiltasten in der Kopfleiste (kein Wischen), Zoom nur über einen Zoom-Schalter in der Kopfleiste (kein Doppeltipp). Begründung: Gesten sind fehleranfällig.

@@ -15,6 +15,35 @@ Boy Color, auch nicht in der Emulation), Tonausgabe ist Teil von M1, E-Ink-Modus
 ist Teil von M1, die eigene DotMerlinGame-Boot-ROM ist kompatibel zur Nintendo-Boot-ROM; eine
 fremde freie Boot-ROM wird nicht eingebunden.
 
+## Clarifications
+
+### Session 2026-10-18
+
+- Q: Wie viele ROMs soll der lokale Speicher in M1 halten? → A: Immer nur eines, das zuletzt geladene ROM. Ein neues ROM ersetzt das alte. Das ersetzte ROM liegt weiterhin als Datei auf dem Gerät; sein Spielstand geht verloren (kein Export in M1).
+- Q: Soll M1 dem Nutzer das Speicherkonzept des ROMs vermitteln, und wie? → A: Ja, als statische
+  Info: eine Übersicht der DMG-Adressbereiche mit markierten ROM-Bänken und die Header-Daten des
+  geladenen ROMs. Es gibt keinen Live-Speicherinhalt, das wäre ein Vorgriff auf den Debugger in M4.
+  Wie das auf Views verteilt wird, regelt die nächste Klärung.
+- Q: Welche Cartridge-Typen (Bank-Controller) muss der Emulator in M1 mindestens ausführen? → A:
+  ROM ohne MBC, MBC1, MBC3 und MBC5.
+- Q: Sollen batteriegepufferte Spielstände (Cartridge-RAM) in M1 lokal gespeichert werden? → A: Ja.
+  Sie werden lokal gespeichert, gehören zu dem einen ROM und werden beim Ersetzen des ROMs nach
+  einem Hinweis mit gelöscht. Kein `.sav`-Export, keine Zusicherung für die MBC3-Echtzeituhr.
+- Q: Wo liegen die Bedienelemente außerhalb des Gamepads? → A: Im View „ROM Info“: ROM laden,
+  Startmodus, Pause/Fortsetzen/Zurücksetzen, Lautstärke und die Header-Daten. Dazu kommt ein
+  Stumm-Schalter in der Kopfleiste des Screen-Views. Die Adressbereiche liegen in einem eigenen
+  View „Memory Map“.
+- Q: Gegen welche Hardware-Revision der Pan-Docs-Tabelle "Power Up Sequence" prüfen die
+  Boot-Zustandstests? → A: Nur die Spalte „DMG“ (Serien-DMG-01).
+- Q (Plan, 2026-10-18): Ist der E-Ink-Modus des Screens voreingestellt, obwohl M1 nur ein Theme hat? →
+  A: Nein. Der Screen startet im Normalmodus, der E-Ink-Modus ist ein Schalter und bleibt pro Gerät
+  gespeichert. Eine Voreinstellung über einen Theme-Schalter folgt erst in einem späteren Meilenstein.
+- Q (Analyse, 2026-10-18): Wie wird ein Quadrat vergrößert, wenn ein Doppeltipp im Controller eine
+  Spieleingabe ist? → A: Für alle Quadrate gibt es nur einen Zoom-Schalter in der Kopfleiste, keinen
+  Doppeltipp. Grundsatz: sparsam mit Gesten.
+- Q (Analyse, 2026-10-18): Bleibt das Wischen in der Kopfleiste für den View-Wechsel? → A: Nein. View-Wechsel
+  nur über Pfeiltasten in der Kopfleiste, weil Gesten fehleranfällig sind. Das Briefing wurde angepasst.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - ROM laden und spielen (Priority: P1)
@@ -29,7 +58,7 @@ Eingaben über das Controller-Quadrat wirken sich im Spiel aus.
 
 **Acceptance Scenarios**:
 
-1. **Given** die App mit leeren Slots, **When** eine gültige ROM-Datei vom Gerät gewählt wird,
+1. **Given** die App ohne geladenes ROM, **When** eine gültige ROM-Datei vom Gerät gewählt wird,
    **Then** startet sie im Screen-Quadrat und ein `RomLoaded`-Ereignis wird veröffentlicht.
 2. **Given** ein laufendes Spiel, **When** eine Taste im Controller-Quadrat gedrückt wird, **Then**
    reagiert das Spiel darauf wie auf die entsprechende Hardware-Taste.
@@ -58,7 +87,7 @@ Werten aus Pan Docs ("Power Up Sequence").
    erscheint zuerst das eigene Logo und danach das Spiel.
 2. **Given** die eigene Boot-ROM ist durchgelaufen, **When** CPU- und I/O-Register gelesen werden,
    **Then** stimmen sie mit den Pan-Docs-Werten für das DMG überein (automatischer Test).
-3. **Given** ein freies Test-ROM, **When** es mit eigener Boot-ROM und ohne Boot-ROM
+3. **Given** ein beliebiges Test-ROM des Projekts, **When** es mit eigener Boot-ROM und ohne Boot-ROM
    (Direktstart) ausgeführt wird, **Then** ist das Verhalten ab dem Sprung nach `$0100`
    identisch (gleiche Bild- und Tonausgabe nach N Frames).
 4. **Given** der optionale Modus "Hardware-nah" ist aktiv, **When** ein ROM mit verändertem
@@ -137,15 +166,16 @@ und mit der Emulationsgeschwindigkeit vergleichen; Graustufen-Screenshot prüfen
    Graustufen des DMG-01 klar unterscheidbar (kontrastreiches Mapping, optional Dithering).
 3. **Given** der E-Ink-Modus, **When** die App neu geladen wird, **Then** bleibt der Modus samt
    Einstellungen erhalten.
-4. **Given** die App im E-Ink-Theme, **When** der Screen-View zum ersten Mal geöffnet wird,
-   **Then** ist der E-Ink-Modus des Screen-Views bereits voreingestellt.
+4. **Given** ein Gerät, auf dem der E-Ink-Modus nie eingeschaltet wurde, **When** der Screen-View zum
+   ersten Mal geöffnet wird, **Then** startet er im Normalmodus, und der E-Ink-Modus lässt sich im
+   Screen-View mit einem Schalter aktivieren.
 
 ---
 
 ### User Story 6 - Wechsel der View-Inhalte über die Kopfleiste (Priority: P3)
 
-Die Nutzerin belegt die zwei Slots frei mit Screen und Controller und kann sie über die
-Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt nach Neustart erhalten.
+Die Nutzerin belegt die zwei Slots frei mit den Views Screen, Controller, ROM Info und Memory Map
+und kann sie über die Pfeiltasten in der Kopfleiste wechseln (keine Wischgeste). Die Belegung bleibt nach Neustart erhalten.
 
 **Why this priority**: Erstes reales Nutzen des Rasters, aber nicht kritisch für den Emulator.
 
@@ -153,8 +183,8 @@ Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt n
 
 **Acceptance Scenarios**:
 
-1. **Given** ein Slot mit Screen, **When** in der Kopfleiste gewischt oder die Pfeiltaste getippt
-   wird, **Then** zeigt der Slot sofort den nächsten View.
+1. **Given** ein Slot mit Screen, **When** die Pfeiltaste in der Kopfleiste getippt wird, **Then**
+   zeigt der Slot sofort den nächsten View.
 2. **Given** eine geänderte Belegung, **When** die App neu geladen wird, **Then** ist die Belegung
    wiederhergestellt; Emulatorzustand und ROM liegen getrennt davon.
 
@@ -162,26 +192,60 @@ Kopfleiste (Swipe dort oder Pfeiltasten daneben) tauschen. Die Belegung bleibt n
 
 ### User Story 7 - Einzelnes Quadrat vergrößern (Priority: P2)
 
-Die Nutzerin vergrößert ein Quadrat per Doppeltipp auf den Inhalt oder per Zoom-Schalter in der
-Kopfleiste auf die ganze Fläche, z. B. den Screen auf einem kleinen Handy. Erneuter Doppeltipp oder
-Schalter stellt das Raster wieder her. Die Funktion gehört zum Raster und gilt für jeden View.
+Die Nutzerin vergrößert ein Quadrat per Zoom-Schalter in der Kopfleiste auf die ganze Fläche, z. B.
+den Screen auf einem kleinen Handy. Erneutes Betätigen des Schalters stellt das Raster wieder her. Die
+Funktion gehört zum Raster und gilt für jeden View. Es gibt bewusst keine Zoom-Geste (sparsam mit
+Gesten).
 
 **Why this priority**: Kleine Displays und E-Ink-Geräte profitieren sofort; Editor und
 Disassembly (M2/M3) nutzen dieselbe Funktion.
 
-**Independent Test**: Quadrat per Doppeltipp und per Schalter vergrößern und zurückschalten;
+**Independent Test**: Quadrat per Zoom-Schalter vergrößern und zurückschalten;
 Raster und Inhalte bleiben unverändert erhalten.
 
 **Acceptance Scenarios**:
 
-1. **Given** das Raster mit mehreren Slots, **When** auf einen Slot doppelt getippt wird, **Then**
-   füllt er sofort (ohne Animation) die gesamte Rasterfläche, die anderen Slots sind ausgeblendet.
-2. **Given** ein vergrößerter Slot, **When** erneut doppelt getippt oder der Zoom-Schalter in der
-   Kopfleiste betätigt wird, **Then** erscheint wieder das vorherige Raster.
+1. **Given** das Raster mit mehreren Slots, **When** der Zoom-Schalter in der Kopfleiste eines Slots
+   betätigt wird, **Then** füllt er sofort (ohne Animation) die gesamte Rasterfläche, die anderen Slots
+   sind ausgeblendet.
+2. **Given** ein vergrößerter Slot, **When** der Zoom-Schalter erneut betätigt wird, **Then** erscheint
+   wieder das vorherige Raster.
 3. **Given** ein vergrößerter Screen-View, **When** das Spiel läuft, **Then** läuft die Emulation
    ununterbrochen weiter; ausgeblendete Views erhalten keine Frame-Updates.
 4. **Given** ein vergrößerter Slot, **When** die App neu geladen wird, **Then** ist er weiterhin
    vergrößert (gespeichert im Layout-Zustand).
+5. **Given** ein beliebiger Slot, **When** doppelt auf seinen Inhalt getippt wird, **Then** ändert sich
+   die Größe nicht (keine Zoom-Geste; im Controller bleibt es eine Spieleingabe).
+
+---
+
+### User Story 8 - ROM-Speicherkonzept verstehen (Priority: P2)
+
+Die Nutzerin schaut sich ein bestehendes ROM an. Der View „ROM Info“ zeigt ihr, was im Header des
+geladenen ROMs steht: Titel, Cartridge-Typ, ROM-Größe mit Anzahl der ROM-Bänke und RAM-Größe. Der
+View „Memory Map“ zeigt, wie der Adressraum des DMG-01 aufgeteilt ist. So versteht sie, wo das ROM
+im Adressraum liegt und dass größere ROMs aus mehreren Bänken bestehen, von denen immer eine in
+den umschaltbaren Bereich eingeblendet ist.
+
+**Why this priority**: Da in M1 bestehende ROMs angeschaut werden, ist das Speicherkonzept die
+Grundlage für Editor und Disassembly in M2/M3.
+
+**Independent Test**: Ein freies Test-ROM laden; „ROM Info“ zeigt die erwarteten Header-Werte,
+„Memory Map“ die Bereichsübersicht mit der passenden Bankanzahl.
+
+**Acceptance Scenarios**:
+
+1. **Given** ein geladenes ROM, **When** der View „ROM Info“ geöffnet wird, **Then** zeigt er
+   Titel, Cartridge-Typ, ROM-Größe, Anzahl der ROM-Bänke und RAM-Größe aus dem Header.
+2. **Given** der View „Memory Map“, **When** er angezeigt wird, **Then** enthält er eine Übersicht
+   der DMG-Adressbereiche, in der fester ROM-Bereich (Bank 0) und umschaltbarer ROM-Bereich
+   (Bank 1 bis n, n aus dem Header des geladenen ROMs) unterscheidbar sind.
+3. **Given** kein ROM ist geladen, **When** die Views geöffnet werden, **Then** zeigt „Memory Map“
+   die Bereichsübersicht ohne Bankanzahl und „ROM Info“ einen Hinweis, dass kein ROM geladen ist,
+   samt der Möglichkeit, eines zu laden.
+4. **Given** der View „ROM Info“, **When** er angezeigt wird, **Then** bietet er ROM laden,
+   Startmodus (eigene Boot-ROM, Direktstart, optional „Hardware-nah“), Pause/Fortsetzen,
+   Zurücksetzen und Lautstärke an.
 
 ---
 
@@ -189,13 +253,20 @@ Raster und Inhalte bleiben unverändert erhalten.
 
 - Datei ist kein gültiges ROM (zu klein, falsche Größe, beschädigt): klare Fehlermeldung, der
   Emulator bleibt im vorherigen Zustand.
-- ROM nutzt einen vom Core nicht unterstützten Cartridge-Typ (MBC): verständliche Meldung statt Absturz.
+- ROM nutzt einen Cartridge-Typ (MBC), den der Core nicht unterstützt: verständliche Meldung statt
+  Absturz. Für ROM ohne MBC, MBC1, MBC3 und MBC5 darf das nicht auftreten.
 - Game-Boy-Color-ROM: Reine Color-ROMs werden mit verständlicher Meldung abgelehnt. ROMs, die
   auch auf dem DMG-01 laufen, werden im DMG-Modus ausgeführt; Color-Funktionen werden nie emuliert.
 - Browser blockiert die Tonausgabe bis zur ersten Nutzeraktion: Das Spiel startet trotzdem, ein
   Hinweis bietet das Einschalten des Tons an.
 - Gerät ohne Audioausgabe oder stumm geschaltet: Emulation läuft unverändert.
 - Tab geht in den Hintergrund oder das Gerät sperrt: Emulator pausiert und setzt ohne Zeitsprung fort.
+- Es ist bereits ein ROM gespeichert und ein neues wird gewählt: Hinweis, dass das gespeicherte
+  ROM samt Spielstand ersetzt wird und der Spielstand verloren geht (die ROM-Datei selbst liegt weiter
+  auf dem Gerät). Danach wird es
+  ersetzt.
+- App wird geschlossen, neu geladen oder geht in den Hintergrund, während ein Spiel mit
+  batteriegepuffertem Cartridge-RAM läuft: Der Spielstand ist danach erhalten.
 - Speicher des Browsers ist voll: Meldung, ROM kann trotzdem einmalig gestartet werden.
 - Mehrfaches Tippen auf Controller-Tasten in schneller Folge: keine verlorenen Eingaben.
 - Modus "Hardware-nah" aus und ROM mit ungültigem Header: ROM startet trotzdem, Hinweis wird angezeigt.
@@ -204,9 +275,14 @@ Raster und Inhalte bleiben unverändert erhalten.
 
 ### Functional Requirements
 
-- **FR-001**: Das System MUSS ROM-Dateien vom Gerät laden und im Emulator ausführen.
-- **FR-002**: Geladene ROMs MÜSSEN lokal im Browser gespeichert und ohne erneute Dateiauswahl
-  wieder startbar sein; sie verlassen das Gerät nie.
+- **FR-001**: Das System MUSS ROM-Dateien vom Gerät laden und im Emulator ausführen. Mindestens
+  unterstützt werden die Cartridge-Typen ROM ohne MBC, MBC1, MBC3 und MBC5 (Header-Codes laut Pan
+  Docs); jeder dieser Typen wird mit einem freien oder selbst gebauten Test-ROM getestet. Andere
+  Typen dürfen laufen, sind aber nicht zugesichert.
+- **FR-002**: Das zuletzt geladene ROM MUSS lokal im Browser gespeichert und ohne erneute
+  Dateiauswahl wieder startbar sein; es verlässt das Gerät nie. Es wird immer genau ein ROM
+  gehalten: Ein neu geladenes ROM ersetzt das gespeicherte, nachdem die Oberfläche darauf
+  hingewiesen hat.
 - **FR-003**: Der Emulator MUSS als Dienst ohne eigene UI laufen und ausschließlich über den
   Emulator-Port angesprochen werden.
 - **FR-004**: Der Emulator MUSS Frame-Snapshots und diskrete Ereignisse über die in M0 definierten
@@ -218,12 +294,13 @@ Raster und Inhalte bleiben unverändert erhalten.
   nur im Emulator verwendet wird, selbst geschrieben ist und keinen Code oder Daten der
   Nintendo-Boot-ROM enthält.
 - **FR-008**: Die eigene Boot-ROM MUSS kompatibel zur Nintendo-Boot-ROM des DMG-01 sein: Nach
-  ihrem Ablauf MÜSSEN CPU- und I/O-Register den Pan-Docs-Werten ("Power Up Sequence", DMG)
-  entsprechen und die Ausführung MUSS bei `$0100` fortgesetzt werden; dies MUSS automatisch
+  ihrem Ablauf MÜSSEN CPU- und I/O-Register den Pan-Docs-Werten ("Power Up Sequence", nur die
+  Spalte „DMG“; DMG0 und MGB sind kein Ziel) entsprechen und die Ausführung MUSS bei `$0100` fortgesetzt werden; dies MUSS automatisch
   getestet werden.
 - **FR-009**: Das System MUSS zwei Startmodi unterstützen: eigene Boot-ROM und Direktstart ohne
   Boot-ROM. Fremde Boot-ROMs werden nicht eingebunden.
-- **FR-010**: Ein Test MUSS belegen, dass ein freies Test-ROM in beiden Startmodi identisch läuft.
+- **FR-010**: Ein Test MUSS belegen, dass jedes Test-ROM des Projekts (selbst gebaut oder frei
+  lizenziert) in beiden Startmodi identisch läuft (Constitution VII).
 - **FR-011**: Ein optionaler Modus "Hardware-nah" MUSS Header-Logo und Header-Checksumme wie die
   Original-Boot-ROM prüfen und bei Abweichung anhalten.
 - **FR-012**: Der Emulator MUSS Pause, Fortsetzen und Zurücksetzen über den Aktionskanal unterstützen.
@@ -248,19 +325,38 @@ Raster und Inhalte bleiben unverändert erhalten.
   Ton laufen dabei mit voller Geschwindigkeit weiter.
 - **FR-022**: Der E-Ink-Modus des Screen-Views MUSS auf der drosselbaren Rate des
   Frame-Zustand-Kanals aufbauen, ohne Sonderlogik im Emulator; seine Einstellungen bleiben erhalten.
-- **FR-023**: Jeder Slot MUSS sich per Doppeltipp auf den Inhalt und per Zoom-Schalter in der
-  Kopfleiste auf die gesamte Rasterfläche vergrößern und ebenso zurückschalten lassen, sofort und
-  ohne Animation. Die Funktion liegt im Raster (`src/app/layout`), nicht in einzelnen Views.
+- **FR-023**: Jeder belegte Slot MUSS in seiner Kopfleiste einen Zoom-Schalter haben, mit dem er sich
+  auf die gesamte Rasterfläche vergrößern und ebenso zurückschalten lässt, sofort und ohne Animation.
+  Es gibt keine Zoom-Geste (kein Doppeltipp). Die Funktion liegt im Raster (`src/app/layout`), nicht in einzelnen Views.
 - **FR-024**: Welcher Slot vergrößert ist, MUSS ausschließlich im Layout-Zustand gespeichert werden;
   ausgeblendete Slots gelten als nicht sichtbar (keine Frame-Updates).
+- **FR-025**: Es MUSS einen View „Memory Map“ geben, der statisch die Adressbereiche des DMG-01
+  anzeigt, inklusive fester ROM-Bank 0 und umschaltbarer ROM-Bank mit der Bankanzahl des geladenen
+  ROMs. Der View „ROM Info“ MUSS die Header-Daten des geladenen ROMs anzeigen (Titel,
+  Cartridge-Typ, ROM-Größe mit Bankanzahl, RAM-Größe). Bereichsgrenzen und Bedeutung der
+  Header-Felder stammen aus Pan Docs ("Memory Map", "The Cartridge Header") und werden getestet.
+  Keiner der beiden Views zeigt Live-Speicherinhalt.
+- **FR-026**: Bei Cartridge-Typen mit batteriegepuffertem RAM (laut Header) MUSS dessen Inhalt
+  lokal gespeichert und beim nächsten Start desselben ROMs wiederhergestellt werden, spätestens
+  bei Pause, Hintergrund-Tab oder Schließen der App. Der Spielstand gehört zum gespeicherten ROM
+  und wird mit ihm ersetzt. Export als Datei und die MBC3-Echtzeituhr sind nicht Teil von M1.
+- **FR-027**: Der View „ROM Info“ MUSS die Bedienelemente außerhalb des Gamepads bündeln: ROM
+  laden, Startmodus (eigene Boot-ROM, Direktstart, „Hardware-nah“), Pause/Fortsetzen,
+  Zurücksetzen und Lautstärke. Alle Aktionen laufen über den Aktionskanal. Zusätzlich MUSS die
+  Kopfleiste des Screen-Views einen Stumm-Schalter haben.
 
 ### Key Entities
 
-- **ROM**: Binärdatei eines Spiels; in M1 Laufzeit-Eingabe, ab M2 nur noch Build-Ergebnis.
+- **ROM**: Binärdatei eines Spiels; in M1 Laufzeit-Eingabe, ab M2 nur noch Build-Ergebnis. Es
+  existiert immer höchstens ein gespeichertes ROM.
 - **Boot-ROM-Modus**: eigene Boot-ROM oder Direktstart; optional "Hardware-nah".
 - **Audioeinstellungen**: stumm/laut, Lautstärke.
 - **Screen-Einstellungen**: normaler Modus oder E-Ink-Modus mit Rate, Graustufen-Mapping, Dithering.
 - **Emulator-Zustand**: Register, Flags, Speicher, Zyklen; veröffentlicht als Frame-Snapshot.
+- **ROM-Header-Info**: aus dem Header gelesene Werte (Titel, Cartridge-Typ, ROM-Größe,
+  Anzahl ROM-Bänke, RAM-Größe); abgeleitet aus dem ROM, nicht separat gespeichert.
+- **Spielstand**: Inhalt des batteriegepufferten Cartridge-RAMs; gehört zum einen gespeicherten
+  ROM, wird mit ihm ersetzt; getrennt von Layout und Emulatorzustand.
 - **Eingabezustand**: gedrückte Tasten des Controllers.
 - **Layout**: Slot-Belegung und ggf. vergrößerter Slot, getrennt von ROM und Emulatorzustand.
 
@@ -268,17 +364,19 @@ Raster und Inhalte bleiben unverändert erhalten.
 
 ### Measurable Outcomes
 
-- **SC-001**: 100 % der Boot-Zustandstests (alle Register laut Pan Docs) sind grün.
-- **SC-002**: Ein freies Test-ROM erzeugt mit eigener Boot-ROM und im Direktstart nach derselben
+- **SC-001**: 100 % der Boot-Zustandstests (alle Register laut Pan Docs, Spalte „DMG“) sind grün.
+- **SC-002**: Jedes Test-ROM des Projekts erzeugt mit eigener Boot-ROM und im Direktstart nach derselben
   Anzahl Frames dieselbe Bild- und Tonausgabe.
-- **SC-003**: Auf einem Mittelklasse-Smartphone läuft der Emulator mit Screen und Controller
-  sichtbar mit voller Geschwindigkeit (ca. 60 Bilder pro Sekunde) ohne spürbares Ruckeln.
+- **SC-003**: Auf dem im Abnahmeprotokoll benannten Mittelklasse-Smartphone läuft der Emulator mit
+  Screen und Controller mit voller Geschwindigkeit (ca. 60 Bilder pro Sekunde): Die Rechenzeit pro
+  Frame liegt im 95. Perzentil unter 16,7 ms (über 5 Minuten gemessen).
 - **SC-004**: Zwischen Tastendruck im Controller-Quadrat und Reaktion im Spiel vergeht höchstens
   ein Frame plus Anzeigeverzögerung.
 - **SC-005**: Ein ROM ist von der Dateiauswahl bis zum laufenden Spiel in unter 5 Sekunden gestartet.
 - **SC-006**: Ausgeblendete Views verarbeiten 0 Frame-Updates.
-- **SC-007**: Der Ton läuft auf einem Mittelklasse-Smartphone ohne hörbare Aussetzer und bleibt
-  über 10 Minuten Spielzeit synchron zum Bild.
+- **SC-007**: Der Ton läuft auf dem benannten Smartphone über 10 Minuten Spielzeit ohne Aussetzer und
+  synchron zum Bild: Die Zähler für Pufferunterlauf und -überlauf bleiben bei 0, die Hörprobe ist
+  unauffällig.
 - **SC-008**: Im E-Ink-Modus wird das Bild höchstens mit der eingestellten Rate neu gezeichnet,
   während die Emulation weiterhin ca. 60 Frames pro Sekunde berechnet.
 
@@ -297,3 +395,5 @@ Raster und Inhalte bleiben unverändert erhalten.
 - Fremde Boot-ROMs (z. B. von SameBoy) werden nicht eingebunden. Das weicht vom ursprünglichen
   Briefing ab; das Briefing wurde entsprechend angepasst.
 - Debugger-Funktionen (Breakpoints, Step im UI) gehören zu M4; der Port muss sie nur vorsehen.
+- M1 hat nur ein Theme (E-Ink-first). Eine automatische Voreinstellung des E-Ink-Modus über einen
+  Theme-Schalter ist nicht Teil von M1.

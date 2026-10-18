@@ -16,8 +16,9 @@
 ## UX-Grundkonzept
 
 - Jeder View ist ein Quadrat. Hochformat: zwei Quadrate untereinander, Querformat: nebeneinander, große Screens: Raster bis 4x4.
-- Ein Quadrat wird nur über seine Kopfleiste gewechselt (Swipe dort, Pfeiltasten daneben), damit Gesten im Inhalt nicht kollidieren.
-- Vollbild/Zoom pro Slot (z. B. Doppeltipp) für textlastige Views.
+- Ein Quadrat wird nur über die Pfeiltasten in seiner Kopfleiste gewechselt (kein Wischen), damit nichts mit Eingaben im Inhalt kollidiert.
+- Vollbild/Zoom pro Slot über einen Zoom-Schalter in der Kopfleiste (keine Zoom-Geste).
+- Sparsam mit Gesten: sichtbare Schalter statt Gesten, weil Gesten fehleranfällig sind.
 - Unsichtbare Views aktualisieren sich nicht.
 
 ## Hardware-Treue
