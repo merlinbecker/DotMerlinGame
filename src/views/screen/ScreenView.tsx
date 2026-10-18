@@ -51,7 +51,6 @@ export function ScreenView({ context, state, setState }: ViewInstanceProps<Scree
     canvas.current?.setAttribute('data-redraws', String(redraws.current));
   }, [snapshot, shades, einkGrays, eink, state.einkMapping, state.einkDither]);
 
-  const scale = Math.max(1, Math.floor(Math.min(context.size.width / WIDTH, (context.size.height * 0.62) / HEIGHT)));
   const update = (patch: Partial<ScreenViewState>) => {
     setState({ ...state, ...patch });
   };
@@ -63,7 +62,6 @@ export function ScreenView({ context, state, setState }: ViewInstanceProps<Scree
         className={styles.canvas}
         width={WIDTH}
         height={HEIGHT}
-        style={{ width: WIDTH * scale, height: HEIGHT * scale }}
         data-testid="screen-canvas"
         data-frame={snapshot?.frame ?? 0}
         aria-label="Game screen"

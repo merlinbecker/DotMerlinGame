@@ -9,13 +9,18 @@
   background: var(--color-bg);
 }
 
+/* Fills the free area of the slot; object-fit keeps the 160:144 aspect ratio. */
 .canvas {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  object-fit: contain;
   image-rendering: pixelated;
-  border: var(--border-width-control) solid var(--color-border);
 }
 
 .controls {
   display: flex;
+  flex: none;
   flex-wrap: wrap;
   gap: var(--space-1);
   justify-content: center;

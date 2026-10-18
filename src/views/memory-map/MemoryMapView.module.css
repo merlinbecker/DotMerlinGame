@@ -10,7 +10,10 @@
 
 .list {
   display: flex;
+  flex: 1;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
   gap: var(--space-1);
   margin: 0;
   padding: 0;
@@ -48,10 +51,15 @@
 
 .name {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pager {
   display: flex;
+  flex: none;
   gap: var(--space-2);
   align-items: center;
 }
@@ -69,5 +77,6 @@
 }
 
 .legend {
+  flex: none;
   margin: 0;
 }

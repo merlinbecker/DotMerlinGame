@@ -1,11 +1,33 @@
-import { useSyncExternalStore } from 'react';
+import { useLayoutEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react';
 import { MEMORY_MAP, type ViewInstanceProps } from '../../core/index.ts';
 import type { MemoryMapState } from './definition.ts';
 import styles from './MemoryMapView.module.css';
 
-/** Approximate height of one region row and of the fixed parts (header, pager), for paging (Constitution V). */
-const ROW_HEIGHT = 30;
-const RESERVED_HEIGHT = 130;
+/** Rows per page before the first measurement. */
+const INITIAL_ROWS = 4;
+
+/** How many rows fit into the list area; measured, so the pager below is never cut off (Constitution V). */
+function useRowsPerPage(list: RefObject<HTMLOListElement | null>): number {
+  const [rows, setRows] = useState(INITIAL_ROWS);
+  useLayoutEffect(() => {
+    const element = list.current;
+    if (!element) return;
+    const measure = () => {
+      const row = element.firstElementChild as HTMLElement | null;
+      if (!row) return;
+      const gap = parseFloat(getComputedStyle(element).rowGap) || 0;
+      const fit = Math.floor((element.clientHeight + gap) / (row.offsetHeight + gap));
+      setRows(Math.max(1, fit));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, [list]);
+  return rows;
+}
 
 const hex = (n: number) => `$${n.toString(16).toUpperCase().padStart(4, '0')}`;
 
@@ -15,7 +37,8 @@ export function MemoryMapView({ context, state, setState }: ViewInstanceProps<Me
     (onChange) => context.session.subscribe(onChange),
     () => context.session.getSnapshot(),
   );
-  const perPage = Math.max(3, Math.floor((context.size.height - RESERVED_HEIGHT) / ROW_HEIGHT));
+  const list = useRef<HTMLOListElement>(null);
+  const perPage = useRowsPerPage(list);
   const pages = Math.ceil(MEMORY_MAP.length / perPage);
   const page = Math.min(state.page, pages - 1);
   const rows = MEMORY_MAP.slice(page * perPage, (page + 1) * perPage);
@@ -23,7 +46,7 @@ export function MemoryMapView({ context, state, setState }: ViewInstanceProps<Me
 
   return (
     <div className={styles.map}>
-      <ol className={styles.list}>
+      <ol ref={list} className={styles.list}>
         {rows.map((region) => (
           <li key={region.start} className={styles.region} data-kind={region.kind}>
             <span className={styles.range}>
