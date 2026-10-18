@@ -44,6 +44,21 @@ export function RomInfoView({ context }: ViewInstanceProps<null>) {
             Start stored ROM
           </button>
         )}
+        {session.runState === 'running' && (
+          <button type="button" className={styles.button} onClick={() => { context.dispatch({ type: 'Pause' }); }}>
+            Pause
+          </button>
+        )}
+        {session.runState === 'paused' && (
+          <button type="button" className={styles.button} onClick={() => { context.dispatch({ type: 'Resume' }); }}>
+            Resume
+          </button>
+        )}
+        {session.runState !== 'empty' && (
+          <button type="button" className={styles.button} onClick={() => { context.dispatch({ type: 'Reset' }); }}>
+            Reset
+          </button>
+        )}
         <input
           ref={input}
           className={styles.file}

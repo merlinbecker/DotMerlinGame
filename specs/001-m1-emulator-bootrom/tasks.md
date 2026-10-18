@@ -202,10 +202,10 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 **Independent Test**: Vertragstests mit Test-View; ausgeblendete Views verarbeiten 0 Updates.
 
-- [ ] T080 [P] [US3] Write `tests/emulator/service-contract.test.ts`: with the real emulator, snapshots contain registers, flags, cycles, changed memory of the current frame (US3-AS1); reducing the publish rate or `on-demand` lowers deliveries but the emulated frame count per tick stays the same (US3-AS3); `Pause`/`Resume`/`Reset` via session `dispatch` change run state and emit `RunStateChanged` (US3-AS4)
-- [ ] T081 [P] [US3] Write `tests/contract/hidden-view.test.tsx`: a test view in a hidden slot (and in a slot covered by a maximized slot) processes 0 frame updates while frames are published (SC-006, US3-AS2)
-- [ ] T082 [US3] Implement `Pause`/`Resume`/`Reset` routing in `src/app/session/emulator-session.ts` (Reset restarts in the current boot mode, save game kept) and buttons "Pause"/"Resume"/"Reset" in `src/views/rom-info/`
-- [ ] T083 [US3] Verify the ESLint architecture rules cover the new folders (`src/views/**` cannot import `src/adapters/**` or `src/app/session/**` internals); add a lint fixture test in `tests/tooling/` if the existing setup allows it
+- [X] T080 [P] [US3] Write `tests/emulator/service-contract.test.ts`: with the real emulator, snapshots contain registers, flags, cycles, changed memory of the current frame (US3-AS1); reducing the publish rate or `on-demand` lowers deliveries but the emulated frame count per tick stays the same (US3-AS3); `Pause`/`Resume`/`Reset` via session `dispatch` change run state and emit `RunStateChanged` (US3-AS4)
+- [X] T081 [P] [US3] Write `tests/contract/hidden-view.test.tsx`: a test view in a hidden slot (and in a slot covered by a maximized slot) processes 0 frame updates while frames are published (SC-006, US3-AS2)
+- [X] T082 [US3] Implement `Pause`/`Resume`/`Reset` routing in `src/app/session/emulator-session.ts` (Reset restarts in the current boot mode, save game kept) and buttons "Pause"/"Resume"/"Reset" in `src/views/rom-info/`
+- [X] T083 [US3] Verify the ESLint architecture rules cover the new folders (`src/views/**` cannot import `src/adapters/**` or `src/app/session/**` internals); add a lint fixture test in `tests/tooling/` if the existing setup allows it
 
 ---
 

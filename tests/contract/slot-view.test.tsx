@@ -89,6 +89,23 @@ describe('slot renders a registered view with a view context', () => {
     expect(dispatched).toEqual([{ type: 'SetMuted', muted: true }]);
   });
 
+  it('delivers no frames to a slot covered by a maximized slot (SC-006, US3-AS2)', () => {
+    frameUpdates = 0;
+    const hub = createFrameStateHub();
+    const services: AppServices = { ...createIdleServices(), frameState: hub };
+    const demand = createFrameDemand(hub);
+    render(
+      <ServicesContext value={services}>
+        <Slot content={{ viewTypeId: 'probe', viewState: null }} shown={false} visible={false} size={320} demand={demand} onCycle={vi.fn()} onViewStateChange={vi.fn()} />
+      </ServicesContext>,
+    );
+    act(() => {
+      for (let frame = 1; frame <= 60; frame++) hub.offer(frame, () => snapshot(frame));
+    });
+    expect(frameUpdates).toBe(0);
+    expect(hub.getPublishRate()).toEqual({ kind: 'on-demand' });
+  });
+
   it('passes visible = false to a hidden slot and delivers no frames to it', () => {
     frameUpdates = 0;
     const { hub } = setup(false);
