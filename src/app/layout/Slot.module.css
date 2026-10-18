@@ -1,0 +1,13 @@
+.slot {
+  display: flex;
+  flex-direction: column;
+  width: var(--slot-size);
+  height: var(--slot-size);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: var(--border-width-frame) solid var(--color-border);
+}
+
+.content {
+  flex: 1;
+}

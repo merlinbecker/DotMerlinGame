@@ -1,0 +1,8 @@
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--footer-height);
+  border-top: var(--border-width-header) solid var(--color-border);
+  font-size: var(--font-size-small);
+}
