@@ -24,3 +24,5 @@ export type { AssemblerPort, BuildResult, Diagnostic, SourceFile } from './ports
 export type { Project, ProjectStorePort, ProjectSummary } from './ports/project-store.ts';
 export type { ArchivePort } from './ports/archive.ts';
 export type { LayoutState, SlotContent } from './layout/layout-state.ts';
+export type { CartridgeType, LoadValidation, Mbc, RomHeaderInfo, RomRejectReason } from './rom/header.ts';
+export { computeHeaderChecksum, logoMatches, parseHeader, validateForLoad } from './rom/header.ts';
