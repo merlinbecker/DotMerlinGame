@@ -59,7 +59,7 @@ flowchart LR
     REPO --> VITE[Vite-Build] --> DIST[dist/ inkl.<br/>THIRD_PARTY_LICENSES]
 ```
 
-**Prüfung**: Der CI-Job `core-reproducible` baut mit demselben Skript neu und schlägt fehl, sobald sich das
+**Prüfung**: Der erste Lauf auf GitHub Actions (2026-10-18, Run 39152511283) hat das committete Artefakt byte-identisch nachgebaut. Der CI-Job `core-reproducible` baut mit demselben Skript neu und schlägt fehl, sobald sich das
 Ergebnis vom committeten Artefakt unterscheidet (`npm run core:verify`). `tests/unit/build-info.test.ts`
 prüft, dass Commit und Image in Skript, `BUILD-INFO.json` und `third_party/` übereinstimmen und die
 SHA-256-Werte zu den Dateien passen.
