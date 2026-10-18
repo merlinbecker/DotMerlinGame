@@ -1,12 +1,36 @@
 .screen {
   display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   background: var(--color-bg);
 }
 
 .canvas {
   image-rendering: pixelated;
   border: var(--border-width-control) solid var(--color-border);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  justify-content: center;
+}
+
+.button {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-2);
+  border: var(--border-width-control) solid var(--color-border);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Selected state by inversion, not color. */
+.button[aria-pressed="true"] {
+  background: var(--color-fg);
+  color: var(--color-bg);
 }

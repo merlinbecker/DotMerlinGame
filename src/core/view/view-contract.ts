@@ -89,7 +89,7 @@ export interface ViewContext {
 export interface ViewInstanceProps<S> {
   readonly context: ViewContext;
   readonly state: S;
-  setState(next: S): void;
+  readonly setState: (next: S) => void;
 }
 
 /** What a view provides. `deserialize(serialize(s))` must yield an equivalent state. */

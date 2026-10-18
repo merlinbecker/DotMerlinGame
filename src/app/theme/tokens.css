@@ -14,6 +14,12 @@
   --game-shade-2: #555;
   --game-shade-3: #000;
 
+  /* Game screen in e-ink mode: high-contrast mapping of the four shades */
+  --game-eink-shade-0: #fff;
+  --game-eink-shade-1: #c8c8c8;
+  --game-eink-shade-2: #383838;
+  --game-eink-shade-3: #000;
+
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;

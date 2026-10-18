@@ -215,10 +215,10 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 **Independent Test**: Neuzeichnungen pro Sekunde ≤ eingestellte Rate bei ~60 emulierten Frames; Graustufen unterscheidbar.
 
-- [ ] T084 [P] [US5] Write `tests/unit/eink-render.test.ts` for pure functions in `src/views/screen/eink.ts`: `mapShades(screen, 'contrast' | 'linear')` keeps the four DMG shades distinguishable; `dither(screen)` ordered Bayer produces only black/white and preserves average brightness per 4×4 block within tolerance
-- [ ] T085 [P] [US5] Write `tests/unit/screen-view-state.test.ts`: `ScreenViewState` defaults `mode: 'normal'`, `einkEveryNthFrame: 15` (allowed `4 | 6 | 15 | 30`), `einkMapping: 'contrast'`, `einkDither: false`; `deserialize(serialize(s))` equivalent; invalid JSON → defaults
-- [ ] T086 [US5] Implement `src/views/screen/eink.ts` and extend `src/views/screen/`: E-Ink toggle and settings (rate, mapping, dither) as large controls inside the view, dispatch `SetFrameRate` (`reduced(einkEveryNthFrame)` in E-Ink mode, `full` otherwise), state persisted via layout `viewState`; default normal mode (US5-AS4, PI decision)
-- [ ] T087 [US5] Write `tests/e2e/m1-eink.spec.ts`: E-Ink mode on → canvas redraw counter ≤ set rate while the emulator frame counter advances ~60/s (SC-008); reload keeps mode and settings (US5-AS3); fresh device starts in normal mode (US5-AS4)
+- [X] T084 [P] [US5] Write `tests/unit/eink-render.test.ts` for pure functions in `src/views/screen/eink.ts`: `mapShades(screen, 'contrast' | 'linear')` keeps the four DMG shades distinguishable; `dither(screen)` ordered Bayer produces only black/white and preserves average brightness per 4×4 block within tolerance
+- [X] T085 [P] [US5] Write `tests/unit/screen-view-state.test.ts`: `ScreenViewState` defaults `mode: 'normal'`, `einkEveryNthFrame: 15` (allowed `4 | 6 | 15 | 30`), `einkMapping: 'contrast'`, `einkDither: false`; `deserialize(serialize(s))` equivalent; invalid JSON → defaults
+- [X] T086 [US5] Implement `src/views/screen/eink.ts` and extend `src/views/screen/`: E-Ink toggle and settings (rate, mapping, dither) as large controls inside the view, dispatch `SetFrameRate` (`reduced(einkEveryNthFrame)` in E-Ink mode, `full` otherwise), state persisted via layout `viewState`; default normal mode (US5-AS4, PI decision)
+- [X] T087 [US5] Write `tests/e2e/m1-eink.spec.ts`: E-Ink mode on → canvas redraw counter ≤ set rate while the emulator frame counter advances ~60/s (SC-008); reload keeps mode and settings (US5-AS3); fresh device starts in normal mode (US5-AS4)
 
 ---
 
