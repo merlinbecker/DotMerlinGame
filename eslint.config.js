@@ -19,6 +19,14 @@ export default defineConfig(
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
     },
   },
+  // Type tests contain deliberate type errors behind @ts-expect-error.
+  {
+    files: ['tests/**/*.test-d.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+    },
+  },
   {
     files: ['**/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
