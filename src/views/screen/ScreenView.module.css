@@ -1,0 +1,12 @@
+.screen {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+}
+
+.canvas {
+  image-rendering: pixelated;
+  border: var(--border-width-control) solid var(--color-border);
+}

@@ -53,17 +53,20 @@ async function motionProblems(page: Page): Promise<string[]> {
 
 test('runs no animations or transitions', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByTestId('slot').first()).toBeVisible();
   expect(await motionProblems(page)).toEqual([]);
 });
 
 test('runs no animations with reduced motion either', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
+  await expect(page.getByTestId('slot').first()).toBeVisible();
   expect(await motionProblems(page)).toEqual([]);
 });
 
 test('uses grayscale only, also for focused controls', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByTestId('slot').first()).toBeVisible();
   expect(await nonGrayColors(page)).toEqual([]);
 
   const visited = new Set<string>();
@@ -85,11 +88,13 @@ test('uses grayscale only, also for focused controls', async ({ page }) => {
 
 test('has touch targets at least as large as the token', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByTestId('slot').first()).toBeVisible();
   const result = await page.evaluate(() => {
     const min = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--touch-target-min'));
     const controls = [...document.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]')];
     const tooSmall = controls
       .map((element) => element.getBoundingClientRect())
+      .filter((box) => box.width > 0 || box.height > 0) // not rendered (e.g. hidden file input): no touch target
       .filter((box) => box.width < min || box.height < min)
       .map((box) => `${box.width}x${box.height}`);
     return { min, count: controls.length, tooSmall };
@@ -102,6 +107,7 @@ test('has touch targets at least as large as the token', async ({ page }) => {
 test('saves a grayscale screenshot for manual review', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
+  await expect(page.getByTestId('slot').first()).toBeVisible();
   await page.addStyleTag({ content: 'html { filter: grayscale(1); }' });
   await page.screenshot({ path: 'test-results/m0-grayscale.png', fullPage: true });
 });

@@ -1,0 +1,62 @@
+.pad {
+  display: grid;
+  flex: 1;
+  grid-template-areas:
+    "dpad actions"
+    "menu menu";
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  place-items: center center;
+  padding: var(--space-2);
+  touch-action: none;
+  user-select: none;
+}
+
+.button {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  border: var(--border-width-control) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  touch-action: none;
+}
+
+/* Pressed state by inversion, not color. */
+.button:active {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.dpad {
+  display: grid;
+  grid-area: dpad;
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: var(--space-1);
+}
+
+.up { grid-area: up; }
+.left { grid-area: left; }
+.right { grid-area: right; }
+.down { grid-area: down; }
+
+.actions {
+  display: flex;
+  grid-area: actions;
+  gap: var(--space-3);
+}
+
+.a,
+.b {
+  border-radius: 50%;
+}
+
+.menu {
+  display: flex;
+  grid-area: menu;
+  gap: var(--space-3);
+}

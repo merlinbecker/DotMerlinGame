@@ -8,6 +8,12 @@
   --color-bg: #fff;
   --color-border: #000;
 
+  /* Game screen: the four DMG shades, 0 = lightest (only the screen canvas uses these) */
+  --game-shade-0: #fff;
+  --game-shade-1: #aaa;
+  --game-shade-2: #555;
+  --game-shade-3: #000;
+
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;

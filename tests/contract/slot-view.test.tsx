@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useEffect } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { FrameSnapshot, JsonValue, ViewAction, ViewInstanceProps } from '../../src/core/index.ts';
+import type { FrameSnapshot, ViewAction, ViewInstanceProps } from '../../src/core/index.ts';
 import { createFrameStateHub } from '../../src/core/events/frame-state-hub.ts';
 import { createFrameDemand } from '../../src/app/layout/frame-demand.ts';
 import { Slot } from '../../src/app/layout/Slot.tsx';
@@ -42,7 +42,7 @@ registerViews([
       icon: 'probe',
       initialState: null,
       serialize: () => null,
-      deserialize: (_json: JsonValue) => null,
+      deserialize: () => null,
       headerActions: (session) => [{ id: 'mute', label: session.audio.muted ? 'Unmute' : 'Mute', pressed: session.audio.muted, action: { type: 'SetMuted', muted: !session.audio.muted } }],
     },
     ProbeView,

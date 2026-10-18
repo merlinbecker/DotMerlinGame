@@ -29,12 +29,17 @@ async function expectArrangement(page: Page, arrangement: 'stacked' | 'side-by-s
     .toBe(arrangement);
 }
 
-test('shows square empty slots with headers', async ({ page }) => {
+test('shows square slots with headers', async ({ page }) => {
   await page.goto('/');
-  const boxes = await slotBoxes(page);
-  expect(boxes.length).toBeGreaterThanOrEqual(2);
-  for (const box of boxes) expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(1);
-  await expect(page.getByTestId('slot-header')).toHaveCount(boxes.length);
+  // The grid settles after the first resize observation, so wait for a stable square layout.
+  await expect
+    .poll(async () => {
+      const boxes = await slotBoxes(page);
+      const square = boxes.length >= 2 && boxes.every((box) => box.width > 0 && Math.abs(box.width - box.height) <= 1);
+      const headers = await page.getByTestId('slot-header').count();
+      return square && headers === boxes.length;
+    })
+    .toBe(true);
 });
 
 test('stacks slots in portrait and places them side by side in landscape', async ({ page }) => {

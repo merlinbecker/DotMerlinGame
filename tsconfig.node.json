@@ -4,5 +4,5 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"]
   },
-  "include": ["tests", "build", "scripts", "src/vite-env.d.ts", "*.config.ts"]
+  "include": ["tests", "build", "scripts", "src/vite-env.d.ts", "src/adapters/emulator/sameboy/sameboy-module.d.ts", "*.config.ts"]
 }
