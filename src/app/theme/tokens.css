@@ -1,0 +1,48 @@
+/*
+ * Design tokens: the only place for literal colors, sizes and times (Constitution V, FR-006).
+ * Grayscale only. Motion is off: all durations are 0ms.
+ */
+:root {
+  /* Colors */
+  --color-fg: #000;
+  --color-bg: #fff;
+  --color-muted: #555;
+  --color-border: #000;
+  --color-inverse-fg: #fff;
+  --color-inverse-bg: #000;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Borders */
+  --border-width-frame: 3px;
+  --border-width-header: 2px;
+  --border-width-control: 2px;
+
+  /* Focus */
+  --focus-outline-width: 4px;
+  --focus-outline-offset: 2px;
+  --focus-outline-color: #000;
+
+  /* Sizes */
+  --touch-target-min: 48px;
+  --slot-min-size: 320px;
+  --footer-height: 32px;
+
+  /* Typography */
+  --font-family-ui: system-ui, sans-serif;
+  --font-size-small: 14px;
+  --font-size-body: 16px;
+  --font-size-title: 18px;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+
+  /* Time (motion off) */
+  --duration-short: 0ms;
+  --duration-medium: 0ms;
+}

@@ -1,0 +1,54 @@
+@import url("./tokens.css");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color: var(--color-fg);
+  background: var(--color-bg);
+  font-family: var(--font-family-ui);
+  font-size: var(--font-size-body);
+  caret-color: var(--color-fg);
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* Motion off by default (FR-006, FR-007). */
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--focus-outline-width) solid var(--focus-outline-color);
+  outline-offset: var(--focus-outline-offset);
+}
+
+button {
+  font: inherit;
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
