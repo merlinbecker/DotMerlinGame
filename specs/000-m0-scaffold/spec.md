@@ -19,6 +19,7 @@ abschaltbar.
 - Q: In welcher Sprache erscheinen die Texte der Oberfläche? → A: Nur Englisch, Texte direkt im Code (keine Übersetzungsinfrastruktur, um Komplexität zu sparen; nachträglich revidiert).
 - Q: Welche Lizenzen sind für Abhängigkeiten erlaubt? → A: Freizügige Lizenzen: MIT, BSD-2-Clause, BSD-3-Clause, ISC, Apache-2.0, Zlib, 0BSD, CC0-1.0, Unlicense. Alles andere nur als Einzelausnahme mit ADR.
 - Q: Auf welchen Browsern und Geräten muss die App für die Abnahme laufen? → A: Nur aktuelles Chrome (Android, Desktop, E-Ink-Geräte mit Android); automatische Tests nur in Chromium. Wichtig ist der funktionierende Rundlauf, nicht breite Kompatibilität. Weitere Browser sind nicht Teil der ersten Meilensteine (nachträglich revidiert).
+- Q: Wie streng gilt der Lizenz-Check für Entwicklungswerkzeuge, die nicht ausgeliefert werden? → A: Zweistufig: ausgelieferter Code strikt gegen die Freigabeliste; Entwicklungswerkzeuge blockieren nur bei GPL, AGPL, LGPL, SSPL (alle Varianten) oder fehlender Lizenz, alles andere wird aufgelistet.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,8 +94,9 @@ ausführen; Push auf einen Branch löst die CI aus, die grün wird.
    Secret-Scan und Lizenz-Check und ist grün.
 3. **Given** ein Commit mit einem absichtlich eingefügten Test-Secret, **When** der Secret-Scan
    läuft, **Then** schlägt er fehl.
-4. **Given** eine Abhängigkeit mit einer Lizenz außerhalb der Freigabeliste (z. B. GPL, LGPL,
-   MPL) oder ohne erkennbare Lizenz, **When** der Lizenz-Check läuft, **Then** schlägt er fehl.
+4. **Given** eine Laufzeit-Abhängigkeit mit einer Lizenz außerhalb der Freigabeliste oder ein
+   Entwicklungswerkzeug mit GPL-, AGPL-, LGPL- oder SSPL-Lizenz bzw. ohne erkennbare Lizenz,
+   **When** der Lizenz-Check läuft, **Then** schlägt er fehl.
 5. **Given** eine Datei mit ROM-Endung (z. B. `.gb`, `.gbc`) im Arbeitsverzeichnis, **When**
    `git status` ausgeführt wird, **Then** wird sie ignoriert.
 
@@ -179,10 +181,11 @@ ADRs zu bereits feststehenden Entscheidungen, die MIT-Lizenz und ein vorbereitet
   eine Gesamtprüfung geben; die Gesamtprüfung entspricht der CI.
 - **FR-011**: Die CI MUSS bei jedem Push Build, Lint, Typprüfung, Tests, Secret-Scan und
   Lizenz-Check ausführen.
-- **FR-012**: Der Lizenz-Check MUSS nur Abhängigkeiten mit einer Lizenz aus der Freigabeliste
-  durchlassen: MIT, BSD-2-Clause, BSD-3-Clause, ISC, Apache-2.0, Zlib, 0BSD, CC0-1.0, Unlicense.
-  Jede andere Lizenz (insbesondere GPL, LGPL, MPL) und Abhängigkeiten ohne erkennbare Lizenz
-  MÜSSEN den Check scheitern lassen, sofern sie nicht als Einzelausnahme mit ADR freigegeben sind.
+- **FR-012**: Der Lizenz-Check MUSS zweistufig prüfen: Ausgelieferter Code (Laufzeit-Abhängigkeiten)
+  MUSS eine Lizenz aus der Freigabeliste haben: MIT, BSD-2-Clause, BSD-3-Clause, ISC, Apache-2.0,
+  Zlib, 0BSD, CC0-1.0, Unlicense. Entwicklungswerkzeuge MÜSSEN den Check nur bei GPL, AGPL, LGPL oder
+  SSPL (jede Variante) oder fehlender Lizenz scheitern lassen; andere Lizenzen werden aufgelistet.
+  Abweichungen sind nur als Einzelausnahme mit ADR zulässig.
 - **FR-013**: Die Ignorier-Regeln des Repos MÜSSEN ROM-Dateien ausschließen.
 - **FR-014**: Es MUSS einen framework-unabhängigen View-Vertrag geben (Eingaben: Größe,
   Emulator-Zustand read-only und abonnierbar, Projektzustand, Aktionskanal; Ausgaben:
