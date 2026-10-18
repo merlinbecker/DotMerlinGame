@@ -5,21 +5,28 @@ import { PROJECT_NAME } from '../../src/config/project.ts';
 const buildInfo = JSON.parse(readFileSync('dist/build-info.json', 'utf8')) as { appVersion: string; version: string };
 const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
 
+/** Measures all slots in one step, so a re-render cannot happen between two measurements. */
 async function slotBoxes(page: Page) {
-  const slots = page.getByTestId('slot');
-  await expect(slots.first()).toBeVisible();
-  const boxes = [];
-  for (const slot of await slots.all()) {
-    const box = await slot.boundingBox();
-    if (box) boxes.push(box);
-  }
-  return boxes;
+  await expect(page.getByTestId('slot').first()).toBeVisible();
+  return page.evaluate(() =>
+    [...document.querySelectorAll('[data-testid="slot"]')].map((slot) => {
+      const { x, y, width, height } = slot.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
 }
 
-async function firstTwoSlots(page: Page) {
-  const [first, second] = await slotBoxes(page);
-  if (!first || !second) throw new Error('expected at least two slots');
-  return [first, second] as const;
+/** Waits until the first two slots are arranged as expected (layout settles after a resize). */
+async function expectArrangement(page: Page, arrangement: 'stacked' | 'side-by-side') {
+  await expect
+    .poll(async () => {
+      const [a, b] = await slotBoxes(page);
+      if (!a || !b) return 'missing';
+      if (Math.abs(b.x - a.x) <= 1 && b.y > a.y) return 'stacked';
+      if (Math.abs(b.y - a.y) <= 1 && b.x > a.x) return 'side-by-side';
+      return 'other';
+    })
+    .toBe(arrangement);
 }
 
 test('shows square empty slots with headers', async ({ page }) => {
@@ -33,14 +40,10 @@ test('shows square empty slots with headers', async ({ page }) => {
 test('stacks slots in portrait and places them side by side in landscape', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const [a, b] = await firstTwoSlots(page);
-  expect(b.y).toBeGreaterThan(a.y);
-  expect(Math.abs(b.x - a.x)).toBeLessThanOrEqual(1);
+  await expectArrangement(page, 'stacked');
 
   await page.setViewportSize({ width: 844, height: 390 });
-  const [c, d] = await firstTwoSlots(page);
-  expect(d.x).toBeGreaterThan(c.x);
-  expect(Math.abs(d.y - c.y)).toBeLessThanOrEqual(1);
+  await expectArrangement(page, 'side-by-side');
 });
 
 test('never scrolls horizontally on very small screens', async ({ page }) => {
