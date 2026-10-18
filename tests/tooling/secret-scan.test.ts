@@ -28,7 +28,7 @@ function scan(content: string): number {
 function fakeGithubToken(): string {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let body = '';
-  for (let i = 0; i < 36; i++) body += alphabet[Math.floor(Math.random() * alphabet.length)];
+  for (let i = 0; i < 36; i++) body += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
   return ['gh', 'p_'].join('') + body;
 }
 

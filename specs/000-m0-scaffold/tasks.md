@@ -130,7 +130,7 @@ Negativproben aus [quickstart.md](quickstart.md) Abschnitt 3.
 - [X] T034 [US3] Implement `scripts/license-policy.ts` exporting `evaluateLicenses(packages, exceptions)` (pure, SPDX `OR`/`AND` handling, allowlist and copyleft regex `/\b(A|L)?GPL\b|SSPL/i`) and `scripts/check-licenses.ts` that runs license-checker-rseidelsohn twice (`--production` and `--development`, `--json --excludePrivatePackages`), loads `third_party/license-exceptions.json`, prints a table of `listed` dev packages, exits 1 on any `blocked`, and verifies `THIRD_PARTY_LICENSES` equals the output of the generator (T052)
 - [X] T035 [P] [US3] Create `.secretlintrc.json` with `@secretlint/secretlint-rule-preset-recommend` and `scripts/check-secrets.ts` running secretlint on `git ls-files` output (excluding `package-lock.json` only if needed and documented)
 - [X] T036 [US3] Resolve exact commit SHAs again with `git ls-remote` and create `.github/workflows/ci.yml`: on `push` and `pull_request`; `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1`, `actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0` with `node-version-file: .nvmrc` and npm cache; `npm ci`; `npx playwright install --with-deps chromium`; `npm run check`; `permissions: contents: read`
-- [ ] T037 [US3] Verify locally (no file change, result goes into `docs/abnahme/m0.md`): fresh `rm -rf node_modules dist && npm ci && npm run check` passes; record result in the PR description
+- [X] T037 [US3] Verify locally (no file change, result goes into `docs/abnahme/m0.md`): fresh `rm -rf node_modules dist && npm ci && npm run check` passes; record result in the PR description
 
 - [ ] T038 [US3] Ask the project owner for approval, then push `feature/firstSteps` to GitHub and confirm the CI run for `.github/workflows/ci.yml` is green (SC-001); record run URL in `docs/abnahme/m0.md`
 
@@ -185,7 +185,7 @@ Vertragstests abgesichert; Test-Rahmen für Roundtrip und Boot-Zustand.
 - [X] T055 Update `CLAUDE.md` section "Befehle" with the final scripts from [contracts/npm-scripts.md](contracts/npm-scripts.md) (remove "werden in M0 angelegt")
 - [X] T056 Update root `README.md` (English, short): what the project is, "no backend, static site", `npm ci`, `npm run dev`, `npm run check`, link to `docs/`
 - [ ] T057 Run full acceptance from [quickstart.md](quickstart.md) sections 1–5 incl. manual device check in Chrome on Android/E-Ink; store grayscale screenshot under `docs/abnahme/m0-grayscale.png` and note results in `docs/abnahme/m0.md` (German)
-- [ ] T058 Re-check Constitution gates in [plan.md](plan.md) against the built result; mark spec acceptance criteria as verified
+- [X] T058 Re-check Constitution gates in [plan.md](plan.md) against the built result; mark spec acceptance criteria as verified
 
 ---
 
