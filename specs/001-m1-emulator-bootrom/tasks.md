@@ -40,12 +40,12 @@ relativ zum Repo-Root.
 
 **Purpose**: Werkzeuge, Ignore-Regeln, Testkonfiguration
 
-- [ ] T001 Extend `.gitignore` with `.tools/`, `.build/`, `tests/roms/build/` and extend `tests/tooling/gitignore.test.ts` to assert these entries plus that `src/adapters/emulator/sameboy/generated/` and `src/adapters/emulator/bootrom/generated/` are **not** ignored
-- [ ] T002 [P] Write `tests/tooling/fetch-rgbds.test.ts` for `verifySha256(buffer, expected)` and `rgbdsPaths(root)` from `scripts/fetch-rgbds.ts` (matching hash passes, mismatching hash throws, paths point to `.tools/rgbds/rgbasm|rgblink|rgbfix`)
-- [ ] T003 Implement `scripts/fetch-rgbds.ts`: download `https://github.com/gbdev/rgbds/releases/download/v1.0.4/rgbds-linux-x86_64.tar.xz`, verify SHA-256 `3e19e50ea602e316be709160acaf0a708b1fa6d32d219ec541f244442895dbb7`, extract to `.tools/rgbds/`, skip if binaries exist with matching version (`rgbasm -V`), fail with a clear message on non-Linux-x86_64; add npm script `tools:rgbds` in `package.json`
-- [ ] T004 [P] Update `vitest.config.ts`: include `tests/emulator/**/*.test.ts` and `tests/boot-state/**/*.test.ts`; emulator and boot-state tests run in environment `node` (per-file `// @vitest-environment node` header or `environmentMatchGlobs`)
-- [ ] T005 [P] Update `eslint.config.js`: ignore `**/generated/**` and `**/*.generated.ts` for linting; add a `no-restricted-imports` rule so `src/adapters/emulator/sameboy/generated/**` may only be imported from `src/adapters/emulator/sameboy/sameboy-emulator.ts`; keep the existing core/views rules
-- [ ] T006 [P] Add devDependency `fake-indexeddb` (exact version, latest at least 2 weeks old) after reading its LICENSE file in `node_modules` (must pass `scripts/license-policy.ts` dev rules); commit `package-lock.json`
+- [X] T001 Extend `.gitignore` with `.tools/`, `.build/`, `tests/roms/build/` and extend `tests/tooling/gitignore.test.ts` to assert these entries plus that `src/adapters/emulator/sameboy/generated/` and `src/adapters/emulator/bootrom/generated/` are **not** ignored
+- [X] T002 [P] Write `tests/tooling/fetch-rgbds.test.ts` for `verifySha256(buffer, expected)` and `rgbdsPaths(root)` from `scripts/fetch-rgbds.ts` (matching hash passes, mismatching hash throws, paths point to `.tools/rgbds/rgbasm|rgblink|rgbfix`)
+- [X] T003 Implement `scripts/fetch-rgbds.ts`: download `https://github.com/gbdev/rgbds/releases/download/v1.0.4/rgbds-linux-x86_64.tar.xz`, verify SHA-256 `3e19e50ea602e316be709160acaf0a708b1fa6d32d219ec541f244442895dbb7`, extract to `.tools/rgbds/`, skip if binaries exist with matching version (`rgbasm -V`), fail with a clear message on non-Linux-x86_64; add npm script `tools:rgbds` in `package.json`
+- [X] T004 [P] Update `vitest.config.ts`: include `tests/emulator/**/*.test.ts` and `tests/boot-state/**/*.test.ts`; emulator and boot-state tests run in environment `node` (per-file `// @vitest-environment node` header or `environmentMatchGlobs`)
+- [X] T005 [P] Update `eslint.config.js`: ignore `**/generated/**` and `**/*.generated.ts` for linting; add a `no-restricted-imports` rule so `src/adapters/emulator/sameboy/generated/**` may only be imported from `src/adapters/emulator/sameboy/sameboy-emulator.ts`; keep the existing core/views rules
+- [X] T006 [P] Add devDependency `fake-indexeddb` (exact version, latest at least 2 weeks old) after reading its LICENSE file in `node_modules` (must pass `scripts/license-policy.ts` dev rules); commit `package-lock.json`
 
 ---
 

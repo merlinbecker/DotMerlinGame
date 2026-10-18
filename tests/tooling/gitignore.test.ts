@@ -16,6 +16,18 @@ describe('.gitignore', () => {
     expect(isIgnored(path)).toBe(true);
   });
 
+  it.each(['.tools/rgbds/rgbasm', '.build/sameboy/Core/gb.c', 'tests/roms/build/mbc1.gb'])('ignores %s', (path) => {
+    expect(isIgnored(path)).toBe(true);
+  });
+
+  it.each([
+    'src/adapters/emulator/sameboy/generated/sameboy.wasm',
+    'src/adapters/emulator/sameboy/generated/BUILD-INFO.json',
+    'src/adapters/emulator/bootrom/generated/dmg-boot.ts',
+  ])('keeps committed artifact %s', (path) => {
+    expect(isIgnored(path)).toBe(false);
+  });
+
   it('keeps binary includes of example projects', () => {
     expect(isIgnored('examples/demo/data.bin')).toBe(false);
   });

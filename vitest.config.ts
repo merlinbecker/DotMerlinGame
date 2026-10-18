@@ -7,7 +7,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    include: ['tests/{unit,contract,roundtrip,boot-state,tooling}/**/*.test.{ts,tsx}'],
+    include: ['tests/{unit,contract,roundtrip,boot-state,tooling,emulator}/**/*.test.{ts,tsx}'],
     typecheck: {
       enabled: true,
       include: ['tests/contract/**/*.test-d.ts'],

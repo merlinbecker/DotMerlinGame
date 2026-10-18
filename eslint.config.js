@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['dist/', 'coverage/', 'test-results/', 'playwright-report/', 'node_modules/', '.specify/', '.claude/'],
+    ignores: ['dist/', 'coverage/', 'test-results/', 'playwright-report/', 'node_modules/', '.specify/', '.claude/', '.tools/', '.build/', '**/generated/**', '**/*.generated.ts'],
   },
   {
     files: ['**/*.{ts,tsx}'],
@@ -66,7 +66,23 @@ export default defineConfig(
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: [{ group: ['**/adapters/**'], message: 'Views talk to adapters only through ports in src/core.' }] },
+        {
+          patterns: [
+            { group: ['**/adapters/**'], message: 'Views talk to adapters only through ports in src/core.' },
+            { group: ['**/app/session/**'], message: 'Views read session state only through ViewContext.' },
+          ],
+        },
+      ],
+    },
+  },
+  // The WASM build output is private to the SameBoy adapter (contracts/wasm-abi.md).
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/adapters/emulator/sameboy/sameboy-emulator.ts', 'src/core/**', 'src/views/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: [{ group: ['**/sameboy/generated/**'], message: 'Only sameboy-emulator.ts may load the WASM module.' }] },
       ],
     },
   },
