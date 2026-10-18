@@ -18,8 +18,8 @@ Die Oberfläche ist E-Ink-first (Constitution V, ADR-0009): schwarz auf weiß, n
 
 | Präfix | Inhalt |
 |---|---|
-| `--color-*` | Vorder-/Hintergrund, gedämpft, Rahmen, invertiert |
-| `--space-*` | Abstandsskala 1–6 |
+| `--color-*` | Vorder-/Hintergrund, Rahmen |
+| `--space-*` | Abstandsskala 1–3 |
 | `--border-width-*` | Rahmen von Slots, Kopfleisten, Bedienelementen |
 | `--focus-outline-*` | Fokusrahmen |
 | `--touch-target-min`, `--slot-min-size`, `--footer-height` | Größen |

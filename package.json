@@ -1,6 +1,6 @@
 {
   "name": "dotmerlingame",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "licenses": "node scripts/check-licenses.ts",
     "licenses:generate": "node scripts/generate-third-party.ts",
     "secrets": "node scripts/check-secrets.ts",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run build && npm run test:e2e && npm run licenses && npm run secrets"
+    "check": "npm run lint && npm run test && npm run build && npm run test:e2e && npm run licenses && npm run secrets"
   },
   "dependencies": {
     "react": "19.3.1",

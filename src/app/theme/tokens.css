@@ -6,18 +6,12 @@
   /* Colors */
   --color-fg: #000;
   --color-bg: #fff;
-  --color-muted: #555;
   --color-border: #000;
-  --color-inverse-fg: #fff;
-  --color-inverse-bg: #000;
 
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
 
   /* Borders */
   --border-width-frame: 3px;
@@ -39,7 +33,6 @@
   --font-size-small: 14px;
   --font-size-body: 16px;
   --font-size-title: 18px;
-  --font-weight-normal: 400;
   --font-weight-bold: 700;
 
   /* Time (motion off) */

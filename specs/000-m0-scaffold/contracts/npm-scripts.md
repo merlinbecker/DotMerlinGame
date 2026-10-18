@@ -15,6 +15,6 @@ Diese Befehle sind die Schnittstelle für Menschen, Agenten und CI (FR-010). Sie
 | `npm run licenses` | zweistufiger Lizenz-Check + Aktualitätsprüfung `THIRD_PARTY_LICENSES` | exit 0 |
 | `npm run licenses:generate` | erzeugt `THIRD_PARTY_LICENSES` neu | – |
 | `npm run secrets` | secretlint über `git ls-files` | exit 0 |
-| `npm run check` | lint → typecheck → test → build → test:e2e → licenses → secrets | entspricht exakt der CI |
+| `npm run check` | lint → test → build (inkl. typecheck) → test:e2e → licenses → secrets | entspricht exakt der CI |
 
 Exit-Code ≠ 0 bei jedem Fehler; `check` bricht beim ersten Fehler ab.

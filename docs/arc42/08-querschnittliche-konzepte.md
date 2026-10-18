@@ -37,4 +37,4 @@ ESLint erzwingt: `src/core` importiert weder React noch `adapters`, `views` oder
 
 ## 8.7 Eine Prüfquelle
 
-`npm run check` führt Lint, Typprüfung, Tests, Build, Abnahmetests, Lizenz-Check und Secret-Scan in dieser Reihenfolge aus. Die CI (`.github/workflows/ci.yml`) ruft genau diesen Befehl auf.
+`npm run check` führt Lint, Tests, Build (inkl. Typprüfung), Abnahmetests, Lizenz-Check und Secret-Scan in dieser Reihenfolge aus. Die CI (`.github/workflows/ci.yml`) ruft genau diesen Befehl auf.
