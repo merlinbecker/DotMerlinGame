@@ -111,3 +111,22 @@ test('saves a grayscale screenshot for manual review', async ({ page }) => {
   await page.addStyleTag({ content: 'html { filter: grayscale(1); }' });
   await page.screenshot({ path: 'test-results/m0-grayscale.png', fullPage: true });
 });
+
+test('applies the e-ink rules to all four M1 views, with e-ink controls open (FR-016)', async ({ page }) => {
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await page.goto('/');
+  for (const view of ['screen', 'controller', 'rom-info', 'memory-map']) {
+    await expect(page.locator(`[data-view="${view}"]`)).toBeVisible();
+  }
+  await page.locator('[data-view="screen"]').getByRole('button', { name: 'E-Ink mode' }).click();
+  expect(await nonGrayColors(page)).toEqual([]);
+  expect(await motionProblems(page)).toEqual([]);
+  const tooSmall = await page.evaluate(() => {
+    const min = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--touch-target-min'));
+    return [...document.querySelectorAll<HTMLElement>('[data-testid="slot"] button')]
+      .map((element) => ({ label: element.getAttribute('aria-label') ?? element.textContent, box: element.getBoundingClientRect() }))
+      .filter(({ box }) => (box.width > 0 || box.height > 0) && (box.width < min || box.height < min))
+      .map(({ label }) => label);
+  });
+  expect(tooSmall).toEqual([]);
+});

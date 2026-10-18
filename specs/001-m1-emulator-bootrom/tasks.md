@@ -257,16 +257,16 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 
 **Independent Test**: Slot-Inhalt wechseln, neu laden, Belegung unverändert.
 
-- [ ] T097 [US6] Write `tests/e2e/m1-view-switch.spec.ts`: arrow tap switches the slot immediately; reload restores the assignment; running game continues during the switch
+- [X] T097 [US6] Write `tests/e2e/m1-view-switch.spec.ts`: arrow tap switches the slot immediately; reload restores the assignment; running game continues during the switch
 
 ---
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-- [ ] T098 [P] Update `docs/arc42/05-bausteinsicht.md` (emulator adapter, audio, storage, session, slot frame source, four views; section „5.4 Umsetzungsstand M1“), `docs/arc42/04-loesungsstrategie.md` (Hardware-Treue: own boot ROM, direct start, hardware-near via hash) and `docs/arc42/09-architekturentscheidungen.md` (ADR-0004 and ADR-0006 akzeptiert, ADR-0005 amended, open points updated)
-- [ ] T099 [P] Extend `tests/e2e/eink.spec.ts` for all four M1 views (`screen` chrome, `controller`, `rom-info`, `memory-map`): computed styles grayscale only, no running animations/transitions, touch targets ≥ `--touch-target-min`, no `:hover` rules; the game canvas content of the screen view is excluded (FR-016)
-- [ ] T100 [P] Update `CLAUDE.md` „Befehle“ with the final scripts (`tools:rgbds`, `roms:build`, `bootrom:build`, `core:build`, `core:verify`) and `third_party/README.md` with the new components
-- [ ] T101 Run `npm run check` and `npm run core:verify`; fix until green without weakening tests
+- [X] T098 [P] Update `docs/arc42/05-bausteinsicht.md` (emulator adapter, audio, storage, session, slot frame source, four views; section „5.4 Umsetzungsstand M1“), `docs/arc42/04-loesungsstrategie.md` (Hardware-Treue: own boot ROM, direct start, hardware-near via hash) and `docs/arc42/09-architekturentscheidungen.md` (ADR-0004 and ADR-0006 akzeptiert, ADR-0005 amended, open points updated)
+- [X] T099 [P] Extend `tests/e2e/eink.spec.ts` for all four M1 views (`screen` chrome, `controller`, `rom-info`, `memory-map`): computed styles grayscale only, no running animations/transitions, touch targets ≥ `--touch-target-min`, no `:hover` rules; the game canvas content of the screen view is excluded (FR-016)
+- [X] T100 [P] Update `CLAUDE.md` „Befehle“ with the final scripts (`tools:rgbds`, `roms:build`, `bootrom:build`, `core:build`, `core:verify`) and `third_party/README.md` with the new components
+- [X] T101 Run `npm run check` and `npm run core:verify`; fix until green without weakening tests
 - [ ] T102 Manual device acceptance per [quickstart.md](quickstart.md) „Manuelle Prüfungen am Gerät“ (mid-range Android phone, E-Ink device): SC-003 (frame time p95 < 16.7 ms from ROM Info diagnostics), SC-004, SC-005, SC-007 (10 min, underflow/overflow counters = 0), SC-008; record device, Chrome version and results in `docs/abnahme/m1.md`
 - [ ] T103 Re-check Constitution gates in [plan.md](plan.md) and every acceptance scenario of [spec.md](spec.md) against the built result; on acceptance set `package.json` version to `0.3.0`
 
