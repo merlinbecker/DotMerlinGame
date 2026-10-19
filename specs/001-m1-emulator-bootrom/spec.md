@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Draft
+**Status**: Abgenommen (2026-10-19, Version 0.3.0)
 
 **Input**: Meilenstein M1 aus `docs/BOOTSTRAP-BRIEFING.md`, Abschnitt 8: Emulator-Core im Browser
 als Headless Service. Screen-Quadrat und Controller-Quadrat. ROM aus dem lokalen Speicher laden.

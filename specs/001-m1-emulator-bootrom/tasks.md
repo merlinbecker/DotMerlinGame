@@ -275,8 +275,8 @@ View-Infrastruktur. **Keine Story-Arbeit vor Abschluss dieser Phase.**
 - [X] T099 [P] Extend `tests/e2e/eink.spec.ts` for all four M1 views (`screen` chrome, `controller`, `rom-info`, `memory-map`): computed styles grayscale only, no running animations/transitions, touch targets ≥ `--touch-target-min`, no `:hover` rules; the game canvas content of the screen view is excluded (FR-016)
 - [X] T100 [P] Update `CLAUDE.md` „Befehle“ with the final scripts (`tools:rgbds`, `roms:build`, `bootrom:build`, `core:build`, `core:verify`) and `third_party/README.md` with the new components
 - [X] T101 Run `npm run check` and `npm run core:verify`; fix until green without weakening tests
-- [ ] T102 Manual device acceptance per [quickstart.md](quickstart.md) „Manuelle Prüfungen am Gerät“ (mid-range Android phone, E-Ink device): SC-003 (frame time p95 < 16.7 ms from ROM Info diagnostics), SC-004, SC-005, SC-007 (10 min, underflow/overflow counters = 0), SC-008; record device, Chrome version and results in `docs/abnahme/m1.md`
-- [ ] T103 Re-check Constitution gates in [plan.md](plan.md) and every acceptance scenario of [spec.md](spec.md) against the built result; on acceptance set `package.json` version to `0.3.0`
+- [X] T102 Manual device acceptance per [quickstart.md](quickstart.md) „Manuelle Prüfungen am Gerät“ (mid-range Android phone, E-Ink device): SC-003 (frame time p95 < 16.7 ms from ROM Info diagnostics), SC-004, SC-005, SC-007 (10 min, underflow/overflow counters = 0), SC-008; record device, Chrome version and results in `docs/abnahme/m1.md`
+- [X] T103 Re-check Constitution gates in [plan.md](plan.md) and every acceptance scenario of [spec.md](spec.md) against the built result; on acceptance set `package.json` version to `0.3.0`
 
 ---
 
