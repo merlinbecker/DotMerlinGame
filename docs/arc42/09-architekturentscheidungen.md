@@ -18,7 +18,6 @@ Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Vorlage: [`docs/adr/0
 ## Offene Punkte
 
 - Kurzes Knacken beim Fortsetzen, wenn Chrome nach längerer Hintergrundzeit wieder geöffnet wird (Abnahme M1, akzeptiert). Mögliche Ursache: Der AudioContext wird vom System unterbrochen und ohne Einblenden fortgesetzt. Erst bei Bedarf untersuchen.
-- E-Ink-Modus ist noch nicht auf einem echten E-Ink-Gerät geprüft (Abnahme M1).
 
 - Lässt sich RGBDS inklusive `rgbfix` sauber als WASM bauen, oder gibt es ein gepflegtes WASM-Paket mit passender Lizenz?
 - Lizenz und Pflegezustand von hUGEDriver und hardware.inc zum Zeitpunkt der Einbindung.
