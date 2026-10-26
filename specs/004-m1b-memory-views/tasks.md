@@ -387,7 +387,7 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
 **Independent Test**: Mit `inspect-regs` zeigt der View genau die dokumentierten Werte, mit
 `inspect-regs-halted` „IME on“ und „HALT on“.
 
-- [ ] T047 [P] [US2] Write `tests/unit/view-registers.test.tsx` with snapshots from `inspect-regs` and
+- [X] T047 [P] [US2] Write `tests/unit/view-registers.test.tsx` with snapshots from `inspect-regs` and
   `inspect-regs-halted`:
   - A, F, B, C, D, E, H, L as `$XX`; SP, PC, BC, DE, HL as `$XXXX`.
   - Flags Z N H C shown as set/clear by characters (e.g. "Z ●" / "Z ○" plus text for screen readers),
@@ -397,11 +397,11 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
   - Paused: after `RunStateChanged` to `paused` exactly one `RequestSnapshot` is dispatched, and the
     values stay fixed until resumed (US2-AS2).
   - Initial state is `{ rate: 'second' }`.
-- [ ] T048 [US2] Create `src/views/registers/definition.ts` (`typeId: 'registers'`, `title: 'Registers'`,
+- [X] T048 [US2] Create `src/views/registers/definition.ts` (`typeId: 'registers'`, `title: 'Registers'`,
   `inspects: true`, state `{ rate }`) and `src/views/registers/RegistersView.tsx` (+ CSS module) using
   `snapshot.registers`, `snapshot.flags` and `inspection.cpu`. Values come from the same snapshot (FR-006).
   T047 must be green.
-- [ ] T049 [US2] Register the view in `src/app/views/m1b-views.ts`, and
+- [X] T049 [US2] Register the view in `src/app/views/m1b-views.ts`, and
   write `tests/e2e/m1b-registers.spec.ts`. With `inspect-regs` loaded: values visible; Pause → values
   unchanged after 2 s; Resume.
 

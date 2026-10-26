@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 export function romFile(name: string) {
   return { name: `${name}.gb`, mimeType: 'application/octet-stream', buffer: readFileSync(`tests/roms/build/${name}.gb`) };
@@ -37,4 +37,10 @@ export async function canvasColors(page: Page): Promise<string[]> {
     for (let i = 0; i < data.length; i += 4) colors.add(`${data[i]},${data[i + 1]},${data[i + 2]}`);
     return [...colors];
   });
+}
+
+/** Switches a slot to a view with the header arrows (FR-001). */
+export async function switchTo(slot: Locator, view: string) {
+  for (let i = 0; i < 12 && (await slot.getAttribute('data-view')) !== view; i++) await slot.getByRole('button', { name: 'Next view' }).click();
+  await expect(slot).toHaveAttribute('data-view', view);
 }

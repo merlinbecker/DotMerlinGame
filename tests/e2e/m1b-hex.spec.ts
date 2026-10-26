@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { loadRom, openApp } from './support.ts';
+import { loadRom, openApp, switchTo } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -7,12 +7,6 @@ test.beforeEach(async ({ page }) => {
     localStorage.clear();
   });
 });
-
-/** Switches the given slot to a view via the header arrows (FR-001). */
-async function switchTo(slot: Locator, view: string) {
-  for (let i = 0; i < 12 && (await slot.getAttribute('data-view')) !== view; i++) await slot.getByRole('button', { name: 'Next view' }).click();
-  await expect(slot).toHaveAttribute('data-view', view);
-}
 
 const byteAt = (slot: Locator, row: string, index: number) => slot.getByTestId(`row-${row}`).getByTestId('byte').nth(index);
 
