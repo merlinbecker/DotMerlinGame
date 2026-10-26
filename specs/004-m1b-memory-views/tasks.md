@@ -245,13 +245,13 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
 ### 2f – Gemeinsame Domänenmodule und View-Bausteine
 
-- [ ] T027 [P] Write `tests/unit/inspect-changes.test.ts`. Then implement `src/core/inspect/changes.ts`:
+- [X] T027 [P] Write `tests/unit/inspect-changes.test.ts`. Then implement `src/core/inspect/changes.ts`:
   `diffBytes(prev: Uint8Array | null, next: Uint8Array): Set<number>` (empty set when `prev` is null or
   the lengths differ).
-- [ ] T028 [P] Write `tests/unit/inspect-palette.test.ts` (table cases incl. `$E4` identity and `$1B`
+- [X] T028 [P] Write `tests/unit/inspect-palette.test.ts` (table cases incl. `$E4` identity and `$1B`
   reversal). Then implement `src/core/inspect/palette.ts` `applyPalette(colorIndex: 0|1|2|3, palette:
   number): 0|1|2|3`, with bit pairs per Pan Docs "Palettes" (fetch the page and cite it).
-- [ ] T029 Create `src/views/inspect-common/rate.ts`:
+- [X] T029 Create `src/views/inspect-common/rate.ts`:
   - `type InspectRate = 'live' | 'second' | 'manual'`
   - `INITIAL_RATE = 'second'`
   - `toPublishRate`: `'live'` → `{ kind: 'reduced', everyNthFrame: 6 }`, `'second'` →
@@ -259,27 +259,27 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - `parseRate(json)`: invalid → `'second'`
 
   Add unit tests in `tests/unit/inspect-rate.test.ts`.
-- [ ] T030 Create the hook `src/views/inspect-common/useInspection.ts` and test it in
+- [X] T030 Create the hook `src/views/inspect-common/useInspection.ts` and test it in
   `tests/unit/view-use-inspection.test.tsx` with a fake context. It returns
   `{ snapshot, inspection, session }` via `useSyncExternalStore` and:
   - dispatches `SetFrameRate` on mount and on rate change;
   - dispatches `RequestSnapshot` on mount, when `visible` turns true, and on `RunStateChanged` to
     `paused`/`halted`/`empty`, `RomLoaded`, `EmulatorReset` and `EmulatorHalted`;
   - processes nothing while `visible` is false.
-- [ ] T031 [P] Create `src/views/inspect-common/RateBar.tsx` (+ CSS module): three large buttons "Live", "1/s",
+- [X] T031 [P] Create `src/views/inspect-common/RateBar.tsx` (+ CSS module): three large buttons "Live", "1/s",
   "Manual" with `aria-pressed`, tokens only. Create `src/views/inspect-common/Pager.tsx`: "Previous page",
   "n / m", "Next page", the same pattern as `src/views/memory-map/MemoryMapView.tsx`, extracted without
   changing Memory Map behavior.
-- [ ] T032 [P] Create `src/views/inspect-common/header.ts` with `inspectHeaderActions()` returning
+- [X] T032 [P] Create `src/views/inspect-common/header.ts` with `inspectHeaderActions()` returning
   `[{ id: 'refresh', label: 'Refresh', action: { type: 'RequestSnapshot' } }]`. Create
   `src/views/inspect-common/Notice.tsx` showing "No ROM loaded" (FR-015) or "Waiting for data".
-- [ ] T033 Create `src/views/inspect-common/TileCanvas.tsx`, tested in
+- [X] T033 Create `src/views/inspect-common/TileCanvas.tsx`, tested in
   `tests/unit/view-tile-canvas.test.tsx`:
   - draws an array of color indices (0–3) at an integer scale ≥ `--tile-pixel-min` on a canvas;
   - uses gray levels from `readShades('--game-eink-shade-')` (`src/views/shades.ts`, FR-014);
   - `image-rendering: pixelated`;
   - reports tapped pixel coordinates via a callback.
-- [ ] T034 Create the test helper `tests/support/dispatch-spy.ts`: a fake `ViewContext` whose `dispatch`
+- [X] T034 Create the test helper `tests/support/dispatch-spy.ts`: a fake `ViewContext` whose `dispatch`
   records every action, plus `expectOnlyInspectActions(spy)`, which fails on any action type other than
   `SetFrameRate` and `RequestSnapshot` (FR-002). Every view test (T039, T047, T051, T056, T061) uses it
   after clicking through all of the view's controls. A type test cannot prove this, because

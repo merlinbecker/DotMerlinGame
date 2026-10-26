@@ -1,0 +1,61 @@
+/* Shared building blocks of the memory views (M1b): large touch targets, tokens only, no motion. */
+.bar {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.button {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-2);
+  border: var(--border-width-control) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Pressed state by inversion, never by color alone (FR-011, Constitution V). */
+.button[aria-pressed="true"] {
+  background: var(--mark-inverse-bg);
+  color: var(--mark-inverse-fg);
+}
+
+.button:disabled {
+  border-style: dashed;
+}
+
+.notice {
+  margin: 0;
+  padding: var(--space-2);
+}
+
+.note {
+  flex: none;
+  margin: 0;
+  font-size: var(--font-size-small);
+}
+
+.mono {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-mono-min);
+  white-space: nowrap;
+}
+
+/* Changed since the last update: inverted. Selected: framed. Both readable in grayscale. */
+.changed {
+  background: var(--mark-inverse-bg);
+  color: var(--mark-inverse-fg);
+}
+
+.selected {
+  outline: var(--mark-border-width) solid var(--color-border);
+  outline-offset: calc(-1 * var(--mark-border-width));
+}
+
+.canvas {
+  display: block;
+  image-rendering: pixelated;
+}

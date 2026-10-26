@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react';
 import { MEMORY_MAP, type ViewInstanceProps } from '../../core/index.ts';
+import { Pager } from '../inspect-common/Pager.tsx';
 import type { MemoryMapState } from './definition.ts';
 import styles from './MemoryMapView.module.css';
 
@@ -63,17 +64,15 @@ export function MemoryMapView({ context, state, setState }: ViewInstanceProps<Me
         ))}
       </ol>
       {pages > 1 && (
-        <div className={styles.pager}>
-          <button type="button" className={styles.button} disabled={page === 0} onClick={() => { setState({ page: page - 1 }); }}>
-            Previous page
-          </button>
-          <span>
-            {page + 1} / {pages}
-          </span>
-          <button type="button" className={styles.button} disabled={page >= pages - 1} onClick={() => { setState({ page: page + 1 }); }}>
-            Next page
-          </button>
-        </div>
+        <Pager
+          page={page}
+          pages={pages}
+          className={styles.pager}
+          buttonClassName={styles.button}
+          onPage={(next) => {
+            setState({ page: next });
+          }}
+        />
       )}
       <p className={styles.legend}>{banks === undefined ? 'No ROM loaded: bank count unknown.' : `Loaded ROM: ${banks} banks of 16 KiB.`}</p>
     </div>
