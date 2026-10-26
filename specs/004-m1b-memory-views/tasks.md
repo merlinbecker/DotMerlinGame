@@ -171,7 +171,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
 ### 2d – Adapter (research.md R1, R2, R4, R6, R11)
 
-- [ ] T017 Write `tests/emulator/inspection.test.ts` (node environment) against ROMs from T013–T015.
+- [X] T017 Write `tests/emulator/inspection.test.ts` (node environment) against ROMs from T013–T015.
   For `inspect-mem`, after it reaches its loop:
   - `rom` equals the ROM file bytes and is the same reference in two snapshots.
   - `romBank` is 3.
@@ -187,7 +187,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
   For `inspect-regs` with `HALTED=1`, `cpu` is `{ ime: true, halted: true }`. For the default build it
   is `{ ime: false, halted: false }`.
-- [ ] T018 Build `inspection` in `src/adapters/emulator/sameboy/sameboy-emulator.ts`:
+- [X] T018 Build `inspection` in `src/adapters/emulator/sameboy/sameboy-emulator.ts`:
   - Keep a private copy of the ROM per `loadRom`.
   - Read the areas via `_dmg_area` with `HEAPU8.slice`, plus `_dmg_io`, `_dmg_ie`, `_dmg_banks`,
     `_dmg_cart_ram_enabled` and `_dmg_cpu_flags`.
@@ -202,7 +202,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - Deliberately adapt `tests/emulator/sameboy-adapter.test.ts` and
     `tests/emulator/service-contract.test.ts` where they assert `changedMemory` values affected by
     research.md R2/R3, with a comment explaining the change.
-- [ ] T019 Check against the core source how MBC2 RAM (512 × 4 bit) and MBC3 RTC registers are laid out
+- [X] T019 Check against the core source how MBC2 RAM (512 × 4 bit) and MBC3 RTC registers are laid out
   in `mbc_ram` / `mbc_ram_size` (`.build/sameboy/Core/memory.c`, `mbc.c`). Record the findings with
   file:line in `specs/004-m1b-memory-views/research.md` R11 and mirror them in `CartRamSnapshot` doc
   comments in `src/core/events/frame-state.ts`. RTC registers are not shown in M1b.

@@ -7,7 +7,9 @@ import {
   type AudioSink,
   type Button,
   type EmulatorPort,
+  type CartRamSnapshot,
   type FrameSnapshot,
+  type InspectionSnapshot,
   type LoadRomOptions,
   type MemoryRange,
   type Registers,
@@ -19,6 +21,13 @@ import createSameBoy, { type SameBoyModule } from './generated/sameboy.mjs';
 
 const SCREEN_BYTES = 160 * 144;
 const DIRTY_BASE = 0x8000;
+/** Areas of wrapper.c dmg_area (contracts/wasm-abi.md); the ROM comes from the adapter's own copy. */
+const AREA_VRAM = 1;
+const AREA_WRAM = 2;
+const AREA_OAM = 3;
+const AREA_HRAM = 4;
+const AREA_CART_RAM = 5;
+const CART_RAM_BANK = 0x2000;
 const DIRTY_PAGES = 128;
 const PAGE = 256;
 const DEFAULT_SAMPLE_RATE = 48000;
@@ -74,22 +83,68 @@ function withHeapCopy<T>(module: SameBoyModule, bytes: Uint8Array, use: (pointer
   }
 }
 
-function changedRanges(module: SameBoyModule): MemoryRange[] {
+/** Copies one memory area of the core without side effects (research.md R1); empty if the core has none. */
+function readArea(module: SameBoyModule, area: number, sizePointer: number): Uint8Array {
+  const pointer = module._dmg_area(area, sizePointer);
+  const size = new DataView(module.HEAPU8.buffer).getUint32(sizePointer, true);
+  return pointer && size ? module.HEAPU8.slice(pointer, pointer + size) : new Uint8Array(0);
+}
+
+/** The writable areas at $8000–$FFFF as the core holds them; the source for inspection and changedMemory. */
+interface UpperMemory {
+  readonly vram: Uint8Array;
+  readonly cartRam: Uint8Array;
+  readonly cartRamBank: number;
+  readonly wram: Uint8Array;
+  readonly oam: Uint8Array;
+  readonly io: Uint8Array;
+  readonly hram: Uint8Array;
+  readonly ie: number;
+}
+
+/**
+ * Value at `address` ($8000–$FFFF) from the copied areas, or null where no memory is shown: echo RAM,
+ * $FEA0–$FEFF and missing cartridge RAM (contracts/frame-state.md rule 8).
+ */
+function upperByte(memory: UpperMemory, address: number): number | null {
+  if (address < 0xa000) return memory.vram[address - 0x8000] ?? null;
+  if (address < 0xc000) return memory.cartRam.length ? (memory.cartRam[(memory.cartRamBank * CART_RAM_BANK + address - 0xa000) % memory.cartRam.length] ?? null) : null;
+  if (address < 0xe000) return memory.wram[address - 0xc000] ?? null;
+  if (address < 0xfe00) return null;
+  if (address < 0xfea0) return memory.oam[address - 0xfe00] ?? null;
+  if (address < 0xff00) return null;
+  if (address < 0xff80) return memory.io[address - 0xff00] ?? null;
+  if (address < 0xffff) return memory.hram[address - 0xff80] ?? null;
+  return memory.ie;
+}
+
+/** Memory written since the last snapshot, read from the copied areas instead of the CPU read path (research.md R2). */
+function changedRanges(module: SameBoyModule, memory: UpperMemory): MemoryRange[] {
   const dirty = module.HEAPU8.subarray(module._dmg_dirty_pages(), module._dmg_dirty_pages() + DIRTY_PAGES);
   const ranges: MemoryRange[] = [];
-  let page = 0;
-  while (page < DIRTY_PAGES) {
+  let open: number[] = [];
+  let openStart = 0;
+  const close = () => {
+    if (open.length) ranges.push({ start: openStart, bytes: Uint8Array.from(open) });
+    open = [];
+  };
+  for (let page = 0; page < DIRTY_PAGES; page++) {
     if (!dirty[page]) {
-      page++;
+      close();
       continue;
     }
-    const first = page;
-    while (page < DIRTY_PAGES && dirty[page]) page++;
-    const start = DIRTY_BASE + first * PAGE;
-    const bytes = new Uint8Array((page - first) * PAGE);
-    for (let i = 0; i < bytes.length; i++) bytes[i] = module._dmg_peek(start + i);
-    ranges.push({ start, bytes });
+    for (let offset = 0; offset < PAGE; offset++) {
+      const address = DIRTY_BASE + page * PAGE + offset;
+      const value = upperByte(memory, address);
+      if (value === null) {
+        close();
+        continue;
+      }
+      if (!open.length) openStart = address;
+      open.push(value);
+    }
   }
+  close();
   module._dmg_dirty_clear();
   return ranges;
 }
@@ -105,6 +160,11 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
   const frameState = createFrameStateHub();
   const events = createDomainEventBus();
   const registersPointer = module._malloc(12);
+  const sizePointer = module._malloc(4);
+  const ioPointer = module._malloc(0x80);
+  const banksPointer = module._malloc(6);
+  /** One copy of the loaded ROM, shared by all inspection snapshots of this ROM. */
+  let romImage = new Uint8Array(0);
   let header: RomHeaderInfo | null = null;
   let loadOptions: LoadRomOptions | null = null;
   let running = false;
@@ -128,8 +188,47 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
     return { a: af >> 8, f: af & 0xff, b: bc >> 8, c: bc & 0xff, d: de >> 8, e: de & 0xff, h: hl >> 8, l: hl & 0xff, sp, pc };
   };
 
-  const snapshot = (): FrameSnapshot => {
+  const readUpperMemory = (): UpperMemory => {
+    module._dmg_io(ioPointer);
+    module._dmg_banks(banksPointer);
+    return {
+      vram: readArea(module, AREA_VRAM, sizePointer),
+      cartRam: readArea(module, AREA_CART_RAM, sizePointer),
+      cartRamBank: module.HEAPU16[banksPointer / 2 + 2] ?? 0,
+      wram: readArea(module, AREA_WRAM, sizePointer),
+      oam: readArea(module, AREA_OAM, sizePointer),
+      io: module.HEAPU8.slice(ioPointer, ioPointer + 0x80),
+      hram: readArea(module, AREA_HRAM, sizePointer),
+      ie: module._dmg_ie(),
+    };
+  };
+
+  const inspection = (memory: UpperMemory): InspectionSnapshot => {
+    let cartRam: CartRamSnapshot | null = null;
+    if (memory.cartRam.length) {
+      const bankCount = Math.max(1, Math.ceil(memory.cartRam.length / CART_RAM_BANK));
+      const enabled = module._dmg_cart_ram_enabled();
+      cartRam = { bytes: memory.cartRam, bankCount, bank: Math.min(memory.cartRamBank, bankCount - 1), enabled: enabled < 0 ? null : enabled === 1 };
+    }
+    const cpu = module._dmg_cpu_flags();
+    return {
+      rom: romImage,
+      romBank: module.HEAPU16[banksPointer / 2] ?? 0,
+      rom0Bank: module.HEAPU16[banksPointer / 2 + 1] ?? 0,
+      vram: memory.vram,
+      wram: memory.wram,
+      oam: memory.oam,
+      io: memory.io,
+      hram: memory.hram,
+      ie: memory.ie,
+      cartRam,
+      cpu: { ime: (cpu & 1) !== 0, halted: (cpu & 2) !== 0 },
+    };
+  };
+
+  const snapshot = (withInspection: boolean): FrameSnapshot => {
     const registers = readRegisters();
+    const memory = readUpperMemory();
     const f = registers.f;
     const screenStart = module._dmg_screen();
     return {
@@ -138,9 +237,9 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
       registers,
       // Flag bits of F: Z=7, N=6, H=5, C=4 (Pan Docs "CPU Registers and Flags").
       flags: { z: (f & 0x80) !== 0, n: (f & 0x40) !== 0, h: (f & 0x20) !== 0, c: (f & 0x10) !== 0 },
-      changedMemory: changedRanges(module),
+      changedMemory: changedRanges(module, memory),
       screen: module.HEAPU8.slice(screenStart, screenStart + SCREEN_BYTES),
-      inspection: null,
+      inspection: withInspection ? inspection(memory) : null,
     };
   };
 
@@ -160,6 +259,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
     running = false;
     clock?.stop();
     module._dmg_halt();
+    frameState.prime(snapshot); // views can show the halted state on request (research.md R6)
     const reason = header?.logoValid === false ? 'header-logo' : 'header-checksum';
     events.publish({ type: 'EmulatorHalted', reason });
   };
@@ -172,6 +272,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
     module._dmg_set_keys(keys);
     halted = false;
     frame = 0;
+    frameState.prime(snapshot); // the new state is shown on request even before the first frame
   };
 
   const emulator: SameBoyEmulator = {
@@ -197,6 +298,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
       }
       withHeapCopy(module, rom, (p) => module._dmg_load_rom(p, rom.length));
       header = validation.info;
+      romImage = rom.slice();
       loadOptions = nextOptions;
       running = false;
       clock?.stop();

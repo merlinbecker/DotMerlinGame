@@ -220,10 +220,16 @@ Projektinhabers 2026-10-26, FR-006 ergänzt).
 
 Bei Modulen ohne MBC entfällt das Kennzeichen.
 
-**Offen für die Umsetzung**:
-- **MBC2**: Bei MBC2 (512 × 4 Bit) und bei MBC3 mit RTC-Registern in `$A000–$BFFF` wird gegen den
-  Core-Quelltext geprüft, wie `mbc_ram` belegt ist.
-- **RTC-Register**: Sie sind kein RAM und werden in M1b nicht gezeigt. Der View vermerkt das.
+**Geprüft (T019)**:
+- **MBC2**: `mbc_ram_size = 0x200` (`Core/mbc.c:212`). Jedes Byte hält ein 4-Bit-Wert, die CPU liest es
+  mit gesetzten oberen Bits (`memory.c:455–456`, `ret |= 0xF0`) und gespiegelt über `$A000–$BFFF`
+  (`& (mbc_ram_size - 1)`, `memory.c:454`). Der Snapshot liefert die 512 Rohbytes als eine Bank.
+- **MBC3 mit RTC**: Die Uhrregister liegen nicht in `mbc_ram`. Ist ein RTC-Register eingeblendet
+  (`mbc3.rtc_mapped`, `memory.c:414`), liefert die CPU nicht RAM. Der Snapshot zeigt nur die RAM-Bänke;
+  die Bank wird wie im Core auf die vorhandenen Bänke begrenzt. RTC-Register zeigt M1b nicht.
+- **MBC7**: `mbc_ram_size = 0x100` (`mbc.c:215`), EEPROM, nur roh gezeigt.
+- **Direkter Zugriff und Bank**: `GB_get_direct_access` maskiert die RAM-Bank mit `mbc_ram_size / 0x2000 - 1`,
+  das ist bei MBC2 0 − 1. Der Wrapper liest deshalb `mbc_ram_bank` direkt (`GB_INTERNAL`).
 - **Test-ROM**: Für den Test wird ein neues ROM mit MBC5 und 4 RAM-Bänken gebaut. Das vorhandene
   `mbc5-battery` hat nur eine Bank.
 
@@ -243,7 +249,7 @@ Speicher-View auf „Live“. Die bestehende Kennzahl bleibt für den Vergleich 
 
 ## Offene Punkte
 
-1. R11: Belegung von MBC2- und MBC3-RTC im `mbc_ram`.
+1. ~~R11: Belegung von MBC2- und MBC3-RTC im `mbc_ram`.~~ Geprüft (T019).
 2. R2: Ergebnis des Identitätstests gegen den M1-Code. Es wird im Abnahmeprotokoll notiert.
 3. Bestehende Tests, die `changedMemory` auswerten (`tests/emulator/sameboy-adapter.test.ts`,
    `service-contract.test.ts`), werden bei der Umstellung aus R2 gezielt angepasst. VRAM und OAM

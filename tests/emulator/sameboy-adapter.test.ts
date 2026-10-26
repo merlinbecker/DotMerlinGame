@@ -54,6 +54,12 @@ describe('SameBoy adapter (EmulatorPort)', () => {
     const ranges = (snapshot as FrameSnapshot | null)?.changedMemory ?? [];
     expect(ranges.length).toBeGreaterThan(0);
     for (const range of ranges) expect(range.start).toBeGreaterThanOrEqual(0x8000);
+    // Echo RAM and $FEA0-$FEFF hold no memory of their own and are left out since M1b (research.md R2).
+    for (const range of ranges) {
+      const end = range.start + range.bytes.length;
+      expect(range.start < 0xfe00 && end > 0xe000).toBe(false);
+      expect(range.start < 0xff00 && end > 0xfea0).toBe(false);
+    }
     expect(ranges.some((r) => r.start <= W_DONE && r.start + r.bytes.length > W_DONE)).toBe(true);
     for (let i = 1; i < ranges.length; i++) {
       const prev = ranges[i - 1];

@@ -12,7 +12,7 @@ import { hashBytes, testRom } from '../support/roms.ts';
 const FRAMES = 300;
 const names = Object.keys(JSON.parse(readFileSync('tests/roms/src/roms.json', 'utf8')) as Record<string, unknown>);
 
-type Mode = 'none' | 'every-frame';
+type Mode = 'none' | 'every-frame' | 'every-frame-with-inspection';
 
 async function run(name: string, mode: Mode) {
   const emulator = await createSameBoyEmulator({ clock: null });
@@ -24,7 +24,8 @@ async function run(name: string, mode: Mode) {
     if (error instanceof RomLoadError) return null;
     throw error;
   }
-  if (mode === 'every-frame') {
+  if (mode !== 'none') {
+    emulator.frameState.setInspectionDemand(mode === 'every-frame-with-inspection');
     emulator.frameState.setPublishRate({ kind: 'full' });
     emulator.frameState.subscribe(() => undefined);
   }
@@ -44,5 +45,9 @@ describe('inspection identity (SC-003)', () => {
     const withSnapshots = await run(name, 'every-frame');
     expect(withSnapshots).toEqual(without);
   });
-  it.todo('gives the same picture and sound with inspection data in every frame (enabled in T018)');
+  it.each(names)('gives the same picture and sound with inspection data in every frame (%s)', async (name) => {
+    const without = await run(name, 'none');
+    const withInspection = await run(name, 'every-frame-with-inspection');
+    expect(withInspection).toEqual(without);
+  });
 });
