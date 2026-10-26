@@ -48,7 +48,7 @@ mit Tabellenfällen. Die Integrationstests gegen Test-ROMs prüfen zusätzlich d
 | Name in `roms.json` | Quelle | Inhalt nach dem Start, danach Endlosschleife | Belegt |
 |---|---|---|---|
 | `inspect-mem` | `inspect-mem.asm` | MBC5 mit 4 RAM-Bänken (`ramSize 0x03`). Jede RAM-Bank hat eigenes Muster, danach ist der RAM gesperrt. Muster in WRAM und HRAM, IE gesetzt, ROM-Bank 3 eingeblendet, ROM-Bänke mit Kennbytes | Hex (US1) |
-| `inspect-regs` | `inspect-regs.asm` | A–L, SP mit festen Werten, Flags gesetzt, Schleife `jr @` an fester Adresse | Registers (US2) |
+| `inspect-regs` | `inspect-regs.asm` | A–L, SP mit festen Werten, Flags gesetzt, `di` (IME aus), Schleife `jr @` an fester Adresse; mit `HALTED=1` statt der Schleife `ei` + `halt` ohne freigegebenen Interrupt (IME an, HALT an) | Registers (US2, FR-006) |
 | `inspect-gfx` | `inspect-gfx.asm` | Kachelmuster in allen drei Blöcken, BG- und Fenster-Karte, SCX/SCY, WX/WY, BGP und OBP0/1, OAM mit sichtbaren und unsichtbaren Einträgen, 8×8 | Tiles, Tilemaps, Sprites (US3–US5) |
 | `inspect-gfx-tall` | `inspect-gfx.asm` mit `TALL=1` | wie oben, `LCDC.2 = 1` (8×16), `$8800`-Adressierung | US4-AS1, US5-AS2 |
 

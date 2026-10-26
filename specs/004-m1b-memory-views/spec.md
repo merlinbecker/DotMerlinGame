@@ -239,7 +239,9 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
   Größenänderung des Slots neu bestimmt; jede Zeile beginnt an einer durch die Zeilenbreite teilbaren
   Adresse, und die aktuell oberste Adresse bleibt dabei auf der angezeigten Seite.
 - **FR-006**: Der View „Registers“ MUSS A, F, B, C, D, E, H, L, SP, PC, die Paare BC, DE, HL und die Flags
-  Z, N, H, C anzeigen.
+  Z, N, H, C anzeigen. Zusätzlich MUSS er IME (Interrupts freigegeben) und HALT (CPU wartet) als
+  an/aus durch Zeichen anzeigen (Entscheidung des Projektinhabers 2026-10-26, Lesbarkeit im Core belegt,
+  siehe research.md R10).
 - **FR-007**: Der View „Tiles“ MUSS alle 384 Kacheln des Tile-Speichers darstellen, wahlweise mit
   Rohwerten oder der aktuellen Hintergrund-Palette, und zu einer angetippten Kachel Nummer, Adresse und
   Bytes zeigen. Die Views „Tiles“, „Tilemaps“ und „Sprites“ MÜSSEN je einen Schalter „Rohwerte“ / „mit
@@ -287,8 +289,10 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
 - **SC-001**: Für jeden der fünf Views gibt es ein selbst gebautes Test-ROM mit bekanntem Inhalt; 100 %
   der geprüften Werte (Bytes, Register, Kachelpixel, Karteneinträge, Sprite-Felder) stimmen mit dem
   Emulatorzustand überein (automatischer Test).
-- **SC-002**: Mit Screen und einem sichtbaren Speicher-View auf „Live“ bleibt die Rechenzeit pro Frame auf
-  dem Referenz-Smartphone im 95. Perzentil unter 16,7 ms (Messung wie SC-003 aus M1, Diagnose in ROM Info).
+- **SC-002**: Mit Screen und einem sichtbaren Speicher-View auf „Live“ bleibt auf dem Referenz-Smartphone
+  die Arbeit pro Frame (Emulation plus Aufbau und Auslieferung des Frame-Zustands) im 95. Perzentil unter
+  16,7 ms, und es werden mindestens 59 Frames pro Sekunde emuliert. Beide Werte zeigt ROM Info
+  (Entscheidung des Projektinhabers 2026-10-26).
 - **SC-003**: Jedes Test-ROM erzeugt nach 300 Frames dieselbe Bild- und Tonausgabe, egal ob keiner oder
   alle fünf Speicher-Views sichtbar sind (automatischer Test).
 - **SC-004**: Ausgeblendete Speicher-Views verarbeiten 0 Aktualisierungen; ein View auf „1 pro Sekunde“
@@ -308,9 +312,8 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
   Verknüpfung (Tippen auf einen Bereich öffnet den Hex-View) ist nicht Teil von M1b.
 - Symbolnamen und Labels in den Ansichten gibt es erst, wenn Symbol-Dateien existieren (M2) und der
   Debugger sie nutzt (M4).
-- Ob der Emulator-Core Speicher lesen kann, ohne Leseseiteneffekte auszulösen, und welche internen Werte
-  (z. B. IME, HALT-Zustand) zugänglich sind, wird im Plan anhand des Cores geprüft, nicht angenommen. IME
-  und HALT werden nur angezeigt, wenn das belegt möglich ist.
+- Lesen ohne Seiteneffekte und der Zugriff auf IME und HALT sind im Plan anhand des Core-Quelltexts
+  belegt (research.md R1, R10).
 - Die Rate „Live“ von etwa 10 Aktualisierungen pro Sekunde ist ein Startwert und wird am Gerät überprüft.
 - Game Boy Color-Bereiche (VRAM-Bank 1, Farbpaletten, WRAM-Bänke 2–7) gibt es nicht, weil nur der DMG-01
   emuliert wird.

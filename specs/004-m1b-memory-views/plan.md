@@ -171,17 +171,10 @@ third_party/sameboy.md       # Wrapper-Stand, genutzte GB_INTERNAL-Felder
 
 ## Offene Punkte für den Projektinhaber
 
-1. **IME und HALT im View „Registers“?**
-   - Beide sind belegt lesbar (research.md R10).
-   - FR-006 verlangt sie nicht.
-   - Vorschlag: als zwei zusätzliche Zeilen „IME“ und „HALT“ anzeigen (Zeichen, keine Farbe). Das ist
-     kleiner Aufwand und hilfreich beim Verstehen von Interrupts.
-   - Bei Zustimmung wird FR-006 um einen Satz ergänzt.
-2. **Messung für SC-002**:
-   - Die Messung aus M1 erfasst nur die Emulation.
-   - Vorschlag: SC-002 mit zwei neuen Diagnosewerten prüfen, `frameWorkP95Ms` < 16,7 ms und
-     `emulatedFps` ≥ 59 (research.md R12).
-   - Die Spec nennt „Messung wie SC-003 aus M1“. Das wird bei Zustimmung präzisiert.
+1. ~~IME und HALT im View „Registers“~~ **entschieden (PI, 2026-10-26)**: werden angezeigt, FR-006
+   ergänzt.
+2. ~~Messung für SC-002~~ **entschieden (PI, 2026-10-26)**: `frameWorkP95Ms` < 16,7 ms und
+   `emulatedFps` ≥ 59, SC-002 präzisiert (research.md R12).
 3. **Nicht blockierende Prüfpunkte**: siehe [research.md](research.md), Abschnitt „Offene Punkte“.
 
 ## Complexity Tracking

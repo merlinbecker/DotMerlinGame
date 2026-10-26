@@ -201,8 +201,8 @@ Quellenkommentar ab und testet sie gegen Test-ROMs (FR-016).
 ## R10 – IME und HALT
 
 **Decision**: Beide sind über `GB_INTERNAL` lesbar (`gb->ime`, `gb->halted`, `Core/gb.h:375`, `383`) und
-werden in `InspectionSnapshot.cpu` mitgeliefert. Ob der View „Registers“ sie anzeigt, entscheidet der
-Projektinhaber (plan.md, Offene Punkte). FR-006 verlangt sie nicht.
+werden in `InspectionSnapshot.cpu` mitgeliefert. Der View „Registers“ zeigt sie an (Entscheidung des
+Projektinhabers 2026-10-26, FR-006 ergänzt).
 
 ## R11 – Cartridge-RAM
 
@@ -229,7 +229,7 @@ dazu:
 2. `emulatedFps`: tatsächlich emulierte Frames pro Sekunde über die letzte Minute. Er erfasst auch die
    Hauptthread-Last durch React-Rendering.
 
-SC-002 gilt als erfüllt, wenn `frameWorkP95Ms` < 16,7 ms und `emulatedFps` ≥ 59 bei Screen plus einem
+SC-002 gilt als erfüllt (Entscheidung des Projektinhabers 2026-10-26, Spec angepasst), wenn `frameWorkP95Ms` < 16,7 ms und `emulatedFps` ≥ 59 bei Screen plus einem
 Speicher-View auf „Live“. Die bestehende Kennzahl bleibt für den Vergleich mit M1 erhalten.
 
 **Alternatives considered**: Nur `frameTimeP95Ms`. Verworfen, weil nicht aussagekräftig.
