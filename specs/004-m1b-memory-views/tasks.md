@@ -476,12 +476,12 @@ bei (SCX, SCY) mit Umbruch.
 **Independent Test**: Mit `inspect-gfx` und `inspect-gfx-tall` zeigt der View genau die dokumentierten
 OAM-Werte.
 
-- [ ] T060 [P] [US5] Write `tests/unit/inspect-oam.test.ts` for `decodeObject(oam, i, lcdc)`:
+- [X] T060 [P] [US5] Write `tests/unit/inspect-oam.test.ts` for `decodeObject(oam, i, lcdc)`:
   - Fields `y, x, tile`, priority (bit 7), flipY (6), flipX (5), palette (bit 4 → 0/1).
   - With 8×16 the tiles are `[tile & 0xFE, tile | 0x01]`.
   - `visible` is false for Y = 0, Y = 160, X = 0 and X = 168, and true for Y = 16, X = 8.
   - With 8×16, Y = 2 is visible and Y = 0 is not (Pan Docs "OAM" examples).
-- [ ] T061 [P] [US5] Write `tests/unit/view-sprites.test.tsx` with `inspect-gfx` and `inspect-gfx-tall`:
+- [X] T061 [P] [US5] Write `tests/unit/view-sprites.test.tsx` with `inspect-gfx` and `inspect-gfx-tall`:
   - Each of the 40 entries shows number, Y, X, tile, priority, flip X/Y and palette as text.
   - The tile image is 8×8 or 8×16.
   - Hidden entries say "hidden".
@@ -489,10 +489,10 @@ OAM-Werte.
   - Initial palette is `'raw'`.
   - The list is paged with no scrolling.
   - A changed field is marked.
-- [ ] T062 [US5] Implement `src/core/inspect/oam.ts`. T060 must be green.
-- [ ] T063 [US5] Create `src/views/sprites/definition.ts` (`typeId: 'sprites'`, `inspects: true`, state
+- [X] T062 [US5] Implement `src/core/inspect/oam.ts`. T060 must be green.
+- [X] T063 [US5] Create `src/views/sprites/definition.ts` (`typeId: 'sprites'`, `inspects: true`, state
   `{ rate, palette: 'raw' | 'obp', page }`) and `src/views/sprites/SpritesView.tsx`. T061 must be green.
-- [ ] T064 [US5] Register the view, and write
+- [X] T064 [US5] Register the view, and write
   `tests/e2e/m1b-sprites.spec.ts`: page through the list and check the "hidden" label.
 
 ---
