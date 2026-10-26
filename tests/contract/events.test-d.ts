@@ -32,7 +32,7 @@ describe('domain events', () => {
     });
   });
 
-  it('knows the M0 and M1 event types and nothing else', () => {
+  it('knows the M0, M1 and M1b event types and nothing else', () => {
     expectTypeOf<DomainEvent['type']>().toEqualTypeOf<
       | 'RomLoaded'
       | 'RomRejected'
@@ -42,6 +42,7 @@ describe('domain events', () => {
       | 'BuildFinished'
       | 'BreakpointHit'
       | 'ProjectChanged'
+      | 'EmulatorReset'
     >();
   });
 

@@ -18,6 +18,7 @@ function ProbeView({ context }: ViewInstanceProps<null>) {
       <span data-testid="visible">{String(context.visible)}</span>
       <button type="button" onClick={() => { context.dispatch({ type: 'Pause' }); }}>pause</button>
       <button type="button" onClick={() => { context.dispatch({ type: 'SetFrameRate', rate: { kind: 'on-demand' } }); }}>rate</button>
+      <button type="button" onClick={() => { context.dispatch({ type: 'RequestSnapshot' }); }}>request</button>
       <ProbeFrames subscribe={(cb) => context.frameState.subscribe(cb)} />
     </div>
   );
@@ -82,6 +83,19 @@ describe('slot renders a registered view with a view context', () => {
     fireEvent.click(screen.getByText('pause'));
     fireEvent.click(screen.getByText('rate'));
     expect(dispatched).toEqual([{ type: 'Pause' }]);
+  });
+
+  it('answers RequestSnapshot in the slot with one snapshot, never in the session (M1b)', async () => {
+    frameUpdates = 0;
+    const { hub, dispatched } = setup(true);
+    fireEvent.click(screen.getByText('rate'));
+    hub.prime(() => snapshot(0));
+    fireEvent.click(screen.getByText('request'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(frameUpdates).toBe(1);
+    expect(dispatched).toEqual([]);
   });
 
   it('shows header actions from the view definition and dispatches them', () => {

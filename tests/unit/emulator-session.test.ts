@@ -24,7 +24,7 @@ class MemoryStorage {
 
 function recordEvents(session: ReturnType<typeof createEmulatorSession>) {
   const events: DomainEvent[] = [];
-  for (const type of ['RomLoaded', 'RomRejected', 'RunStateChanged', 'StorageFailed', 'EmulatorHalted'] as const) {
+  for (const type of ['RomLoaded', 'RomRejected', 'RunStateChanged', 'StorageFailed', 'EmulatorHalted', 'EmulatorReset'] as const) {
     session.events.subscribe(type, (event) => events.push(event));
   }
   return events;
@@ -179,6 +179,28 @@ describe('emulator session (US1)', () => {
     await vi.waitFor(() => {
       expect(store.current()?.battery).toEqual(new Uint8Array([5]));
     });
+  });
+
+  it.each([false, true])('publishes EmulatorReset after a reset (paused before: %s, M1b)', async (paused) => {
+    const emulator = fakeEmulator();
+    const session = createEmulatorSession({ emulator, romStore: memoryRomStore() });
+    session.dispatch({ type: 'LoadRom', bytes: testRom('marker'), fileName: 'marker.gb' });
+    await session.idle();
+    if (paused) session.dispatch({ type: 'Pause' });
+    await session.idle();
+    const events = recordEvents(session);
+    session.dispatch({ type: 'Reset' });
+    await session.idle();
+    expect(emulator.reset).toHaveBeenCalled();
+    expect(events.filter((e) => e.type === 'EmulatorReset')).toHaveLength(1);
+  });
+
+  it('ignores RequestSnapshot, which the slot handles (M1b)', async () => {
+    const emulator = fakeEmulator();
+    const session = createEmulatorSession({ emulator, romStore: memoryRomStore() });
+    session.dispatch({ type: 'RequestSnapshot' });
+    await session.idle();
+    expect(session.session.getSnapshot().runState).toBe('empty');
   });
 
   it('turns a hardware-near halt into run state halted with a notice (US2)', async () => {

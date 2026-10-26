@@ -19,4 +19,6 @@ export type ViewAction =
   | { readonly type: 'SetMuted'; readonly muted: boolean }
   | { readonly type: 'UnlockAudio' }
   /** Handled per slot by the app, never by the emulator (FR-022). */
-  | { readonly type: 'SetFrameRate'; readonly rate: PublishRate };
+  | { readonly type: 'SetFrameRate'; readonly rate: PublishRate }
+  /** One current snapshot for this slot only; handled by the app, never by the emulator (M1b). */
+  | { readonly type: 'RequestSnapshot' };

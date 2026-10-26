@@ -37,8 +37,8 @@ describe('view context', () => {
   });
 });
 
-describe('view actions (M1)', () => {
-  it('adds exactly the M1 actions to the M0 union', () => {
+describe('view actions (M1, M1b)', () => {
+  it('adds exactly the M1 and M1b actions to the M0 union', () => {
     expectTypeOf<ViewAction['type']>().toEqualTypeOf<
       | 'Pause'
       | 'Resume'
@@ -55,7 +55,13 @@ describe('view actions (M1)', () => {
       | 'SetMuted'
       | 'UnlockAudio'
       | 'SetFrameRate'
+      | 'RequestSnapshot'
     >();
+  });
+
+  it('asks for one snapshot per slot without payload (M1b)', () => {
+    context.dispatch({ type: 'RequestSnapshot' });
+    expectTypeOf<Extract<ViewAction, { type: 'RequestSnapshot' }>>().toEqualTypeOf<{ readonly type: 'RequestSnapshot' }>();
   });
 
   it('requires the payload of LoadRom and SetFrameRate', () => {
@@ -75,6 +81,13 @@ describe('view definition and layout (M1)', () => {
     >();
     expectTypeOf<HeaderAction['action']>().toEqualTypeOf<ViewAction>();
     expectTypeOf<keyof ViewDefinition<unknown>>().not.toEqualTypeOf<'doubleTapZoom'>();
+  });
+
+  it('lets a view declare that it reads inspection data, nothing else (M1b)', () => {
+    expectTypeOf<ViewDefinition<unknown>['inspects']>().toEqualTypeOf<true | undefined>();
+    // @ts-expect-error inspects is only ever true
+    const definition: Pick<ViewDefinition<unknown>, 'inspects'> = { inspects: false };
+    expectTypeOf(definition).toBeObject();
   });
 
   it('stores the maximized slot only in the layout', () => {

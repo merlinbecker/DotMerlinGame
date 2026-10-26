@@ -7,6 +7,10 @@ export interface SlotFrameSource extends FrameStateSource {
   requestSnapshot(): void;
   /** True while this slot wants frames pushed (visible, subscribed, rate not on-demand). */
   readonly wantsFrames: boolean;
+  /** The view in this slot reads inspection data (ViewDefinition.inspects, M1b). */
+  setInspects(inspects: boolean): void;
+  /** True while this slot needs inspection data in snapshots (visible, subscribed, inspecting view). */
+  readonly wantsInspection: boolean;
 }
 
 export function createSlotFrameSource(upstream: FrameStatePublisher, onDemandChanged: () => void = () => undefined): SlotFrameSource {
@@ -16,6 +20,7 @@ export function createSlotFrameSource(upstream: FrameStatePublisher, onDemandCha
   let delivered: FrameSnapshot | null = null;
   let counter = 0;
   let requested = false;
+  let inspects = false;
   let unsubscribeUpstream: (() => void) | null = null;
 
   const deliver = () => {
@@ -25,6 +30,14 @@ export function createSlotFrameSource(upstream: FrameStatePublisher, onDemandCha
 
   const onUpstream = () => {
     if (!visible) return;
+    // A delivery on request only goes to the slots that asked; it is no frame for the others (rule 7).
+    if (upstream.getDeliveryKind() === 'request') {
+      if (requested) {
+        requested = false;
+        deliver();
+      }
+      return;
+    }
     if (requested) {
       requested = false;
       deliver();
@@ -65,8 +78,16 @@ export function createSlotFrameSource(upstream: FrameStatePublisher, onDemandCha
       onDemandChanged();
     },
     requestSnapshot() {
+      if (!visible) return;
       requested = true;
       upstream.requestSnapshot();
+    },
+    setInspects(next) {
+      inspects = next;
+      onDemandChanged();
+    },
+    get wantsInspection() {
+      return visible && listeners.size > 0 && inspects;
     },
     get wantsFrames() {
       return visible && listeners.size > 0 && rate.kind !== 'on-demand';

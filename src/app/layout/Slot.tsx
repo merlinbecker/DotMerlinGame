@@ -35,6 +35,10 @@ export function Slot({ content, shown, visible, size, demand, onCycle, onViewSta
     () => services.session.getSnapshot(),
   );
   const view = content ? findView(content.viewTypeId) : undefined;
+  const inspects = view?.definition.inspects === true;
+  useEffect(() => {
+    frameSource.setInspects(inspects);
+  }, [frameSource, inspects]);
 
   const context: ViewContext = useMemo(
     () => ({
@@ -45,6 +49,7 @@ export function Slot({ content, shown, visible, size, demand, onCycle, onViewSta
       session: services.session,
       dispatch: (action: ViewAction) => {
         if (action.type === 'SetFrameRate') frameSource.setRate(action.rate);
+        else if (action.type === 'RequestSnapshot') frameSource.requestSnapshot();
         else services.dispatch(action);
       },
       visible,

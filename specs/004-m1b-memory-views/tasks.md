@@ -209,17 +209,17 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
 ### 2e – Vertrag und App (contracts/view-contract.md)
 
-- [ ] T020 [P] Extend `tests/contract/view-contract.test-d.ts` with three checks: `{ type: 'RequestSnapshot' }`
+- [X] T020 [P] Extend `tests/contract/view-contract.test-d.ts` with three checks: `{ type: 'RequestSnapshot' }`
   is a `ViewAction`, `{ type: 'EmulatorReset' }` is a `DomainEvent`, and `ViewDefinition.inspects` is
   optional and only `true`.
-- [ ] T021 Add `RequestSnapshot` to `src/core/view/view-actions.ts`, `EmulatorReset` to
+- [X] T021 Add `RequestSnapshot` to `src/core/view/view-actions.ts`, `EmulatorReset` to
   `src/core/events/domain-events.ts`, and `inspects?: true` to `ViewDefinition` in
   `src/core/view/view-contract.ts`. Update the `ViewAction` switch in
   `src/app/session/emulator-session.ts` so `RequestSnapshot` is ignored there, like `SetFrameRate`.
-- [ ] T022 Write a test in `tests/unit/emulator-session.test.ts`: `Reset` publishes `EmulatorReset` while
+- [X] T022 Write a test in `tests/unit/emulator-session.test.ts`: `Reset` publishes `EmulatorReset` while
   running and while paused. Then publish it after `emulator.reset()` in
   `src/app/session/emulator-session.ts`.
-- [ ] T023 Write tests in `tests/unit/slot-frame-source.test.ts` and `tests/contract/slot-view.test.tsx`
+- [X] T023 Write tests in `tests/unit/slot-frame-source.test.ts` and `tests/contract/slot-view.test.tsx`
   for three slots with rates `full`, `reduced` 60 and `on-demand`:
   - A `RequestSnapshot` from the on-demand slot delivers exactly one snapshot to it.
   - The other two get 0 extra deliveries.
@@ -228,15 +228,15 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
     real frame is dropped because its number repeats one seen before.
   - A hidden slot that requests gets nothing.
   - Two requests in one task cause one build.
-- [ ] T024 Implement in `src/app/layout/slot-frame-source.ts`: track the last delivered frame number and
+- [X] T024 Implement in `src/app/layout/slot-frame-source.ts`: track the last delivered frame number and
   ignore upstream deliveries with `upstream.getDeliveryKind() === 'request'` unless this slot has a
   pending request (never compare frame numbers, contracts/frame-state.md rule 7). Route
   `RequestSnapshot` in `src/app/layout/Slot.tsx` to `frameSource.requestSnapshot()`. T023 must be green.
-- [ ] T025 Write `tests/unit/frame-demand.test.ts`: inspection demand is on only while at least one
+- [X] T025 Write `tests/unit/frame-demand.test.ts`: inspection demand is on only while at least one
   registered source is visible, subscribed and flagged `inspects`. Then extend
   `src/app/layout/frame-demand.ts` and `SlotFrameSource` with an `inspects` flag set by `Slot.tsx` from
   `view.definition.inspects`, calling `publisher.setInspectionDemand`.
-- [ ] T026 Write the addendum to `docs/adr/0008-eventmodell-und-offline.md` (German), section "Nachtrag
+- [X] T026 Write the addendum to `docs/adr/0008-eventmodell-und-offline.md` (German), section "Nachtrag
   M1b (2026-10-26)". It covers:
   - `FrameSnapshot.inspection` built on demand, read without side effects (research.md R1/R4/R5)
   - `RequestSnapshot` per slot with coalescing

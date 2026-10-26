@@ -237,6 +237,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
         if (state.runState === 'empty') return;
         emulator.reset();
         if (state.runState !== 'running') run();
+        publish({ type: 'EmulatorReset' });
         return;
       case 'SetBootMode':
         changeSettings({ bootMode: action.bootMode });
@@ -255,9 +256,10 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       case 'UnlockAudio':
         return; // handled synchronously in dispatch, inside the user's event
       case 'SetFrameRate':
+      case 'RequestSnapshot':
       case 'SetBreakpoint':
       case 'ClearBreakpoint':
-        return; // per slot (SetFrameRate) or M4 (breakpoints)
+        return; // per slot (SetFrameRate, RequestSnapshot) or M4 (breakpoints)
     }
   };
 

@@ -23,3 +23,28 @@ Typ-Tests sichern ab, dass unbekannte Ereignisse nicht kompilieren und Views nic
 ## Bezüge
 
 Briefing Abschnitte 4, 5; Constitution II, IV, IX; `contracts/events.md`.
+
+## Nachtrag M1b (2026-10-26): Inspektionsdaten im Frame-Zustand
+
+**Kontext**: Die Speicher-Ansichten aus M1b (Hex, Registers, Tiles, Tilemaps, Sprites) brauchen den
+Speicherinhalt des Emulators. Der übliche Lesepfad des Cores (`GB_safe_read_memory`) stößt PPU- und
+APU-Nachberechnungen an und zeigt gesperrten Cartridge-RAM nicht (specs/004-m1b-memory-views/research.md R1).
+
+**Entscheidung**:
+- Es gibt **keinen dritten Kanal**. `FrameSnapshot` erhält das Feld `inspection: InspectionSnapshot | null`
+  mit Kopien von VRAM, WRAM, OAM, I/O, HRAM, IE, allen Cartridge-RAM-Bänken, Bankständen, IME und HALT
+  sowie einer Referenz auf die ROM-Kopie des Ladevorgangs. Register und Speicher stammen so aus demselben
+  Frame.
+- Gelesen wird ausschließlich über direkten Zugriff (`GB_get_direct_access`) und wenige markierte interne
+  Felder, ohne Nebenwirkung auf Bild und Ton. Ein Test vergleicht 300 Frames je Test-ROM mit und ohne
+  Inspektion.
+- `inspection` wird nur gebaut, solange ein sichtbarer Slot einen View mit `inspects: true` zeigt
+  (`setInspectionDemand`). Ohne Speicher-View bleibt M1 unverändert.
+- Neue `ViewAction` `RequestSnapshot`: Der Slot fordert genau einen Snapshot an. Der Hub bündelt
+  Anforderungen eines Tasks zu einem Bau und kennzeichnet die Lieferung (`getDeliveryKind()`). Andere Slots
+  ignorieren sie, ihre Drosselung zählt nur echte Frames.
+- Neues Ereignis `EmulatorReset`, damit Views auch nach einem Reset im laufenden Betrieb sofort den neuen
+  Stand anfordern. `prime()` im Hub macht den Stand nach Laden, Reset und Halt abrufbar.
+
+**Konsequenzen**: Views greifen weiter nie direkt in den Emulator. Der WASM-Wrapper hat sechs neue
+Lesefunktionen (Artefakt neu gebaut, Nachbau geprüft). Details: `specs/004-m1b-memory-views/contracts/`.

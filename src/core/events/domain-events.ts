@@ -20,7 +20,9 @@ export type DomainEvent =
       readonly warningCount: number;
     }
   | { readonly type: 'BreakpointHit'; readonly address: number; readonly bank: number }
-  | { readonly type: 'ProjectChanged'; readonly projectId: string };
+  | { readonly type: 'ProjectChanged'; readonly projectId: string }
+  /** After a reset of the session, also while running (M1b: views refresh at once). */
+  | { readonly type: 'EmulatorReset' };
 
 export type DomainEventType = DomainEvent['type'];
 

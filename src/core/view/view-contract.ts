@@ -102,6 +102,8 @@ export interface ViewDefinition<S> {
   readonly initialState: S;
   serialize(state: S): JsonValue;
   deserialize(json: JsonValue): S;
+  /** The view reads `FrameSnapshot.inspection`; the app asks for it while the view is visible (M1b). */
+  readonly inspects?: true;
   /** Buttons for the slot header; zoom and view switching are added by the grid itself. */
   readonly headerActions?: (session: SessionState) => readonly HeaderAction[];
 }

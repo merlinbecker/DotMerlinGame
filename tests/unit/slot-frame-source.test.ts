@@ -67,6 +67,85 @@ describe('slot frame source', () => {
   });
 });
 
+describe('snapshot requests per slot (M1b, contracts/view-contract.md)', () => {
+  function threeSlots() {
+    const hub = createFrameStateHub();
+    const counts = { full: 0, second: 0, manual: 0 };
+    const full = createSlotFrameSource(hub);
+    const second = createSlotFrameSource(hub);
+    const manual = createSlotFrameSource(hub);
+    full.subscribe(() => counts.full++);
+    second.subscribe(() => counts.second++);
+    manual.subscribe(() => counts.manual++);
+    second.setRate({ kind: 'reduced', everyNthFrame: 60 });
+    manual.setRate({ kind: 'on-demand' });
+    hub.prime(() => snapshot(0));
+    return { hub, full, second, manual, counts };
+  }
+
+  it('delivers a request only to the requesting slot', async () => {
+    const { manual, counts } = threeSlots();
+    manual.requestSnapshot();
+    await Promise.resolve();
+    expect(counts).toEqual({ full: 0, second: 0, manual: 1 });
+  });
+
+  it('does not advance the throttle of other slots', async () => {
+    const { hub, manual, counts } = threeSlots();
+    frames(hub, 1, 30);
+    manual.requestSnapshot();
+    await Promise.resolve();
+    frames(hub, 31, 29);
+    expect(counts.second).toBe(0);
+    frames(hub, 60, 1);
+    expect(counts.second).toBe(1);
+  });
+
+  it('keeps counting real frames across a reset that restarts frame numbers', () => {
+    const { hub, counts } = threeSlots();
+    frames(hub, 1, 30);
+    hub.prime(() => snapshot(0));
+    frames(hub, 1, 30); // frame numbers repeat after the reset
+    expect(counts.second).toBe(1);
+    expect(counts.full).toBe(60);
+  });
+
+  it('gives a hidden slot nothing, even on request', async () => {
+    const { manual, counts } = threeSlots();
+    manual.setVisible(false);
+    manual.requestSnapshot();
+    await Promise.resolve();
+    expect(counts.manual).toBe(0);
+  });
+
+  it('builds once for two requests in one task', async () => {
+    const hub = createFrameStateHub();
+    const a = createSlotFrameSource(hub);
+    const b = createSlotFrameSource(hub);
+    const got = { a: 0, b: 0 };
+    a.subscribe(() => got.a++);
+    b.subscribe(() => got.b++);
+    a.setRate({ kind: 'on-demand' });
+    b.setRate({ kind: 'on-demand' });
+    const build = vi.fn(() => snapshot(0));
+    hub.prime(build);
+    a.requestSnapshot();
+    b.requestSnapshot();
+    await Promise.resolve();
+    expect(build).toHaveBeenCalledTimes(1);
+    expect(got).toEqual({ a: 1, b: 1 });
+  });
+
+  it('lets a real frame answer a pending request', async () => {
+    const { hub, manual, counts } = threeSlots();
+    manual.requestSnapshot();
+    frames(hub, 1, 1);
+    await Promise.resolve();
+    expect(counts.manual).toBe(1);
+    expect(manual.getSnapshot()?.frame).toBe(1);
+  });
+});
+
 describe('frame demand', () => {
   it('runs the emulator publisher at full rate only while a visible slot subscribes', () => {
     const hub = createFrameStateHub();
