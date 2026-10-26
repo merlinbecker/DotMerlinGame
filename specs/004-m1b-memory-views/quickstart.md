@@ -25,7 +25,7 @@ Erwartet: Alles ist grün.
 | `tests/emulator/inspection` | Inhalte von ROM-Bänken, RAM-Bänken (inkl. „gesperrt“), WRAM, HRAM, IE, VRAM, OAM, I/O (DIV) gegen `inspect-mem` und `inspect-gfx` (SC-001) |
 | `tests/unit/inspect-*` | Pan-Docs-Fakten: Registernamen, Kachelformat, Kartenadressierung beider Methoden, Ausschnitt mit Umbruch, OAM-Felder und Sichtbarkeit, Palette, Zeilenbreite 8/16, Diff |
 | `tests/contract/` | `RequestSnapshot` nur an den eigenen Slot. Ausgeblendet ergibt 0 Lieferungen. Bedarf folgt der Sichtbarkeit. Views dispatchen nur `SetFrameRate`/`RequestSnapshot` (FR-002, FR-013, SC-004) |
-| `tests/views/*.test.tsx` | Jeder View rendert die Werte aus einem Snapshot des passenden Test-ROMs. Markierung nach Änderung. „No ROM loaded“. Start-Rate „1/s“, Start-Palette „Raw“ |
+| `tests/unit/view-*.test.tsx` | Jeder View rendert die Werte aus einem Snapshot des passenden Test-ROMs. Markierung nach Änderung. „No ROM loaded“. Start-Rate „1/s“, Start-Palette „Raw“ |
 | `tests/e2e/m1b-*.spec.ts` | Jeden der fünf Views über die Kopfleiste einstellen. Raten zählen (1/s ergibt höchstens 1 Neuzeichnung pro Sekunde). Pause zeigt den Pausenstand. Refresh. Sprung zu einer Adresse mit einer Neuzeichnung (SC-006). Zeilenbreite 8 im schmalen und 16 im breiten Slot. Keine Animation, Graustufen-Screenshot |
 
 ## Manuelle Prüfungen am Gerät

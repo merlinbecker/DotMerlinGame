@@ -128,10 +128,9 @@ tests/
 ├── emulator/                # inspection.test.ts, inspection-identity.test.ts, modes-identical (+neue ROMs)
 ├── unit/                    # inspect-*.test.ts, frame-state-hub, frame-demand, emulator-session
 ├── contract/                # Typen, Slot-Verhalten, Dispatch-Grenze
-├── views/                   # Rendering je View mit echten Snapshots
 └── e2e/                     # m1b-*.spec.ts
 docs/adr/0008-…              # Nachtrag: Inspektionsdaten im Frame-Zustand
-docs/arc42/                  # Kap. 5 (Bausteine), 6 (Laufzeit: Snapshot-Anforderung), 8 (Lesen ohne Nebenwirkung), 9
+docs/arc42/                  # Kap. 5 (Bausteine), 8 (Lesen ohne Nebenwirkung, Snapshot-Anforderung), 9
 docs/abnahme/m1b.md          # Abnahmeprotokoll
 third_party/sameboy.md       # Wrapper-Stand, genutzte GB_INTERNAL-Felder
 ```
@@ -166,7 +165,7 @@ third_party/sameboy.md       # Wrapper-Stand, genutzte GB_INTERNAL-Felder
    - Playwright-Szenarien
    - Gerätetests auf Palma, Go Color 7 und dem Smartphone
    - `docs/abnahme/m1b.md`
-   - arc42 Kap. 5/6/8/9
+   - arc42 Kap. 5/8/9
    - Versionssprung auf die nächste Minor-Version bei Abnahme
 
 ## Offene Punkte für den Projektinhaber
