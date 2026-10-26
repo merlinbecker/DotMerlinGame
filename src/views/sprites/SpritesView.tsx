@@ -76,7 +76,7 @@ export function SpritesView({ context, state, setState }: ViewInstanceProps<Spri
             return (
               <div key={entry.index} className={`${styles.entry} ${isChanged ? common.changed : ''}`} data-testid={`sprite-${String(entry.index)}`} data-changed={isChanged}>
                 <TileCanvas pixels={objectPicture(inspection.vram, entry, palette)} width={8} height={height} scale={SCALE} label={`Sprite ${String(entry.index)} tile`} />
-                <span className={common.mono}>
+                <span className={`${common.mono} ${styles.text}`}>
                   #{entry.index} Y {entry.y} X {entry.x} tile {hex(entry.tile)} · prio {entry.priority ? 1 : 0} · flip {entry.flipX ? 'X' : '–'}
                   {entry.flipY ? 'Y' : '–'} · OBP{entry.palette}
                   {entry.visible ? '' : ' · hidden'}

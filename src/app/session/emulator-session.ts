@@ -79,7 +79,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     settings: { bootMode: settings.bootMode, hardwareChecks: settings.hardwareChecks },
     audio: { muted: settings.muted, volume: settings.volume, unlocked: audio?.unlocked ?? false },
     notice: null,
-    diagnostics: { frameTimeP95Ms: null, audioUnderflows: 0, audioOverflows: 0 },
+    diagnostics: { frameTimeP95Ms: null, frameWorkP95Ms: null, emulatedFps: null, audioUnderflows: 0, audioOverflows: 0 },
     gamepads: [],
   };
   let queue: Promise<void> = Promise.resolve();

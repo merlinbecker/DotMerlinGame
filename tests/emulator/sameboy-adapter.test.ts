@@ -14,6 +14,21 @@ async function started(name: string) {
 }
 
 describe('SameBoy adapter (EmulatorPort)', () => {
+  it('measures the work per frame including the snapshot, and the emulated frames per second (SC-002)', async () => {
+    const emulator = await started('inspect-gfx');
+    expect(emulator.frameWorkP95Ms()).toBeNull();
+    expect(emulator.emulatedFps()).toBeNull();
+    emulator.frameState.setInspectionDemand(true);
+    emulator.frameState.subscribe(() => undefined);
+    emulator.advance(60);
+    const work = emulator.frameWorkP95Ms();
+    const emulation = emulator.frameTimeP95Ms();
+    expect(work).not.toBeNull();
+    expect(work ?? 0).toBeGreaterThanOrEqual(emulation ?? Infinity);
+    // advance() runs as fast as possible in tests, so far more than 60 frames per second
+    expect(emulator.emulatedFps()).toBeGreaterThan(60);
+  });
+
   it('publishes snapshots with a 160x144 screen of shades 0-3', async () => {
     const emulator = await started('pattern');
     let last: FrameSnapshot | null = null;

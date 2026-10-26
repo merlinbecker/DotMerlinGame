@@ -504,17 +504,17 @@ OAM-Werte.
 **Independent Test**: Speicher-View neben dem Screen. Neuzeichnungen pro Sekunde zählen, ausgeblendet 0,
 Diagnosewerte prüfen, Graustufen-Screenshot.
 
-- [ ] T065 [P] [US6] Write `tests/unit/emulator-session.test.ts` (extend) and
+- [X] T065 [P] [US6] Write `tests/unit/emulator-session.test.ts` (extend) and
   `tests/emulator/sameboy-adapter.test.ts` (extend):
   - The adapter exposes `frameWorkP95Ms()`, which measures `_dmg_run_frame` plus `offer()`, and
     `emulatedFps()`, which counts frames per second over the last 60 s.
   - The session fills `diagnostics.frameWorkP95Ms` and `diagnostics.emulatedFps`.
-- [ ] T066 [US6] Implement the measurement in `src/adapters/emulator/sameboy/sameboy-emulator.ts`, extend
+- [X] T066 [US6] Implement the measurement in `src/adapters/emulator/sameboy/sameboy-emulator.ts`, extend
   `Diagnostics` in `src/core/view/view-contract.ts` with `frameWorkP95Ms: number | null` and
   `emulatedFps: number | null`, and wire it in `src/app/session/emulator-session.ts`. Show both on the
   `header` page of `src/views/rom-info/RomInfoView.tsx` with `data-testid="frame-work"` and
   `"emulated-fps"`, and extend `tests/e2e/m1-rom-info.spec.ts`. T065 must be green (research.md R12).
-- [ ] T067 [P] [US6] Write `tests/e2e/m1b-rates.spec.ts` with Screen and Hex visible and `marker` or
+- [X] T067 [P] [US6] Write `tests/e2e/m1b-rates.spec.ts` with Screen and Hex visible and `marker` or
   `inspect-mem` running:
   - Count Hex re-renders via a `data-frame` attribute over 5 s:
     - "1/s" → at most 6
@@ -525,14 +525,14 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
   - A new Hex slot starts at "1/s" (US6-AS6).
   - Screen keeps full rate: the ROM Info `emulated-fps` is at least 55 in headless Chromium, noted as
     an approximation.
-- [ ] T068 [P] [US6] Write `tests/e2e/m1b-eink.spec.ts`. For each of the five views:
+- [X] T068 [P] [US6] Write `tests/e2e/m1b-eink.spec.ts`. For each of the five views:
   - No CSS transition or animation (same check as `tests/e2e/m1-eink.spec.ts`).
   - At the 2-slot portrait viewport from T046, no horizontal scrolling in the view
     (`scrollWidth <= clientWidth` for the slot content and the page), covering the edge case "Sehr kleines
     Display" and SC-005 automatically (analysis finding C1).
   - In a grayscale screenshot, the changed, selected, mapped and locked marks are detectable by pixel
     difference from the unmarked state.
-- [ ] T069 [US6] Write `tests/e2e/m1b-pause.spec.ts`: with Hex on "1/s", Pause shows the paused state.
+- [X] T069 [US6] Write `tests/e2e/m1b-pause.spec.ts`: with Hex on "1/s", Pause shows the paused state.
   The value in a frequently changing WRAM cell, or DIV in I/O, equals the value after a manual Refresh
   while paused. Reset while running updates the view at once via `EmulatorReset`.
 

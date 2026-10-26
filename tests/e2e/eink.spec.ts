@@ -1,55 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-
-/** Returns every color of every element (incl. focus, caret, SVG) that is not pure gray. */
-async function nonGrayColors(page: Page): Promise<string[]> {
-  return page.evaluate(() => {
-    const properties = [
-      'color',
-      'background-color',
-      'border-top-color',
-      'border-right-color',
-      'border-bottom-color',
-      'border-left-color',
-      'outline-color',
-      'caret-color',
-      'fill',
-      'stroke',
-    ];
-    const problems: string[] = [];
-    for (const element of [document.documentElement, ...document.querySelectorAll('*')]) {
-      const style = getComputedStyle(element);
-      for (const property of properties) {
-        const value = style.getPropertyValue(property).trim();
-        if (value === '' || value === 'none' || value === 'auto' || value === 'transparent') continue;
-        if (value.startsWith('url(')) continue;
-        const match = /^rgba?\(\s*(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)(?:[,\s/]+([\d.]+))?\s*\)$/.exec(value);
-        if (!match) {
-          problems.push(`${element.tagName} ${property}: unparsed ${value}`);
-          continue;
-        }
-        const [, r, g, b, alpha] = match;
-        if (alpha !== undefined && Number(alpha) === 0) continue;
-        if (r !== g || g !== b) problems.push(`${element.tagName} ${property}: ${value}`);
-      }
-    }
-    return problems;
-  });
-}
-
-async function motionProblems(page: Page): Promise<string[]> {
-  return page.evaluate(() => {
-    const problems: string[] = [];
-    if (document.getAnimations().length > 0) problems.push(`${document.getAnimations().length} running animations`);
-    for (const element of document.querySelectorAll('*')) {
-      const style = getComputedStyle(element);
-      if (style.transitionDuration.split(',').some((d) => parseFloat(d) !== 0)) {
-        problems.push(`${element.tagName} transition-duration ${style.transitionDuration}`);
-      }
-      if (style.animationName !== 'none') problems.push(`${element.tagName} animation ${style.animationName}`);
-    }
-    return problems;
-  });
-}
+import { expect, test } from '@playwright/test';
+import { motionProblems, nonGrayColors } from './support.ts';
 
 test('runs no animations or transitions', async ({ page }) => {
   await page.goto('/');

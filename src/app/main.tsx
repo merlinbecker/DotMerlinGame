@@ -28,6 +28,8 @@ const session = createEmulatorSession({
   page: document,
   diagnostics: () => ({
     frameTimeP95Ms: emulator.frameTimeP95Ms(),
+    frameWorkP95Ms: emulator.frameWorkP95Ms(),
+    emulatedFps: emulator.emulatedFps(),
     audioUnderflows: audio?.underflows ?? 0,
     audioOverflows: audio?.overflows ?? 0,
   }),

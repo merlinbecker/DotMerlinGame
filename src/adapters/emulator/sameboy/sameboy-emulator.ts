@@ -35,6 +35,16 @@ const RUN_FRAME = 0;
 const RUN_HANDOFF = 1;
 /** About 5 minutes of frames for the frame time statistics. */
 const FRAME_TIME_WINDOW = 18_000;
+/** Time window for the emulated frame rate and the size of its timestamp ring (60 s at ~60 frames/s). */
+const FPS_WINDOW_MS = 60_000;
+const FPS_RING = 4096;
+
+function p95(values: Float32Array, total: number): number | null {
+  const count = Math.min(total, values.length);
+  if (count === 0) return null;
+  const sorted = values.slice(0, count).sort();
+  return sorted[Math.min(count - 1, Math.floor(count * 0.95))] ?? null;
+}
 
 function isAudioOutput(sink: AudioSink): sink is AudioOutputPort {
   return 'bufferedSamples' in sink && 'unlocked' in sink;
@@ -53,6 +63,10 @@ export interface SameBoyEmulator extends EmulatorPort {
   cpuRegisters(): Registers;
   /** 95th percentile of the emulation time per frame over the last ~5 minutes (SC-003). */
   frameTimeP95Ms(): number | null;
+  /** 95th percentile of emulation plus snapshot building and delivery per frame (SC-002 of M1b). */
+  frameWorkP95Ms(): number | null;
+  /** Emulated frames per second over the last minute; null before two frames. */
+  emulatedFps(): number | null;
   /** Header of the loaded ROM, null before the first successful load. */
   readonly header: RomHeaderInfo | null;
   /**
@@ -180,6 +194,9 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
       }, pacing)
     : null;
   const frameTimes = new Float32Array(FRAME_TIME_WINDOW);
+  const frameWork = new Float32Array(FRAME_TIME_WINDOW);
+  const frameStamps = new Float64Array(FPS_RING);
+  let frameStampCount = 0;
   let frameTimeCount = 0;
 
   const readRegisters = (): Registers => {
@@ -331,18 +348,32 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
           result = module._dmg_run_frame();
         }
         if (result !== RUN_FRAME) return;
-        frameTimes[frameTimeCount++ % FRAME_TIME_WINDOW] = performance.now() - started;
+        frameTimes[frameTimeCount % FRAME_TIME_WINDOW] = performance.now() - started;
         frame++;
         flushAudio();
         frameState.offer(frame, snapshot);
+        const done = performance.now();
+        frameWork[frameTimeCount++ % FRAME_TIME_WINDOW] = done - started;
+        frameStamps[frameStampCount++ % FPS_RING] = done;
       }
     },
 
-    frameTimeP95Ms() {
-      const count = Math.min(frameTimeCount, FRAME_TIME_WINDOW);
-      if (count === 0) return null;
-      const sorted = frameTimes.slice(0, count).sort();
-      return sorted[Math.min(count - 1, Math.floor(count * 0.95))] ?? null;
+    frameTimeP95Ms: () => p95(frameTimes, frameTimeCount),
+    frameWorkP95Ms: () => p95(frameWork, frameTimeCount),
+
+    emulatedFps() {
+      const now = performance.now();
+      const stored = Math.min(frameStampCount, FPS_RING);
+      let count = 0;
+      let oldest = now;
+      for (let i = 0; i < stored; i++) {
+        const stamp = frameStamps[i] ?? 0;
+        if (stamp <= now - FPS_WINDOW_MS) continue;
+        count++;
+        oldest = Math.min(oldest, stamp);
+      }
+      const span = now - oldest;
+      return count >= 2 && span > 0 ? ((count - 1) * 1000) / span : null;
     },
 
     runUntilHandoff(maxFrames = 600) {

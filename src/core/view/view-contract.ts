@@ -51,6 +51,10 @@ export interface SessionState {
 export interface Diagnostics {
   /** 95th percentile of the emulation time per frame (ms) over the last minutes. */
   readonly frameTimeP95Ms: number | null;
+  /** 95th percentile of emulation plus building and delivering the frame state per frame (ms); SC-002 of M1b. */
+  readonly frameWorkP95Ms: number | null;
+  /** Emulated frames per second over the last minute; includes main thread load from rendering. */
+  readonly emulatedFps: number | null;
   readonly audioUnderflows: number;
   readonly audioOverflows: number;
 }

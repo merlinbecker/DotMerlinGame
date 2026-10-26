@@ -106,12 +106,13 @@ describe('emulator session audio (US4)', () => {
 
   it('refreshes diagnostics once per second while running (SC-003, SC-007)', async () => {
     vi.useFakeTimers();
-    const diagnostics = vi.fn(() => ({ frameTimeP95Ms: 1.5, audioUnderflows: 0, audioOverflows: 0 }));
+    const diagnostics = vi.fn(() => ({ frameTimeP95Ms: 1.5, frameWorkP95Ms: 2.5, emulatedFps: 59.7, audioUnderflows: 0, audioOverflows: 0 }));
     const session = createEmulatorSession({ emulator: fakeEmulator(), romStore: memoryRomStore(), diagnostics });
     session.dispatch({ type: 'LoadRom', bytes: testRom('marker'), fileName: 'm.gb' });
     await session.idle();
     await vi.advanceTimersByTimeAsync(DIAGNOSTICS_INTERVAL_MS);
     expect(session.session.getSnapshot().diagnostics.frameTimeP95Ms).toBe(1.5);
+    expect(session.session.getSnapshot().diagnostics).toMatchObject({ frameWorkP95Ms: 2.5, emulatedFps: 59.7 });
   });
 });
 

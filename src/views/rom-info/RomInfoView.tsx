@@ -188,6 +188,10 @@ function HeaderPage({ session }: { readonly session: SessionState }) {
       <dl className={styles.facts} aria-label="Diagnostics">
         <dt>Frame time p95</dt>
         <dd data-testid="frame-time">{session.diagnostics.frameTimeP95Ms === null ? '–' : `${session.diagnostics.frameTimeP95Ms.toFixed(2)} ms`}</dd>
+        <dt>Frame work p95</dt>
+        <dd data-testid="frame-work">{session.diagnostics.frameWorkP95Ms === null ? '–' : `${session.diagnostics.frameWorkP95Ms.toFixed(2)} ms`}</dd>
+        <dt>Emulated fps</dt>
+        <dd data-testid="emulated-fps">{session.diagnostics.emulatedFps === null ? '–' : session.diagnostics.emulatedFps.toFixed(1)}</dd>
         <dt>Audio underflows</dt>
         <dd>{session.diagnostics.audioUnderflows}</dd>
         <dt>Audio overflows</dt>

@@ -28,7 +28,7 @@ export const IDLE_SESSION: SessionState = {
   settings: { bootMode: 'own-boot-rom', hardwareChecks: false },
   audio: { muted: false, volume: 0.5, unlocked: false },
   notice: null,
-  diagnostics: { frameTimeP95Ms: null, audioUnderflows: 0, audioOverflows: 0 },
+  diagnostics: { frameTimeP95Ms: null, frameWorkP95Ms: null, emulatedFps: null, audioUnderflows: 0, audioOverflows: 0 },
   gamepads: [],
 };
 
