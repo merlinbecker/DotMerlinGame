@@ -7,6 +7,7 @@ import { createFrameDemand } from '../../src/app/layout/frame-demand.ts';
 import { Slot } from '../../src/app/layout/Slot.tsx';
 import { createIdleServices, ServicesContext, type AppServices } from '../../src/app/services.ts';
 import { defineView, registerViews } from '../../src/app/views/registry.ts';
+import { useInspection } from '../../src/views/inspect-common/useInspection.ts';
 
 let renders = 0;
 let frameUpdates = 0;
@@ -35,7 +36,19 @@ function ProbeFrames({ subscribe }: { subscribe: (cb: () => void) => () => void 
   return null;
 }
 
+let inspectDeliveries = 0;
+
+/** A memory view as the real ones are built: useInspection decides when to ask for snapshots. */
+function InspectProbe({ context }: ViewInstanceProps<null>) {
+  const { snapshot } = useInspection(context, 'manual');
+  useEffect(() => {
+    if (snapshot) inspectDeliveries++;
+  }, [snapshot]);
+  return null;
+}
+
 registerViews([
+  defineView<null>({ typeId: 'inspect-probe', title: 'Inspect probe', icon: 'probe', inspects: true, initialState: null, serialize: () => null, deserialize: () => null }, InspectProbe),
   defineView<null>(
     {
       typeId: 'probe',
@@ -77,6 +90,29 @@ function setup(shown: boolean) {
 
 describe('slot renders a registered view with a view context', () => {
   afterEach(cleanup);
+
+  it('gives a memory view the current state when it becomes visible again (FR-010, M1b)', async () => {
+    inspectDeliveries = 0;
+    const hub = createFrameStateHub();
+    const services: AppServices = { ...createIdleServices(), frameState: hub };
+    const demand = createFrameDemand(hub);
+    const slot = (visible: boolean) => (
+      <ServicesContext value={services}>
+        <Slot content={{ viewTypeId: 'inspect-probe', viewState: null }} shown={visible} visible={visible} size={320} demand={demand} onCycle={vi.fn()} onViewStateChange={vi.fn()} />
+      </ServicesContext>
+    );
+    const { rerender } = render(slot(false));
+    hub.prime(() => snapshot(7));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(inspectDeliveries).toBe(0);
+    rerender(slot(true));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(inspectDeliveries).toBe(1);
+  });
 
   it('forwards session actions and keeps SetFrameRate in the slot', () => {
     const { dispatched } = setup(true);

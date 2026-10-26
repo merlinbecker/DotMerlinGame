@@ -97,11 +97,16 @@ function withHeapCopy<T>(module: SameBoyModule, bytes: Uint8Array, use: (pointer
   }
 }
 
-/** Copies one memory area of the core without side effects (research.md R1); empty if the core has none. */
-function readArea(module: SameBoyModule, area: number, sizePointer: number): Uint8Array {
+/**
+ * One memory area of the core, read without side effects (research.md R1); empty if the core has none. A
+ * copy only when `copy` is set: views into the WASM heap are valid until the next call into the core, which
+ * is enough for changedMemory and keeps M1 free of per-frame copies without a memory view (research.md R4).
+ */
+function readArea(module: SameBoyModule, area: number, sizePointer: number, copy: boolean): Uint8Array {
   const pointer = module._dmg_area(area, sizePointer);
   const size = new DataView(module.HEAPU8.buffer).getUint32(sizePointer, true);
-  return pointer && size ? module.HEAPU8.slice(pointer, pointer + size) : new Uint8Array(0);
+  if (!pointer || !size) return new Uint8Array(0);
+  return copy ? module.HEAPU8.slice(pointer, pointer + size) : module.HEAPU8.subarray(pointer, pointer + size);
 }
 
 /** The writable areas at $8000–$FFFF as the core holds them; the source for inspection and changedMemory. */
@@ -205,17 +210,18 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
     return { a: af >> 8, f: af & 0xff, b: bc >> 8, c: bc & 0xff, d: de >> 8, e: de & 0xff, h: hl >> 8, l: hl & 0xff, sp, pc };
   };
 
-  const readUpperMemory = (): UpperMemory => {
+  /** Copies for inspection snapshots, heap views otherwise (only read before the next call into the core). */
+  const readUpperMemory = (copy: boolean): UpperMemory => {
     module._dmg_io(ioPointer);
     module._dmg_banks(banksPointer);
     return {
-      vram: readArea(module, AREA_VRAM, sizePointer),
-      cartRam: readArea(module, AREA_CART_RAM, sizePointer),
+      vram: readArea(module, AREA_VRAM, sizePointer, copy),
+      cartRam: readArea(module, AREA_CART_RAM, sizePointer, copy),
       cartRamBank: module.HEAPU16[banksPointer / 2 + 2] ?? 0,
-      wram: readArea(module, AREA_WRAM, sizePointer),
-      oam: readArea(module, AREA_OAM, sizePointer),
-      io: module.HEAPU8.slice(ioPointer, ioPointer + 0x80),
-      hram: readArea(module, AREA_HRAM, sizePointer),
+      wram: readArea(module, AREA_WRAM, sizePointer, copy),
+      oam: readArea(module, AREA_OAM, sizePointer, copy),
+      io: copy ? module.HEAPU8.slice(ioPointer, ioPointer + 0x80) : module.HEAPU8.subarray(ioPointer, ioPointer + 0x80),
+      hram: readArea(module, AREA_HRAM, sizePointer, copy),
       ie: module._dmg_ie(),
     };
   };
@@ -245,7 +251,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
 
   const snapshot = (withInspection: boolean): FrameSnapshot => {
     const registers = readRegisters();
-    const memory = readUpperMemory();
+    const memory = readUpperMemory(withInspection);
     const f = registers.f;
     const screenStart = module._dmg_screen();
     return {

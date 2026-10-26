@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useContext, useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'react';
 import type { HeaderAction, SlotContent, ViewAction, ViewContext } from '../../core/index.ts';
 import { ServicesContext } from '../services.ts';
 import { findView } from '../views/registry.ts';
@@ -26,7 +26,8 @@ export function Slot({ content, shown, visible, size, demand, onCycle, onViewSta
   const services = useContext(ServicesContext);
   const frameSource = useMemo(() => createSlotFrameSource(services.frameState, demand.changed), [services, demand]);
   useEffect(() => demand.register(frameSource), [demand, frameSource]);
-  useEffect(() => {
+  // Layout effect: the source must know it is visible before the view's effects ask for a snapshot.
+  useLayoutEffect(() => {
     frameSource.setVisible(visible);
   }, [frameSource, visible]);
 
@@ -36,7 +37,7 @@ export function Slot({ content, shown, visible, size, demand, onCycle, onViewSta
   );
   const view = content ? findView(content.viewTypeId) : undefined;
   const inspects = view?.definition.inspects === true;
-  useEffect(() => {
+  useLayoutEffect(() => {
     frameSource.setInspects(inspects);
   }, [frameSource, inspects]);
 
