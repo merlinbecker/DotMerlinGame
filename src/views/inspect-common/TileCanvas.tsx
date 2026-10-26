@@ -1,13 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react';
+import type { Rect } from '../../core/inspect/tilemap.ts';
 import { readShades } from '../shades.ts';
 import styles from './Inspect.module.css';
 
-export interface Rect {
-  readonly x: number;
-  readonly y: number;
-  readonly width: number;
-  readonly height: number;
-}
 
 /** Color indices 0–3 to RGBA with the given gray levels (index 0 = lightest). */
 export function toGrayRgba(pixels: Uint8Array, grays: readonly number[]): Uint8ClampedArray<ArrayBuffer> {

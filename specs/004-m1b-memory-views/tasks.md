@@ -446,25 +446,25 @@ Fensterposition.
 **Independent Test**: Mit `inspect-gfx` und `inspect-gfx-tall` stimmt die Karte pixelgenau. Der Rahmen liegt
 bei (SCX, SCY) mit Umbruch.
 
-- [ ] T055 [P] [US4] Write `tests/unit/inspect-tilemap.test.ts`:
+- [X] T055 [P] [US4] Write `tests/unit/inspect-tilemap.test.ts`:
   - `mapBase(lcdc, 'background')` and `mapBase(lcdc, 'window')` for LCDC bits 3/6.
   - `tileIndexFor(entry, lcdc)` with the `$8000` method (entry 0 → tile 0, 255 → 255) and the `$8800`
     method (entry 0 → tile 256, 127 → 383, 128 → 128, 255 → 255) per Pan Docs "Tile Data".
   - `viewport(100, 200)` → wrapped rectangles covering 160 × 144 within 256 × 256.
   - `windowOrigin(87, 40)` → (80, 40).
-- [ ] T056 [P] [US4] Write `tests/unit/view-tilemaps.test.tsx` with `inspect-gfx` and `inspect-gfx-tall`:
+- [X] T056 [P] [US4] Write `tests/unit/view-tilemaps.test.tsx` with `inspect-gfx` and `inspect-gfx-tall`:
   - The 256 × 256 picture equals the composition from `decodeTile` and the map.
   - The viewport frame is drawn as a border (not color) at the wrapped position.
   - "Window" shows the window map and its origin.
   - With LCDC.5 cleared in a synthetic snapshot it shows the text "Window off".
   - Tapping shows map position (x, y), map address and tile number (US4-AS4).
   - Initial state is `{ rate: 'second', palette: 'raw', map: 'background', selected: null }`.
-- [ ] T057 [US4] Implement `src/core/inspect/tilemap.ts`. T055 must be green.
-- [ ] T058 [US4] Create `src/views/tilemaps/definition.ts` (`typeId: 'tilemaps'`, `inspects: true`, state per
+- [X] T057 [US4] Implement `src/core/inspect/tilemap.ts`. T055 must be green.
+- [X] T058 [US4] Create `src/views/tilemaps/definition.ts` (`typeId: 'tilemaps'`, `inspects: true`, state per
   data-model.md, `selected` in 0–1023) and `src/views/tilemaps/TilemapsView.tsx`. It scales the map to fit
   the slot at an integer factor, or downscales with the note "Zoom for full size"; the zoom button from
   M1 maximizes. T056 must be green.
-- [ ] T059 [US4] Register the view, and write
+- [X] T059 [US4] Register the view, and write
   `tests/e2e/m1b-tilemaps.spec.ts`: switch between background and window and check the viewport frame.
 
 ---
