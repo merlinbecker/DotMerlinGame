@@ -34,7 +34,7 @@ interface TileCanvasProps {
   readonly rects?: readonly Rect[];
   /** Picture pixel that was tapped. */
   readonly onTap?: (x: number, y: number) => void;
-  readonly frame?: number;
+  readonly frame?: number | undefined;
 }
 
 /**

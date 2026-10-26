@@ -416,23 +416,23 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
 **Independent Test**: `inspect-gfx` laden. Jede Kachel stimmt pixelgenau mit dem dokumentierten Muster
 überein.
 
-- [ ] T050 [P] [US3] Write `tests/unit/inspect-tiles.test.ts`:
+- [X] T050 [P] [US3] Write `tests/unit/inspect-tiles.test.ts`:
   - `decodeTile` on known 16-byte rows (bit 7 is the leftmost pixel, low byte is bit 0 of the color
     index, per Pan Docs "Tile Data").
   - `tileAddress(0) = $8000`, `tileAddress(128) = $8800`, `tileAddress(383) = $97F0`.
-- [ ] T051 [P] [US3] Write `tests/unit/view-tiles.test.tsx` with `inspect-gfx`:
+- [X] T051 [P] [US3] Write `tests/unit/view-tiles.test.tsx` with `inspect-gfx`:
   - All 384 tiles are drawn and grouped in three labelled blocks of 128 ($8000, $8800, $9000).
   - The pixels of tile 0, 200 and 383 equal `decodeTile` output.
   - Toggling "BGP" maps them via `applyPalette`.
   - The initial palette is `'raw'`.
   - Tapping a tile shows number, address and 16 bytes in hex.
   - Pages are used when the slot is too small for `--tile-pixel-min`.
-- [ ] T052 [US3] Implement `src/core/inspect/tiles.ts`. T050 must be green.
-- [ ] T053 [US3] Create `src/views/tiles/definition.ts` (`typeId: 'tiles'`, state `{ rate, palette:
+- [X] T052 [US3] Implement `src/core/inspect/tiles.ts`. T050 must be green.
+- [X] T053 [US3] Create `src/views/tiles/definition.ts` (`typeId: 'tiles'`, state `{ rate, palette:
   'raw' | 'bgp', page, selected: number | null }` with `selected` in 0–383, start values per
   data-model.md, `inspects: true`) and `src/views/tiles/TilesView.tsx` using `TileCanvas`, `Pager`,
   `RateBar`. T051 must be green.
-- [ ] T054 [US3] Register the view, and write `tests/e2e/m1b-tiles.spec.ts`:
+- [X] T054 [US3] Register the view, and write `tests/e2e/m1b-tiles.spec.ts`:
   load `inspect-gfx`, switch to Tiles, tap a tile, and check that the detail shows its number. Take a
   grayscale screenshot and check that the selection mark is visible without color.
 
