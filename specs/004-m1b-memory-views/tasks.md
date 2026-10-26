@@ -540,17 +540,17 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T070 [P] Update arc42 (German):
+- [X] T070 [P] Update arc42 (German):
   - `docs/arc42/05-bausteinsicht.md`: `src/core/inspect/`, the five views, `inspect-common`.
   - `docs/arc42/08-querschnittliche-konzepte.md`: reading without side effects (links to research.md
     R1–R3); snapshot request on pause, reset and refresh; demand-based inspection. There is no chapter 6
     file yet; do not create one.
   - `docs/arc42/09-architekturentscheidungen.md`: ADR-0008 addendum.
-- [ ] T071 [P] Update `docs/arc42/01-einfuehrung.md` (M1b status) and `CLAUDE.md` only if commands or
+- [X] T071 [P] Update `docs/arc42/01-einfuehrung.md` (M1b status) and `CLAUDE.md` only if commands or
   directories changed (no new npm scripts are expected)
-- [ ] T072 Run the full quickstart (`specs/004-m1b-memory-views/quickstart.md`): `npm run check`,
+- [X] T072 Run the full quickstart (`specs/004-m1b-memory-views/quickstart.md`): `npm run check`,
   `npm run core:verify`
-- [ ] T073 Create `docs/abnahme/m1b.md` with a table of all FR/SC including evidence (test file or device
+- [X] T073 Create `docs/abnahme/m1b.md` with a table of all FR/SC including evidence (test file or device
   check) and the result of T001.
 - [ ] T074 Device tests per quickstart "Manuelle Prüfungen am Gerät". Record device model,
   Android/Chrome version and measurement duration for:

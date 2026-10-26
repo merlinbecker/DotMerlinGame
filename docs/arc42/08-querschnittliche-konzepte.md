@@ -54,3 +54,17 @@ Generierte Dateien, die committet werden, entstehen nur über ihr Skript. Jede w
 | `src/core/rom/logo-hash.generated.ts` (SHA-256 des Header-Logos, keine Logo-Bytes) | `npm run roms:build` | `npm run check` |
 
 Werkzeuge sind festgelegt: emsdk-Image per Digest, RGBDS per Version und SHA-256. Herkunft und Bauweg stehen in Kapitel 7.3.
+
+## 8.9 Lesen ohne Nebenwirkung, Snapshots auf Anforderung (M1b)
+
+- **Kein Lesen über den CPU-Pfad**: Der übliche Lesezugriff des Cores (`GB_safe_read_memory`) stößt PPU- und
+  APU-Nachberechnungen an und zeigt gesperrten Cartridge-RAM nicht. Views und `changedMemory` lesen deshalb
+  nur über direkte Zeiger (specs/004-m1b-memory-views/research.md R1–R3). `tests/emulator/inspection-identity`
+  prüft für jedes Test-ROM 300 Frames lang gleiche Bild- und Tonausgabe mit und ohne Inspektion.
+- **Innerer Zustand**: Gezeigt wird, was der Emulator hält, nicht was die CPU in diesem Moment lesen würde
+  (z. B. I/O-Rohwerte, VRAM während der LCD-Sperre). Der Hex-View vermerkt das.
+- **Bedarf**: Inspektionsdaten werden nur gebaut, solange ein sichtbarer Slot einen View mit
+  `inspects: true` zeigt.
+- **Anforderung statt Warten**: Bei Pause, Halt, Laden, Reset, beim Einhängen und mit „Refresh“ fordert ein
+  Speicher-View genau einen Snapshot an (`RequestSnapshot`). Der Hub bündelt Anforderungen eines Tasks und
+  kennzeichnet die Lieferung; andere Slots ignorieren sie, ihre Drosselung zählt nur echte Frames.

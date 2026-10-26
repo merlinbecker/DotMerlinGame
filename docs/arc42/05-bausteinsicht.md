@@ -58,7 +58,7 @@ Unabhängig vom UI-Framework als TypeScript-Interfaces definiert, umgesetzt in R
 
 | Kanal | Inhalt | Frequenz | Zugriff |
 |---|---|---|---|
-| Frame-Zustand | Snapshot pro Frame: Register, Flags, Zyklen, geänderte Speicherbereiche | hoch, konfigurierbar (volle Rate, reduziert, auf Anforderung) | Views ziehen nur, was sie brauchen, nur wenn sichtbar (`useSyncExternalStore`) |
+| Frame-Zustand | Snapshot pro Frame: Register, Flags, Zyklen, geänderte Speicherbereiche, Bild; seit M1b auf Bedarf Inspektionsdaten (Speicherbereiche, Bänke, IME, HALT) | hoch, konfigurierbar (volle Rate, reduziert, auf Anforderung) | Views ziehen nur, was sie brauchen, nur wenn sichtbar (`useSyncExternalStore`) |
 | Diskrete Ereignisse | Getypte Union, z. B. `BreakpointHit`, `BuildFinished`, `RomLoaded`, `ProjectChanged` | selten | Abonnement, typisiert, ohne freie Strings |
 
 Die Interfaces beider Kanäle entstehen in M0, die Umsetzung in M1.
@@ -154,3 +154,47 @@ flowchart LR
 Abgesichert durch Unit-, Vertrags- und Emulator-Tests (`tests/unit`, `tests/contract`, `tests/emulator`,
 `tests/boot-state`) mit selbst gebauten Test-ROMs (`tests/roms/src`) und durch Playwright-Abnahmetests
 (`tests/e2e/m1-*.spec.ts`).
+
+## 5.5 Umsetzungsstand M1b
+
+Fünf nur lesende Speicher-Ansichten (specs/004-m1b-memory-views). Sie lesen ausschließlich den
+Frame-Zustand; der Emulator liefert dafür auf Bedarf `FrameSnapshot.inspection` (ADR-0008, Nachtrag M1b).
+
+```mermaid
+flowchart LR
+    subgraph views["src/views"]
+        HEX[Hex]
+        REG[Registers]
+        TILES[Tiles]
+        MAPS[Tilemaps]
+        SPR[Sprites]
+        COMMON[inspect-common<br/>Rate, Anforderung, Pager, TileCanvas]
+    end
+    subgraph core["src/core"]
+        INSPECT[inspect<br/>Bereiche, Registernamen, Kacheln, Karten, OAM, Paletten]
+        HUB[Frame-State-Hub<br/>Bedarf, Anforderung pro Slot]
+    end
+    subgraph app["src/app/layout"]
+        SLOT[Slot-Quelle<br/>Rate, RequestSnapshot]
+        DEMAND[Frame-Demand<br/>Inspektionsbedarf]
+    end
+    SB[SameBoy-Adapter<br/>direkter Lesezugriff] --> HUB
+    HUB --> SLOT
+    SLOT --> views
+    DEMAND --> HUB
+    views --> INSPECT
+    views -- SetFrameRate, RequestSnapshot --> SLOT
+```
+
+| Baustein | Ort | Verantwortung |
+|---|---|---|
+| Lesefunktionen im Wrapper | `src/adapters/emulator/sameboy/wrapper.c` | `dmg_area`, `dmg_io`, `dmg_ie`, `dmg_banks`, `dmg_cart_ram_enabled`, `dmg_cpu_flags`: Lesen ohne Nebenwirkung über `GB_get_direct_access` und markierte interne Felder |
+| Inspektionsdaten | `src/adapters/emulator/sameboy/sameboy-emulator.ts` | Kopien von VRAM, WRAM, OAM, I/O, HRAM, IE, allen Cartridge-RAM-Bänken, eine ROM-Kopie pro Ladevorgang; `changedMemory` aus denselben Kopien; Messwerte `frameWorkP95Ms`, `emulatedFps` |
+| Frame-State-Hub | `src/core/events/frame-state-hub.ts` | Inspektionsbedarf, `prime` nach Laden/Reset/Halt, Anforderungen pro Task gebündelt, Art der Lieferung (`getDeliveryKind`) |
+| Hardware-Wissen | `src/core/inspect/` | Registerkurznamen, Bereiche und Bänke, Kachelformat, Kartenadressierung, Bildausschnitt, OAM-Felder und Sichtbarkeit, Paletten, Zeilenbreite, Änderungen; Quellen Pan Docs |
+| Gemeinsame View-Bausteine | `src/views/inspect-common/` | Raten „Live“/„1/s“/„Manual“, Anforderung bei Pause, Halt, Laden, Reset, Refresh in der Kopfleiste, Pager, Kachelbild in E-Ink-Graustufen |
+| Speicher-Views | `src/views/hex`, `registers`, `tiles`, `tilemaps`, `sprites` | nur Anzeige, dispatchen nur `SetFrameRate` und `RequestSnapshot` |
+
+Abgesichert durch `tests/emulator/inspection*.test.ts` (Inhalte und gleiche Bild-/Tonausgabe mit und ohne
+Inspektion), `tests/unit/inspect-*` und `view-*` mit echten Snapshots der Test-ROMs `inspect-*` und durch
+`tests/e2e/m1b-*.spec.ts`.

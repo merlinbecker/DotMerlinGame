@@ -259,8 +259,8 @@ durchgesehen.
 ## Offene Punkte
 
 1. ~~R11: Belegung von MBC2- und MBC3-RTC im `mbc_ram`.~~ Geprüft (T019).
-2. R2: Ergebnis des Identitätstests gegen den M1-Code. Es wird im Abnahmeprotokoll notiert.
-3. Bestehende Tests, die `changedMemory` auswerten (`tests/emulator/sameboy-adapter.test.ts`,
+2. ~~R2: Ergebnis des Identitätstests gegen den M1-Code.~~ Keine Abweichung, notiert in R2 und `docs/abnahme/m1b.md` (T001).
+3. ~~Bestehende Tests, die `changedMemory` auswerten (`tests/emulator/sameboy-adapter.test.ts`,
    `service-contract.test.ts`), werden bei der Umstellung aus R2 gezielt angepasst. VRAM und OAM
-   liefern dann den inneren Zustand statt `$FF` während der LCD-Sperre.
+   liefern dann den inneren Zustand statt `$FF` während der LCD-Sperre.~~ Erledigt in T018; die Tests prüfen keine betroffenen Werte, ergänzt um den Ausschluss von Echo-RAM und `$FEA0–$FEFF`.
 4. Live-Rate 10/s am Gerät prüfen (Spec-Annahme).
