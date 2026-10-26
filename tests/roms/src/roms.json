@@ -17,5 +17,10 @@
   "cgb-compatible": { "source": "marker.asm", "title": "CGBCOMPAT", "cgb": "compatible" },
   "bad-logo": { "source": "marker.asm", "title": "BADLOGO", "patch": ["break-logo"] },
   "bad-checksum": { "source": "marker.asm", "title": "BADCHECKSUM", "patch": ["break-header-checksum"] },
-  "bad-cart-type": { "source": "marker.asm", "title": "BADCART", "patch": ["undefined-cart-type"] }
+  "bad-cart-type": { "source": "marker.asm", "title": "BADCART", "patch": ["undefined-cart-type"] },
+  "inspect-mem": { "source": "inspect-mem.asm", "defines": { "BANKS": 8 }, "mbc": "0x1A", "ramSize": "0x03", "title": "INSPECTMEM" },
+  "inspect-regs": { "source": "inspect-regs.asm", "title": "INSPECTREGS" },
+  "inspect-regs-halted": { "source": "inspect-regs.asm", "defines": { "HALTED": 1 }, "title": "INSPECTHALT" },
+  "inspect-gfx": { "source": "inspect-gfx.asm", "title": "INSPECTGFX" },
+  "inspect-gfx-tall": { "source": "inspect-gfx.asm", "defines": { "TALL": 1 }, "title": "INSPECTTALL" }
 }

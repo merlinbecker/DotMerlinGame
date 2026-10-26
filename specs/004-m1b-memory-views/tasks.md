@@ -132,14 +132,14 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
 ### 2c – Test-ROMs (data-model.md, Neue Test-ROMs)
 
-- [ ] T011 [P] Check that `scripts/build-test-roms.ts` supports `ramSize` and `defines` for all new entries.
+- [X] T011 [P] Check that `scripts/build-test-roms.ts` supports `ramSize` and `defines` for all new entries.
   Extend it only if needed, with `tests/tooling/` coverage.
-- [ ] T012 [P] Add the entries `inspect-mem`, `inspect-regs`, `inspect-regs-halted`, `inspect-gfx` and
+- [X] T012 [P] Add the entries `inspect-mem`, `inspect-regs`, `inspect-regs-halted`, `inspect-gfx` and
   `inspect-gfx-tall` to `tests/roms/src/roms.json`:
-  - `inspect-mem`: MBC5 `"mbc": "0x1B"`, `"ramSize": "0x03"`, at least 8 ROM banks.
+  - `inspect-mem`: MBC5 with RAM, no battery, `"mbc": "0x1A"` (Pan Docs "The Cartridge Header" $0147), `"ramSize": "0x03"`, at least 8 ROM banks.
   - `inspect-regs-halted`: `"defines": { "HALTED": 1 }`.
   - `inspect-gfx-tall`: `"defines": { "TALL": 1 }`.
-- [ ] T013 [P] Write `tests/roms/src/inspect-mem.asm` (`hardware.inc` constants only):
+- [X] T013 [P] Write `tests/roms/src/inspect-mem.asm` (`hardware.inc` constants only):
   - Write a distinct byte pattern into each of the 4 cartridge RAM banks (bank number in the first
     byte).
   - Patterns in WRAM `$C000–$C0FF` and HRAM `$FF80–$FF8F`, `IE = $05`.
@@ -147,13 +147,13 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - Mark every ROM bank with its number at offset `$4000`.
   - Loop forever.
   - Expected values are in a comment table at the top of the file.
-- [ ] T014 [P] Write `tests/roms/src/inspect-regs.asm`:
+- [X] T014 [P] Write `tests/roms/src/inspect-regs.asm`:
   - Set A, B, C, D, E, H, L, SP to fixed documented values.
   - Set F through `pop af` from a known word (Z and C set, N and H clear; lower nibble zero per Pan Docs
     "CPU Registers and Flags").
   - `di`, then `jr @` at a fixed label.
   - With `HALTED`: `ei`, `IE = 0`, `halt`.
-- [ ] T015 [P] Write `tests/roms/src/inspect-gfx.asm`. With the LCD off, write known tile patterns into
+- [X] T015 [P] Write `tests/roms/src/inspect-gfx.asm`. With the LCD off, write known tile patterns into
   all three blocks (`$8000`, `$8800`, `$9000`), each tile encoding its own index. Then:
   - Fill the BG map `$9800` and the window map `$9C00` with known indices.
   - `SCX = 100`, `SCY = 200` (wrap case).
@@ -166,7 +166,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   `LCDC.2 = 1`.
 
   Then turn the LCD on and loop. Document the expected values in a comment table.
-- [ ] T016 Extend `tests/emulator/modes-identical.test.ts` (and the hand-off list in
+- [X] T016 Extend `tests/emulator/modes-identical.test.ts` (and the hand-off list in
   `tests/boot-state/` if it enumerates ROMs) to cover the new ROMs in both start modes
 
 ### 2d – Adapter (research.md R1, R2, R4, R6, R11)

@@ -40,19 +40,37 @@ DEF rLCDC EQU $FF40
 DEF LCDC_ON       EQU %10000000 ; bit 7 LCD & PPU enable
 DEF LCDC_BG_8000  EQU %00010000 ; bit 4 BG & window tile data at 8000–8FFF
 DEF LCDC_BG_ON    EQU %00000001 ; bit 0 BG & window enable
+DEF LCDC_WIN_9C00 EQU %01000000 ; bit 6 window tile map at 9C00–9FFF
+DEF LCDC_WIN_ON   EQU %00100000 ; bit 5 window enable
+DEF LCDC_BG_9C00  EQU %00001000 ; bit 3 BG tile map at 9C00–9FFF
+DEF LCDC_OBJ_16   EQU %00000100 ; bit 2 OBJ size 8x16
+DEF LCDC_OBJ_ON   EQU %00000010 ; bit 1 OBJ enable
+DEF rSCY  EQU $FF42 ; "Scrolling": viewport Y
+DEF rSCX  EQU $FF43 ; "Scrolling": viewport X
 DEF rLY   EQU $FF44 ; current line; 144–153 is VBlank
 DEF rBGP  EQU $FF47 ; BG palette, 2 bits per color index
+DEF rOBP0 EQU $FF48 ; OBJ palette 0
+DEF rOBP1 EQU $FF49 ; OBJ palette 1
+DEF rWY   EQU $FF4A ; "Scrolling": window Y
+DEF rWX   EQU $FF4B ; "Scrolling": window X plus 7
+
+; "Interrupts": FFFF — IE
+DEF rIE   EQU $FFFF
 
 ; "Memory Map"
 DEF _VRAM    EQU $8000 ; tile data
 DEF _SCRN0   EQU $9800 ; BG tile map 9800–9BFF
+DEF _SCRN1   EQU $9C00 ; second tile map 9C00–9FFF
 DEF _SRAM    EQU $A000 ; external (cartridge) RAM
 DEF _WRAM    EQU $C000 ; work RAM
+DEF _OAMRAM  EQU $FE00 ; object attribute memory FE00–FE9F
+DEF _HRAM    EQU $FF80 ; high RAM FF80–FFFE
 
 ; "MBC1", "MBC3", "MBC5": register write addresses
 DEF MBC_RAM_ENABLE EQU $0000 ; write $0A to enable cartridge RAM
 DEF MBC_ROM_BANK   EQU $2000 ; MBC1: 5 bits, MBC3: 7 bits, MBC5: low 8 bits (2000–2FFF)
 DEF MBC5_ROM_BANK_HI EQU $3000 ; MBC5: 9th bit (3000–3FFF)
+DEF MBC5_RAM_BANK EQU $4000 ; MBC5: RAM bank 00–0F (4000–5FFF)
 
 ; Shared result locations in WRAM used by the tests
 DEF wResult EQU _WRAM          ; start of result bytes

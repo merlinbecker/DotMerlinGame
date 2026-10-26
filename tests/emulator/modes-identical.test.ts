@@ -11,6 +11,7 @@ const ROMS = readdirSync('tests/roms/build')
 describe('every test ROM runs identically in both start modes (FR-010, SC-002, Constitution VII)', () => {
   it('covers the test ROMs', () => {
     expect(ROMS.length).toBeGreaterThanOrEqual(10);
+    expect(ROMS).toEqual(expect.arrayContaining(['inspect-mem', 'inspect-regs', 'inspect-regs-halted', 'inspect-gfx', 'inspect-gfx-tall']));
   });
 
   it.each(ROMS)('%s: same picture and sound for 300 frames after the hand-off', async (name) => {
