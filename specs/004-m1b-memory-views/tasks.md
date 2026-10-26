@@ -117,13 +117,14 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - Five `requestSnapshot()` calls in the same task lead to exactly one build, delivered in a
     microtask.
   - An `offer` before the microtask satisfies pending requests without an extra build.
-  - A request delivery keeps the `frame` number of the last delivered snapshot (0 after `prime`).
+  - Inside the subscriber callback `getDeliveryKind()` returns `'request'` for request deliveries and
+    `'frame'` for `offer` deliveries.
 - [ ] T008 Extend `src/core/events/frame-state.ts` with `InspectionSnapshot`, `CartRamSnapshot`,
   `FrameSnapshot.inspection: InspectionSnapshot | null` and
-  `FrameStatePublisher.setInspectionDemand(active: boolean)`, exactly as in
+  `FrameStatePublisher.setInspectionDemand(active: boolean)` and `getDeliveryKind(): 'frame' | 'request'`, exactly as in
   `specs/004-m1b-memory-views/contracts/frame-state.md`, and export them from `src/core/index.ts`. Fix
   every existing `FrameSnapshot` literal in tests (`inspection: null`).
-- [ ] T009 Implement demand, `prime` and request coalescing (`queueMicrotask`) in
+- [ ] T009 Implement demand, `prime`, request coalescing (`queueMicrotask`) and `getDeliveryKind()` in
   `src/core/events/frame-state-hub.ts`. Change the `offer` build signature to
   `build(withInspection: boolean)`. T007 must be green.
 - [ ] T010 [P] Extend `tests/contract/events.test-d.ts`: `inspection` fields are `readonly`, and
@@ -223,10 +224,13 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - A `RequestSnapshot` from the on-demand slot delivers exactly one snapshot to it.
   - The other two get 0 extra deliveries.
   - The 60-slot counter is not advanced: it still delivers on its 60th real frame.
+  - After a reset (frame numbers restart at 0), the 60-slot still delivers on its 60th real frame; no
+    real frame is dropped because its number repeats one seen before.
   - A hidden slot that requests gets nothing.
   - Two requests in one task cause one build.
 - [ ] T024 Implement in `src/app/layout/slot-frame-source.ts`: track the last delivered frame number and
-  ignore upstream deliveries with an unchanged `frame` unless this slot has a pending request. Route
+  ignore upstream deliveries with `upstream.getDeliveryKind() === 'request'` unless this slot has a
+  pending request (never compare frame numbers, contracts/frame-state.md rule 7). Route
   `RequestSnapshot` in `src/app/layout/Slot.tsx` to `frameSource.requestSnapshot()`. T023 must be green.
 - [ ] T025 Write `tests/unit/frame-demand.test.ts`: inspection demand is on only while at least one
   registered source is visible, subscribed and flagged `inspects`. Then extend

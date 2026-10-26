@@ -119,8 +119,9 @@ Kanal, und Views würden direkt in den Emulator greifen (Constitution II).
    - bei `RomLoaded`,
    - bei `EmulatorReset` (neu, siehe unten).
 3. Die Header-Aktion „Refresh“ löst ebenfalls `RequestSnapshot` aus.
-4. Der Hub bündelt Anforderungen aus demselben Task zu einem Bau. Slots ohne Anforderung ignorieren
-   Lieferungen mit unveränderter Frame-Nummer. So zählen Anforderungen nicht als Frames für gedrosselte
+4. Der Hub bündelt Anforderungen aus demselben Task zu einem Bau. Der Hub kennzeichnet Lieferungen auf
+   Anforderung (`getDeliveryKind()`), und Slots ohne Anforderung ignorieren sie. Ein Vergleich der
+   Frame-Nummer scheidet aus, weil sie nach Laden und Reset wieder bei 0 beginnt (Befund F1). So zählen Anforderungen nicht als Frames für gedrosselte
    Slots (SC-004), und der Screen zeichnet nicht unnötig neu. Heute ruft `requestSnapshot()` im Hub
    `deliver` für alle Abonnenten auf. Ein 1/s-Slot würde dabei weiterzählen (`slot-frame-source.ts`,
    `onUpstream`).

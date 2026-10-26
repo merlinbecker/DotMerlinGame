@@ -32,7 +32,7 @@ export interface ViewDefinition<S> {
 | Was | Wo | Regel |
 |---|---|---|
 | `RequestSnapshot` | `Slot.tsx` → `SlotFrameSource.requestSnapshot()` | erreicht die Session nie (wie `SetFrameRate`) |
-| Lieferung auf Anforderung | `slot-frame-source.ts` | Nur der anfordernde Slot übernimmt sie. Andere Slots ignorieren jede Lieferung, deren `frame` gleich dem zuletzt gesehenen ist: kein Neuzeichnen, Drosselungszähler unverändert (frame-state.md Regel 7) |
+| Lieferung auf Anforderung | `slot-frame-source.ts` | Nur der anfordernde Slot übernimmt sie. Andere Slots ignorieren jede Lieferung, für die der Hub `getDeliveryKind() === 'request'` meldet: kein Neuzeichnen, Drosselungszähler unverändert (frame-state.md Regel 7) |
 | Inspektionsbedarf | `frame-demand.ts` | aktiv, solange ein Slot sichtbar ist, abonniert hat und einen View mit `inspects: true` zeigt |
 | Ausgeblendet | `slot-frame-source.ts` | 0 Lieferungen, auch für `RequestSnapshot` (FR-013, SC-004) |
 | Neue Views im Zyklus | `layout-store.ts` `DEFAULT_VIEW_ORDER` | Reihenfolge `screen`, `controller`, `rom-info`, `memory-map`, `hex`, `registers`, `tiles`, `tilemaps`, `sprites` |

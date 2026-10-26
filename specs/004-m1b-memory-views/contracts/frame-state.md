@@ -52,6 +52,12 @@ export interface FrameStatePublisher extends FrameStateSource {
   // … unverändert aus M1 …
   /** true → ab jetzt gebaute Snapshots enthalten `inspection`; die App setzt das aus frame-demand.ts. */
   setInspectionDemand(active: boolean): void;
+  /**
+   * Art der gerade laufenden Benachrichtigung: 'frame' für einen emulierten Frame, 'request' für eine
+   * Lieferung auf Anforderung. Nur während eines subscribe-Callbacks gültig; nur für die App (Slot-Quellen),
+   * Views sehen es nicht (ihr FrameStateSource bleibt unverändert).
+   */
+  getDeliveryKind(): 'frame' | 'request';
 }
 
 export interface FrameStateHub extends FrameStatePublisher {
@@ -76,9 +82,11 @@ export interface FrameStateHub extends FrameStatePublisher {
 6. **Bündeln**: Mehrere `requestSnapshot()`-Aufrufe im selben Task führen zu genau einem Bau. Der Hub
    plant ihn per `queueMicrotask` und liefert einmal aus. Läuft vorher ein echter Frame, deckt dieser die
    Anforderung ab.
-7. **Kein Frame-Ersatz**: Eine Lieferung auf Anforderung trägt dieselbe `frame`-Nummer wie der zuletzt
-   gelieferte Snapshot (oder 0 nach `prime`). Slots, die nichts angefordert haben, erkennen sie daran und
-   ignorieren sie: kein Neuzeichnen, kein Weiterzählen der Drosselung (contracts/view-contract.md).
+7. **Kein Frame-Ersatz**: Der Hub kennzeichnet jede Lieferung selbst über `getDeliveryKind()`. Slots, die
+   nichts angefordert haben, ignorieren Lieferungen der Art `'request'`: kein Neuzeichnen, kein
+   Weiterzählen der Drosselung (contracts/view-contract.md). Die `frame`-Nummer wird dafür nicht verglichen,
+   weil der Adapter sie nach Laden und Reset auf 0 zurücksetzt (Entscheidung des Projektinhabers
+   2026-10-26, Analyse-Befund F1).
 8. **Bereiche ohne Speicher** (`$E000–$FDFF` Echo, `$FEA0–$FEFF`) enthält der Snapshot nicht. Der Hex-View
    bietet sie nicht an.
 
@@ -86,7 +94,7 @@ export interface FrameStateHub extends FrameStatePublisher {
 
 | Test | Prüft |
 |---|---|
-| `tests/unit/frame-state-hub.test.ts` (erweitert) | Bedarf an/aus, `prime` + `requestSnapshot` vor dem ersten Frame, fünf Anforderungen im selben Task ergeben genau einen Bau |
+| `tests/unit/frame-state-hub.test.ts` (erweitert) | Bedarf an/aus, `prime` + `requestSnapshot` vor dem ersten Frame, fünf Anforderungen im selben Task ergeben genau einen Bau, `getDeliveryKind()` ist im Callback `'request'` bzw. `'frame'` |
 | `tests/emulator/inspection.test.ts` (neu) | Inhalte gegen Test-ROMs (SC-001), Kopie statt Heap-Sicht, ROM-Referenz stabil |
 | `tests/emulator/inspection-identity.test.ts` (neu) | Regel 2 (SC-003), läuft zuerst gegen den M1-Code (research.md R2) |
 | `tests/contract/events.test-d.ts` (erweitert) | `inspection` ist im Typ optional erreichbar, nur lesend |
