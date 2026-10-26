@@ -12,6 +12,24 @@ vom 2026-10-26): Lese-Ansichten auf den laufenden Emulator, jeweils als eigener 
 und CPU-Register mit Flags. Nur Anzeige: kein Schreiben in Speicher oder Register, keine Breakpoints, kein
 Step (bleibt M4). Ziel: bestehende ROMs schon vor dem Debugger genauer anschauen.
 
+## Clarifications
+
+### Session 2026-10-26
+
+- Q: Sollen die I/O-Register nur als rohe Hex-Bytes erscheinen oder auch entschlüsselt? → A: Der Hex-View
+  zeigt im Bereich I/O zu jeder belegten Adresse den Kurznamen des Registers (z. B. `LCDC`, `STAT`,
+  `SCY`), aber keine Bit-Bedeutung. Eine Aufschlüsselung der Bits folgt frühestens mit dem Debugger (M4).
+- Q: Mit welcher Aktualisierungsrate startet ein neu in einen Slot gelegter Speicher-View? → A: „1 pro
+  Sekunde“ auf allen Geräten; „Live“ und „nur auf Anforderung“ sind danach wählbar.
+- Q: Wie viele Bytes zeigt der Hex-View pro Zeile in schmalen Slots? → A: 16 Bytes, wenn sie bei
+  Mindestschriftgröße in den Slot passen, sonst 8; bei jeder Größenänderung neu bestimmt.
+- Q: Wie zeigt der Hex-View Cartridge-RAM mit mehreren Bänken oder bei gesperrtem RAM? → A: Jede RAM-Bank
+  ist einzeln wählbar wie bei ROM; der Inhalt wird immer gezeigt, eingeblendete Bank und Zustand
+  „gesperrt“ sind ohne Farbe gekennzeichnet.
+- Q: In welcher Palette zeigen „Tiles“, „Tilemaps“ und „Sprites“ Kachelbilder, und womit starten sie? →
+  A: Alle drei haben den Schalter „Rohwerte“ / „mit Palette“ und starten mit „Rohwerte“; „mit Palette“
+  heißt BGP für Tiles und Tilemaps und OBP0/OBP1 je Sprite.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Speicher als Hex-Werte ansehen (Priority: P1)
@@ -30,19 +48,24 @@ diesen Adressen genau diese Werte.
 **Acceptance Scenarios**:
 
 1. **Given** ein laufendes ROM, **When** der View „Hex“ geöffnet und ein Bereich gewählt wird, **Then**
-   zeigt er Adresse und Bytes des Bereichs, je Zeile eine feste Anzahl Bytes, Werte und Adressen
-   hexadezimal.
+   zeigt er Adresse und Bytes des Bereichs, je Zeile 16 Bytes oder in schmalen Slots 8 Bytes (siehe
+   FR-005), Werte und Adressen hexadezimal.
 2. **Given** der View „Hex“, **When** weitergeblättert wird, **Then** springt die Ansicht um genau eine
    Seite ohne Animation; es gibt kein Dauer-Scrollen.
 3. **Given** ein ROM mit mehreren Bänken, **When** im Bereich „ROM“ eine Bank gewählt wird, **Then**
    zeigt der View den Inhalt genau dieser Bank, unabhängig davon, welche Bank das Spiel gerade
-   eingeblendet hat; die aktuell eingeblendete Bank ist erkennbar.
+   eingeblendet hat; die aktuell eingeblendete Bank ist erkennbar. Dasselbe gilt für die RAM-Bänke im
+   Bereich „Cartridge-RAM“; ist der RAM vom Spiel gesperrt, zeigt der View trotzdem den Inhalt und
+   kennzeichnet den Zustand „gesperrt“.
 4. **Given** ein laufendes Spiel, **When** sich ein angezeigtes Byte ändert, **Then** ist es bei der
    nächsten Aktualisierung invertiert oder umrahmt markiert, nicht nur farbig.
 5. **Given** der View „Hex“, **When** eine Adresse eingegeben wird, **Then** springt die Ansicht auf die
    Seite mit dieser Adresse und markiert sie.
 6. **Given** der View „Hex“, **When** die Nutzerin ein Byte antippt, **Then** wird nichts verändert
    (nur Anzeige); höchstens die Adresse des Bytes wird hervorgehoben.
+7. **Given** der Bereich „I/O“, **When** er angezeigt wird, **Then** steht neben jeder belegten
+   Register-Adresse ihr Kurzname laut Pan Docs (z. B. `$FF40 LCDC`); unbelegte Adressen haben keinen
+   Namen. Bit-Bedeutungen werden nicht angezeigt.
 
 ---
 
@@ -89,7 +112,7 @@ Kacheln stimmen pixelgenau mit den erwarteten Mustern überein.
    Startadresse und ihre 16 Bytes in Hex.
 3. **Given** der View „Tiles“, **When** zwischen „Rohwerte“ und „mit Palette“ umgeschaltet wird, **Then**
    werden die vier Farbindizes entweder direkt als vier Graustufen oder über die aktuelle
-   Hintergrund-Palette abgebildet.
+   Hintergrund-Palette abgebildet. Ein neu geöffneter View startet mit „Rohwerte“.
 4. **Given** ein E-Ink-Gerät, **When** die Kacheln dargestellt werden, **Then** sind die vier Graustufen
    unterscheidbar (wie im E-Ink-Modus des Screens: kontrastreiches Mapping, optional Muster).
 
@@ -137,7 +160,8 @@ genau diese Werte.
 
 1. **Given** ein laufendes ROM, **When** der View „Sprites“ angezeigt wird, **Then** zeigt er für jeden
    der 40 Einträge Nummer, Y, X, Kachelnummer, Priorität, Spiegelung X/Y und Palette (OBP0/OBP1) sowie
-   ein Bild der Kachel, seitenweise blätterbar.
+   ein Bild der Kachel, seitenweise blätterbar. Das Bild startet mit „Rohwerte“ und zeigt mit „mit
+   Palette“ die Farben über die OBP0/OBP1-Palette des Eintrags.
 2. **Given** die Sprite-Größe 8 × 16 ist aktiv, **When** die Einträge angezeigt werden, **Then** zeigt das
    Bild beide Kacheln des Sprites.
 3. **Given** ein Eintrag liegt außerhalb des sichtbaren Bereichs, **When** er angezeigt wird, **Then** ist
@@ -169,13 +193,15 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
    Hintergrund), **When** Frames laufen, **Then** verarbeitet er keine Aktualisierungen.
 5. **Given** ein Speicher-View, **When** er im Graustufen-Screenshot geprüft wird, **Then** sind alle
    Markierungen (geändert, ausgewählt, eingeblendete Bank) ohne Farbe erkennbar.
+6. **Given** ein Slot ohne Speicher-View, **When** ein Speicher-View hineingelegt wird, **Then** steht
+   seine Aktualisierungsrate auf „1 pro Sekunde“.
 
 ---
 
 ### Edge Cases
 
 - Kein ROM geladen: Jeder Speicher-View zeigt einen Hinweis „No ROM loaded“ statt leerer Tabellen.
-- Bereich nicht vorhanden (z. B. kein Cartridge-RAM laut Header, ROM-Bank über der Bankanzahl): Der
+- Bereich nicht vorhanden (z. B. kein Cartridge-RAM laut Header, ROM- oder RAM-Bank über der Bankanzahl): Der
   Bereich ist nicht wählbar oder zeigt einen Hinweis, nie erfundene Werte.
 - Speicherbereiche, die auf dem DMG beim Lesen besondere Werte liefern (z. B. „Not Usable“
   `$FEA0–$FEFF`, VRAM/OAM während des LCD-Zugriffs): Der View zeigt den inneren Zustand des Emulators,
@@ -201,15 +227,24 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
   Sitzungszustand) und dürfen nicht direkt auf den Emulator zugreifen (Constitution II). Wird dafür der
   Vertrag erweitert, dann nur durch getypte Ergänzungen (Constitution IV).
 - **FR-004**: Der Hex-View MUSS die Bereiche ROM (jede Bank einzeln wählbar), VRAM, Cartridge-RAM (falls
-  laut Header vorhanden), WRAM, OAM, I/O-Register, HRAM und das Interrupt-Enable-Register anzeigen.
+  laut Header vorhanden; jede RAM-Bank einzeln wählbar), WRAM, OAM, I/O-Register, HRAM und das Interrupt-Enable-Register anzeigen.
   Bereichsgrenzen stammen aus Pan Docs („Memory Map“) und der vorhandenen Memory-Map-Konstante aus M1.
+  Im Bereich I/O MUSS zu jeder belegten DMG-Register-Adresse der Kurzname laut Pan Docs („Hardware
+  Registers“) stehen; Bit-Bedeutungen gehören nicht zu M1b.
 - **FR-005**: Der Hex-View MUSS seitenweise blättern, zu einer eingegebenen Adresse springen und die
-  aktuell eingeblendete ROM-Bank kennzeichnen.
+  aktuell eingeblendete ROM-Bank kennzeichnen. Im Cartridge-RAM MUSS er den Inhalt der gewählten Bank
+  immer zeigen, auch wenn das Spiel den RAM gerade gesperrt hat, und die eingeblendete RAM-Bank sowie den
+  Zustand „gesperrt“ ohne Farbe kennzeichnen. Er MUSS 16 Bytes pro Zeile zeigen, wenn diese bei
+  Mindestschriftgröße (Design-Token) in den Slot passen, sonst 8 Bytes. Die Zeilenbreite wird bei jeder
+  Größenänderung des Slots neu bestimmt; jede Zeile beginnt an einer durch die Zeilenbreite teilbaren
+  Adresse, und die aktuell oberste Adresse bleibt dabei auf der angezeigten Seite.
 - **FR-006**: Der View „Registers“ MUSS A, F, B, C, D, E, H, L, SP, PC, die Paare BC, DE, HL und die Flags
   Z, N, H, C anzeigen.
 - **FR-007**: Der View „Tiles“ MUSS alle 384 Kacheln des Tile-Speichers darstellen, wahlweise mit
   Rohwerten oder der aktuellen Hintergrund-Palette, und zu einer angetippten Kachel Nummer, Adresse und
-  Bytes zeigen.
+  Bytes zeigen. Die Views „Tiles“, „Tilemaps“ und „Sprites“ MÜSSEN je einen Schalter „Rohwerte“ / „mit
+  Palette“ haben und mit „Rohwerte“ starten; „mit Palette“ heißt BGP für Tiles und Tilemaps und die im
+  Eintrag gewählte OBP0/OBP1 für Sprites.
 - **FR-008**: Der View „Tilemaps“ MUSS die Hintergrund- und die Fenster-Karte nach den aktuellen
   LCD-Einstellungen darstellen und den sichtbaren Bildschirmausschnitt bzw. die Fensterposition
   markieren. Bedeutung der LCD-Steuerbits und Scroll-Register stammt aus Pan Docs.
@@ -217,7 +252,8 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
   Attributen und Kachelbild anzeigen und die Sprite-Größe (8 × 8 / 8 × 16) berücksichtigen. Feldbedeutung
   stammt aus Pan Docs („OAM“).
 - **FR-010**: Jeder Speicher-View MUSS eine einstellbare Aktualisierungsrate haben: „Live“ (etwa 10 pro
-  Sekunde), „1 pro Sekunde“ und „nur auf Anforderung“ mit einer Aktion „Refresh“ in der Kopfleiste. Die
+  Sekunde), „1 pro Sekunde“ und „nur auf Anforderung“ mit einer Aktion „Refresh“ in der Kopfleiste. Ein
+  neu in einen Slot gelegter Speicher-View MUSS auf allen Geräten mit „1 pro Sekunde“ starten. Die
   Einstellung wird je Slot im Layout-Zustand gespeichert. Ist der Emulator pausiert, zeigt jeder View den
   Stand der Pause.
 - **FR-011**: Werte, die sich seit der letzten Aktualisierung des Views geändert haben, MÜSSEN invertiert
@@ -234,7 +270,7 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
 
 ### Key Entities
 
-- **Speicher-View-Einstellungen**: je Slot gewählter Bereich, ROM-Bank, Seite, Aktualisierungsrate,
+- **Speicher-View-Einstellungen**: je Slot gewählter Bereich, ROM-Bank, RAM-Bank, Seite, Aktualisierungsrate,
   Palette an/aus, Karte (Hintergrund/Fenster); Teil des serialisierbaren View-Zustands im Layout.
 - **Speicherauszug**: der vom Emulator gelesene Inhalt eines Bereichs zu einem Zeitpunkt (Frame-Nummer);
   nur lesend, nie zurückgeschrieben.
