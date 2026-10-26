@@ -247,6 +247,15 @@ Speicher-View auf „Live“. Die bestehende Kennzahl bleibt für den Vergleich 
 
 **Alternatives considered**: Nur `frameTimeP95Ms`. Verworfen, weil nicht aussagekräftig.
 
+## R13 – I/O-Bereich als Registerliste (Umsetzung US1)
+
+**Decision**: Im Bereich I/O zeigt der Hex-View eine Adresse pro Zeile mit Wert und Kurzname
+(`$FF40 91 LCDC`). Die Zeilenbreite 8/16 aus FR-005 gilt für alle anderen Bereiche.
+
+**Rationale**: US1-AS7 verlangt den Namen neben jeder belegten Adresse. In einer 8- oder 16-Byte-Zeile
+ist dafür kein Platz, ohne auf dem Palma horizontal zu scrollen. 128 Einträge sind mit Blättern schnell
+durchgesehen.
+
 ## Offene Punkte
 
 1. ~~R11: Belegung von MBC2- und MBC3-RTC im `mbc_ram`.~~ Geprüft (T019).

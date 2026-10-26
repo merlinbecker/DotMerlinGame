@@ -1,0 +1,56 @@
+.hex {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 0;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.field {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.jump {
+  width: calc(6 * var(--font-size-mono-min));
+}
+
+.tag {
+  padding: 0 var(--space-1);
+  border: var(--border-width-control) solid var(--color-border);
+  font-weight: var(--font-weight-bold);
+}
+
+.rows {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Measures one character of the hex font; invisible and out of the flow. */
+.probe {
+  position: absolute;
+  visibility: hidden;
+}
+
+.row {
+  display: flex;
+  gap: 1ch;
+}
+
+.address {
+  font-weight: var(--font-weight-bold);
+}
+
+.byte {
+  min-width: 2ch;
+  text-align: center;
+}
+
+.name {
+  font-weight: var(--font-weight-bold);
+}

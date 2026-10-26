@@ -300,27 +300,27 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
 
 ### Tests für User Story 1
 
-- [ ] T035 [P] [US1] Write `tests/unit/inspect-io-registers.test.ts`. It asserts 43 named DMG entries
+- [X] T035 [P] [US1] Write `tests/unit/inspect-io-registers.test.ts`. It asserts 43 named DMG entries
   from `$FF00` to `$FF50` exactly as in research.md R9:
   - `Wave RAM` covers `$FF30–$FF3F`.
   - CGB-only addresses (`$FF4D`, `$FF4F`, `$FF51`–`$FF55`, `$FF68`–`$FF6C`, `$FF70`) have no name.
   - `$FF03` has no name.
-- [ ] T036 [P] [US1] Write `tests/unit/inspect-areas.test.ts` for `bytesOf(area, bank, inspection)`:
+- [X] T036 [P] [US1] Write `tests/unit/inspect-areas.test.ts` for `bytesOf(area, bank, inspection)`:
   - ROM bank 0 maps to `rom[0x0000..0x3FFF]` and bank n to `rom[n*0x4000..]`.
   - A bank ≥ ROM size → `null`.
   - Cartridge RAM bank n maps to `bytes[n*0x2000..]`, and `null` when there is no cartridge RAM.
   - VRAM/WRAM/OAM/IO/HRAM/IE carry their base addresses from `MEMORY_MAP` (`src/core/rom/memory-map.ts`).
-- [ ] T037 [P] [US1] Write `tests/unit/inspect-hex-layout.test.ts`:
+- [X] T037 [P] [US1] Write `tests/unit/inspect-hex-layout.test.ts`:
   - `bytesPerRow(width, charWidth)` returns 16 when a full 16-byte row incl. address column fits,
     otherwise 8.
   - `alignTop(address, bytesPerRow)` rounds down to a multiple.
   - Switching from 16 to 8 and back keeps the current top address on the shown page (FR-005).
-- [ ] T038 [P] [US1] Write `tests/unit/view-hex-state.test.ts`:
+- [X] T038 [P] [US1] Write `tests/unit/view-hex-state.test.ts`:
   - Initial state is `{ area: 'wram', romBank: 0, ramBank: 0, topAddress: 0xC000, rate: 'second',
     selected: null }`.
   - Round trip `deserialize(serialize(s))`.
   - Invalid JSON falls back per field.
-- [ ] T039 [P] [US1] Write `tests/unit/view-hex.test.tsx` with real snapshots from `inspect-mem` (built
+- [X] T039 [P] [US1] Write `tests/unit/view-hex.test.tsx` with real snapshots from `inspect-mem` (built
   via the adapter in a node-backed helper, or recorded fixture produced by a script in `tests/support/`;
   never committed ROM bytes):
   - Rows show address and bytes in hex.
@@ -337,20 +337,20 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
 
 ### Implementation für User Story 1
 
-- [ ] T040 [P] [US1] Implement `src/core/inspect/io-registers.ts`: `IO_REGISTER_NAMES` from Pan Docs
+- [X] T040 [P] [US1] Implement `src/core/inspect/io-registers.ts`: `IO_REGISTER_NAMES` from Pan Docs
   `Hardware_Reg_List.md` (models "All"/"DMG" only), with a source comment carrying the Pan Docs commit,
   plus `ioRegisterName(address): string | null`. T035 must be green.
-- [ ] T041 [P] [US1] Implement `src/core/inspect/areas.ts`: the area list `'rom' | 'vram' | 'cart-ram' |
+- [X] T041 [P] [US1] Implement `src/core/inspect/areas.ts`: the area list `'rom' | 'vram' | 'cart-ram' |
   'wram' | 'oam' | 'io' | 'hram' | 'ie'` with base address, size and bank count derived from
   `MEMORY_MAP` and the inspection snapshot, and `bytesOf(...)`. T036 must be green.
-- [ ] T042 [P] [US1] Implement `src/core/inspect/hex-layout.ts`. T037 must be green.
-- [ ] T043 [US1] Create `src/views/hex/definition.ts` (`typeId: 'hex'`, `title: 'Hex'`, `icon: 'hex'`,
+- [X] T042 [P] [US1] Implement `src/core/inspect/hex-layout.ts`. T037 must be green.
+- [X] T043 [US1] Create `src/views/hex/definition.ts` (`typeId: 'hex'`, `title: 'Hex'`, `icon: 'hex'`,
   `inspects: true`, `headerActions: inspectHeaderActions`). Implement state parsing as in data-model.md:
   - "Ist die Bank zu groß für das ROM bzw. den RAM, wird sie beim Anzeigen auf 0 gesetzt"
   - "`topAddress` liegt im Bereich und wird auf die Zeilenbreite abgerundet"
 
   T038 must be green.
-- [ ] T044 [US1] Implement `src/views/hex/HexView.tsx` (+ `HexView.module.css`). It uses `useInspection`
+- [X] T044 [US1] Implement `src/views/hex/HexView.tsx` (+ `HexView.module.css`). It uses `useInspection`
   and contains:
   - an area selector and a bank selector (large buttons or `<select>`, ROM/RAM only, invalid banks
     disabled);
@@ -364,8 +364,8 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
   - `RateBar`.
 
   T039 must be green.
-- [ ] T045 [US1] Register the Hex view in `src/app/views/m1b-views.ts`
-- [ ] T046 [US1] Write `tests/e2e/m1b-hex.spec.ts` (load `inspect-mem` through the ROM Info file input
+- [X] T045 [US1] Register the Hex view in `src/app/views/m1b-views.ts`
+- [X] T046 [US1] Write `tests/e2e/m1b-hex.spec.ts` (load `inspect-mem` through the ROM Info file input
   like the M1 specs):
   - Switch a slot to "Hex" via the header arrows.
   - The start rate shows "1/s" as pressed.

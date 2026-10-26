@@ -17,8 +17,8 @@ test('switches a slot with the header arrows, keeps it after a reload, and the g
 
   await first.getByRole('button', { name: 'Next view' }).click();
   await expect(first).toHaveAttribute('data-view', 'controller');
-  await first.getByRole('button', { name: 'Previous view' }).click();
-  await first.getByRole('button', { name: 'Previous view' }).click();
+  await first.getByRole('button', { name: 'Next view' }).click();
+  await first.getByRole('button', { name: 'Next view' }).click();
   await expect(first).toHaveAttribute('data-view', 'memory-map');
 
   await page.reload();
