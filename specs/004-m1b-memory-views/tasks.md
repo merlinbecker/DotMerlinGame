@@ -51,7 +51,7 @@ relativ zum Repo-Root.
   (all entries of `tests/roms/src/roms.json` that are not rejected at load), in three runs:
   - (a) no frame-state subscriber
   - (b) one subscriber with publish rate `full`, so a snapshot is built every frame
-  - (c) the same as (b) plus `setInspectionDemand(true)`. Add (c) as `it.todo` until T012.
+  - (c) the same as (b) plus `setInspectionDemand(true)`. Add (c) as `it.todo` until T018.
 
   Compare the screen bytes after frame 300 and the concatenation of all audio samples pushed to a
   recording `AudioSink`; they must be identical across runs.
@@ -59,7 +59,7 @@ relativ zum Repo-Root.
   Run it against the unchanged M1 code. Record the result for (a) vs (b) in
   `specs/004-m1b-memory-views/research.md` under R2:
   - If it differs, the result is "difference reproduced". Mark (b) `it.fails` with a comment pointing
-    to T012.
+    to T018.
   - If it is identical, the result is "no observable difference, fix still applied for principle".
 - [ ] T002 [P] Add tokens to `src/app/theme/tokens.css`:
   - `--font-family-mono` (system monospace stack)
@@ -103,7 +103,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   `src/adapters/emulator/sameboy/sameboy-module.d.ts`, run `npm run core:build` (Docker), and commit the
   regenerated `generated/sameboy.mjs`, `generated/sameboy.wasm` and `generated/BUILD-INFO.json` together
   with T004. Run `npm run core:verify` and make sure `tests/unit/build-info.test.ts` stays green.
-- [ ] T006 [P] Update `third_party/sameboy.md` (wrapper functions added in M1b, list of all
+- [ ] T006 Update `third_party/sameboy.md` in the same commit as T005 (wrapper functions added in M1b, list of all
   `GB_INTERNAL` fields used: `boot_rom_finished`, `div_counter`, `mbc_ram_enable`, `cartridge_type`,
   `ime`, `halted`; core unchanged) and the M1 ABI table in
   `specs/001-m1-emulator-bootrom/contracts/wasm-abi.md` with a pointer to the M1b addendum
@@ -130,9 +130,48 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 - [ ] T010 [P] Extend `tests/contract/events.test-d.ts`: `inspection` fields are `readonly`, and
   `FrameSnapshot` without `inspection` does not compile.
 
-### 2c – Adapter (research.md R1, R2, R4, R6, R11)
+### 2c – Test-ROMs (data-model.md, Neue Test-ROMs)
 
-- [ ] T011 Write `tests/emulator/inspection.test.ts` (node environment) against ROMs from T016–T018.
+- [ ] T011 [P] Check that `scripts/build-test-roms.ts` supports `ramSize` and `defines` for all new entries.
+  Extend it only if needed, with `tests/tooling/` coverage.
+- [ ] T012 [P] Add the entries `inspect-mem`, `inspect-regs`, `inspect-regs-halted`, `inspect-gfx` and
+  `inspect-gfx-tall` to `tests/roms/src/roms.json`:
+  - `inspect-mem`: MBC5 `"mbc": "0x1B"`, `"ramSize": "0x03"`, at least 8 ROM banks.
+  - `inspect-regs-halted`: `"defines": { "HALTED": 1 }`.
+  - `inspect-gfx-tall`: `"defines": { "TALL": 1 }`.
+- [ ] T013 [P] Write `tests/roms/src/inspect-mem.asm` (`hardware.inc` constants only):
+  - Write a distinct byte pattern into each of the 4 cartridge RAM banks (bank number in the first
+    byte).
+  - Patterns in WRAM `$C000–$C0FF` and HRAM `$FF80–$FF8F`, `IE = $05`.
+  - Leave ROM bank 3 mapped and disable cartridge RAM.
+  - Mark every ROM bank with its number at offset `$4000`.
+  - Loop forever.
+  - Expected values are in a comment table at the top of the file.
+- [ ] T014 [P] Write `tests/roms/src/inspect-regs.asm`:
+  - Set A, B, C, D, E, H, L, SP to fixed documented values.
+  - Set F through `pop af` from a known word (Z and C set, N and H clear; lower nibble zero per Pan Docs
+    "CPU Registers and Flags").
+  - `di`, then `jr @` at a fixed label.
+  - With `HALTED`: `ei`, `IE = 0`, `halt`.
+- [ ] T015 [P] Write `tests/roms/src/inspect-gfx.asm`. With the LCD off, write known tile patterns into
+  all three blocks (`$8000`, `$8800`, `$9000`), each tile encoding its own index. Then:
+  - Fill the BG map `$9800` and the window map `$9C00` with known indices.
+  - `SCX = 100`, `SCY = 200` (wrap case).
+  - `WX = 87`, `WY = 40`, window on (`LCDC.5`, `LCDC.6 = 1`).
+  - `BGP = $E4`, `OBP0 = $1B`, `OBP1 = $E4`.
+  - 40 OAM entries written directly while the LCD is off: at least 3 visible, 3 hidden by Y, 2 hidden
+    by X, one each with X flip, Y flip, priority and OBP1.
+
+  Without `TALL`: `LCDC.4 = 1`, `LCDC.2 = 0`. With `TALL`: `LCDC.4 = 0` (`$8800` method),
+  `LCDC.2 = 1`.
+
+  Then turn the LCD on and loop. Document the expected values in a comment table.
+- [ ] T016 Extend `tests/emulator/modes-identical.test.ts` (and the hand-off list in
+  `tests/boot-state/` if it enumerates ROMs) to cover the new ROMs in both start modes
+
+### 2d – Adapter (research.md R1, R2, R4, R6, R11)
+
+- [ ] T017 Write `tests/emulator/inspection.test.ts` (node environment) against ROMs from T013–T015.
   For `inspect-mem`, after it reaches its loop:
   - `rom` equals the ROM file bytes and is the same reference in two snapshots.
   - `romBank` is 3.
@@ -148,7 +187,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
   For `inspect-regs` with `HALTED=1`, `cpu` is `{ ime: true, halted: true }`. For the default build it
   is `{ ime: false, halted: false }`.
-- [ ] T012 Build `inspection` in `src/adapters/emulator/sameboy/sameboy-emulator.ts`:
+- [ ] T018 Build `inspection` in `src/adapters/emulator/sameboy/sameboy-emulator.ts`:
   - Keep a private copy of the ROM per `loadRom`.
   - Read the areas via `_dmg_area` with `HEAPU8.slice`, plus `_dmg_io`, `_dmg_ie`, `_dmg_banks`,
     `_dmg_cart_ram_enabled` and `_dmg_cpu_flags`.
@@ -159,53 +198,14 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
   Then:
   - Enable case (c) and un-fail case (b) of T001.
-  - Make T011 green.
+  - Make T017 green.
   - Deliberately adapt `tests/emulator/sameboy-adapter.test.ts` and
     `tests/emulator/service-contract.test.ts` where they assert `changedMemory` values affected by
     research.md R2/R3, with a comment explaining the change.
-- [ ] T013 Check against the core source how MBC2 RAM (512 × 4 bit) and MBC3 RTC registers are laid out
+- [ ] T019 Check against the core source how MBC2 RAM (512 × 4 bit) and MBC3 RTC registers are laid out
   in `mbc_ram` / `mbc_ram_size` (`.build/sameboy/Core/memory.c`, `mbc.c`). Record the findings with
   file:line in `specs/004-m1b-memory-views/research.md` R11 and mirror them in `CartRamSnapshot` doc
   comments in `src/core/events/frame-state.ts`. RTC registers are not shown in M1b.
-
-### 2d – Test-ROMs (data-model.md, Neue Test-ROMs)
-
-- [ ] T014 [P] Check that `scripts/build-test-roms.ts` supports `ramSize` and `defines` for all new entries.
-  Extend it only if needed, with `tests/tooling/` coverage.
-- [ ] T015 [P] Add the entries `inspect-mem`, `inspect-regs`, `inspect-regs-halted`, `inspect-gfx` and
-  `inspect-gfx-tall` to `tests/roms/src/roms.json`:
-  - `inspect-mem`: MBC5 `"mbc": "0x1B"`, `"ramSize": "0x03"`, at least 8 ROM banks.
-  - `inspect-regs-halted`: `"defines": { "HALTED": 1 }`.
-  - `inspect-gfx-tall`: `"defines": { "TALL": 1 }`.
-- [ ] T016 [P] Write `tests/roms/src/inspect-mem.asm` (`hardware.inc` constants only):
-  - Write a distinct byte pattern into each of the 4 cartridge RAM banks (bank number in the first
-    byte).
-  - Patterns in WRAM `$C000–$C0FF` and HRAM `$FF80–$FF8F`, `IE = $05`.
-  - Leave ROM bank 3 mapped and disable cartridge RAM.
-  - Mark every ROM bank with its number at offset `$4000`.
-  - Loop forever.
-  - Expected values are in a comment table at the top of the file.
-- [ ] T017 [P] Write `tests/roms/src/inspect-regs.asm`:
-  - Set A, B, C, D, E, H, L, SP to fixed documented values.
-  - Set F through `pop af` from a known word (Z and C set, N and H clear; lower nibble zero per Pan Docs
-    "CPU Registers and Flags").
-  - `di`, then `jr @` at a fixed label.
-  - With `HALTED`: `ei`, `IE = 0`, `halt`.
-- [ ] T018 [P] Write `tests/roms/src/inspect-gfx.asm`. With the LCD off, write known tile patterns into
-  all three blocks (`$8000`, `$8800`, `$9000`), each tile encoding its own index. Then:
-  - Fill the BG map `$9800` and the window map `$9C00` with known indices.
-  - `SCX = 100`, `SCY = 200` (wrap case).
-  - `WX = 87`, `WY = 40`, window on (`LCDC.5`, `LCDC.6 = 1`).
-  - `BGP = $E4`, `OBP0 = $1B`, `OBP1 = $E4`.
-  - 40 OAM entries written directly while the LCD is off: at least 3 visible, 3 hidden by Y, 2 hidden
-    by X, one each with X flip, Y flip, priority and OBP1.
-
-  Without `TALL`: `LCDC.4 = 1`, `LCDC.2 = 0`. With `TALL`: `LCDC.4 = 0` (`$8800` method),
-  `LCDC.2 = 1`.
-
-  Then turn the LCD on and loop. Document the expected values in a comment table.
-- [ ] T019 Extend `tests/emulator/modes-identical.test.ts` (and the hand-off list in
-  `tests/boot-state/` if it enumerates ROMs) to cover the new ROMs in both start modes
 
 ### 2e – Vertrag und App (contracts/view-contract.md)
 
@@ -279,9 +279,11 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - uses gray levels from `readShades('--game-eink-shade-')` (`src/views/shades.ts`, FR-014);
   - `image-rendering: pixelated`;
   - reports tapped pixel coordinates via a callback.
-- [ ] T034 Write `tests/contract/inspect-views-dispatch.test-d.ts`: a helper type over every M1b view
-  component proves they can only dispatch `SetFrameRate | RequestSnapshot`, by giving them a narrowed
-  `dispatch` in a wrapper context. Fill it in per view in later tasks (FR-002).
+- [ ] T034 Create the test helper `tests/support/dispatch-spy.ts`: a fake `ViewContext` whose `dispatch`
+  records every action, plus `expectOnlyInspectActions(spy)`, which fails on any action type other than
+  `SetFrameRate` and `RequestSnapshot` (FR-002). Every view test (T039, T047, T051, T056, T061) uses it
+  after clicking through all of the view's controls. A type test cannot prove this, because
+  `ViewContext.dispatch` accepts every `ViewAction` (analysis finding U1).
 
 **Checkpoint**: Inspektionsdaten fließen nebenwirkungsfrei, Anforderungen pro Slot funktionieren, die
 Test-ROMs sind da – Views können beginnen.
@@ -362,8 +364,7 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
   - `RateBar`.
 
   T039 must be green.
-- [ ] T045 [US1] Register the Hex view in `src/app/views/m1b-views.ts` and add it to
-  `tests/contract/inspect-views-dispatch.test-d.ts`
+- [ ] T045 [US1] Register the Hex view in `src/app/views/m1b-views.ts`
 - [ ] T046 [US1] Write `tests/e2e/m1b-hex.spec.ts` (load `inspect-mem` through the ROM Info file input
   like the M1 specs):
   - Switch a slot to "Hex" via the header arrows.
@@ -400,7 +401,7 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
   `inspects: true`, state `{ rate }`) and `src/views/registers/RegistersView.tsx` (+ CSS module) using
   `snapshot.registers`, `snapshot.flags` and `inspection.cpu`. Values come from the same snapshot (FR-006).
   T047 must be green.
-- [ ] T049 [US2] Register the view in `src/app/views/m1b-views.ts`, extend the dispatch type test, and
+- [ ] T049 [US2] Register the view in `src/app/views/m1b-views.ts`, and
   write `tests/e2e/m1b-registers.spec.ts`. With `inspect-regs` loaded: values visible; Pause → values
   unchanged after 2 s; Resume.
 
@@ -431,7 +432,7 @@ erwarteten Werte, in jeder ROM- und RAM-Bank.
   'raw' | 'bgp', page, selected: number | null }` with `selected` in 0–383, start values per
   data-model.md, `inspects: true`) and `src/views/tiles/TilesView.tsx` using `TileCanvas`, `Pager`,
   `RateBar`. T051 must be green.
-- [ ] T054 [US3] Register the view, extend the dispatch type test, and write `tests/e2e/m1b-tiles.spec.ts`:
+- [ ] T054 [US3] Register the view, and write `tests/e2e/m1b-tiles.spec.ts`:
   load `inspect-gfx`, switch to Tiles, tap a tile, and check that the detail shows its number. Take a
   grayscale screenshot and check that the selection mark is visible without color.
 
@@ -463,7 +464,7 @@ bei (SCX, SCY) mit Umbruch.
   data-model.md, `selected` in 0–1023) and `src/views/tilemaps/TilemapsView.tsx`. It scales the map to fit
   the slot at an integer factor, or downscales with the note "Zoom for full size"; the zoom button from
   M1 maximizes. T056 must be green.
-- [ ] T059 [US4] Register the view, extend the dispatch type test, and write
+- [ ] T059 [US4] Register the view, and write
   `tests/e2e/m1b-tilemaps.spec.ts`: switch between background and window and check the viewport frame.
 
 ---
@@ -491,7 +492,7 @@ OAM-Werte.
 - [ ] T062 [US5] Implement `src/core/inspect/oam.ts`. T060 must be green.
 - [ ] T063 [US5] Create `src/views/sprites/definition.ts` (`typeId: 'sprites'`, `inspects: true`, state
   `{ rate, palette: 'raw' | 'obp', page }`) and `src/views/sprites/SpritesView.tsx`. T061 must be green.
-- [ ] T064 [US5] Register the view, extend the dispatch type test, and write
+- [ ] T064 [US5] Register the view, and write
   `tests/e2e/m1b-sprites.spec.ts`: page through the list and check the "hidden" label.
 
 ---
@@ -526,6 +527,9 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
     an approximation.
 - [ ] T068 [P] [US6] Write `tests/e2e/m1b-eink.spec.ts`. For each of the five views:
   - No CSS transition or animation (same check as `tests/e2e/m1-eink.spec.ts`).
+  - At the 2-slot portrait viewport from T046, no horizontal scrolling in the view
+    (`scrollWidth <= clientWidth` for the slot content and the page), covering the edge case "Sehr kleines
+    Display" and SC-005 automatically (analysis finding C1).
   - In a grayscale screenshot, the changed, selected, mapped and locked marks are detectable by pixel
     difference from the unmarked state.
 - [ ] T069 [US6] Write `tests/e2e/m1b-pause.spec.ts`: with Hex on "1/s", Pause shows the paused state.
@@ -554,7 +558,10 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
   - Boox Palma
   - Boox Go Color 7 (SC-005, live rate)
 
-  Adjust `--font-size-mono-min` / `--tile-pixel-min` if needed (a code commit, so +1 patch).
+  Measure the real CSS viewport (`innerWidth` × `innerHeight`, `devicePixelRatio`) of the Boox Palma and
+  the Boox Go Color 7 in Chrome, record it, and replace the approximate viewport in T046/T068 with the
+  measured Palma values (analysis finding A1). Adjust `--font-size-mono-min` / `--tile-pixel-min` if
+  needed (a code commit, so +1 patch).
 - [ ] T075 Close the open points in `specs/004-m1b-memory-views/research.md` (strike through with a
   reference)
 - [ ] T076 On acceptance by the project owner, set the version to `0.4.0` in `package.json` and mark the
@@ -569,9 +576,9 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
 - **Setup (Phase 1)** → **Foundational (Phase 2)** → User Stories → **Polish (Phase 9)**
 - T001 runs **before** any change to adapter or wrapper, because it fixes the M1 baseline.
 - Within Phase 2:
-  - T004 → T005 → T012
-  - T007 → T008 → T009 → T012
-  - T015 → T016/T017/T018 → T011 → T012 → T019
+  - T004 → T005 → T018
+  - T007 → T008 → T009 → T018
+  - T012 → T013/T014/T015 → T016 (Startmodi) und T013–T015 → T017 → T018
   - T020 → T021 → T022
   - T021 → T023 → T024 → T025
   - T029 → T030 → T031–T033
@@ -593,8 +600,8 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
 
 - Phase 1: T002, T003 parallel nach T001
 - Phase 2:
-  - T006 parallel zu T007–T010
-  - T014–T018 parallel
+  - T006 im selben Commit wie T005; T007–T010 parallel zu T004–T006
+  - T011–T015 parallel
   - T020 parallel zu T007
   - T027, T028 parallel
   - T031, T032 parallel

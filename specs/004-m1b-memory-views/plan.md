@@ -19,7 +19,7 @@ betrifft `changedMemory` aus M1. Er wird zuerst mit einem Identitätstest geprü
 Die Views drosseln über die vorhandene Pro-Slot-Rate: „Live“ jeden 6. Frame, „1/s“ jeden 60. Frame,
 „Manual“ nur auf Anforderung. Sie fordern bei Pause, Halt, Laden und Reset genau einen Snapshot an. Für
 Refresh gibt es eine neue `ViewAction` `RequestSnapshot`. Die Hardware-Fakten (Registernamen, Kachelformat,
-Karten, OAM) stehen als reine Funktionen in `src/core/inspect/` mit Pan-Docs-Quelle. Vier neue Test-ROMs
+Karten, OAM) stehen als reine Funktionen in `src/core/inspect/` mit Pan-Docs-Quelle. Fünf neue Test-ROM-Einträge aus drei Quellen
 belegen die Werte.
 
 ## Technical Context
@@ -58,7 +58,7 @@ Boox Go Color 7
 - 6 neue Wrapper-Funktionen
 - 1 neue `ViewAction`, 1 neues `DomainEvent`
 - 8 reine Domänenmodule
-- 4 Test-ROMs
+- 5 Test-ROM-Einträge aus 3 Quellen
 - 1 ADR-Nachtrag (0008)
 
 ## Constitution Check

@@ -62,7 +62,8 @@ diesen Adressen genau diese Werte.
 5. **Given** der View „Hex“, **When** eine Adresse eingegeben wird, **Then** springt die Ansicht auf die
    Seite mit dieser Adresse und markiert sie.
 6. **Given** der View „Hex“, **When** die Nutzerin ein Byte antippt, **Then** wird nichts verändert
-   (nur Anzeige); höchstens die Adresse des Bytes wird hervorgehoben.
+   (nur Anzeige); höchstens die Adresse des Bytes wird hervorgehoben. Antippen ist eine Zusatzhilfe; der
+   verbindliche Weg zu einer Adresse ist die Sprungeingabe mit großen Touch-Zielen (Constitution V).
 7. **Given** der Bereich „I/O“, **When** er angezeigt wird, **Then** steht neben jeder belegten
    Register-Adresse ihr Kurzname laut Pan Docs (z. B. `$FF40 LCDC`); unbelegte Adressen haben keinen
    Namen. Bit-Bedeutungen werden nicht angezeigt.
@@ -114,7 +115,8 @@ Kacheln stimmen pixelgenau mit den erwarteten Mustern überein.
    werden die vier Farbindizes entweder direkt als vier Graustufen oder über die aktuelle
    Hintergrund-Palette abgebildet. Ein neu geöffneter View startet mit „Rohwerte“.
 4. **Given** ein E-Ink-Gerät, **When** die Kacheln dargestellt werden, **Then** sind die vier Graustufen
-   unterscheidbar (wie im E-Ink-Modus des Screens: kontrastreiches Mapping, optional Muster).
+   unterscheidbar (kontrastreiches Graustufen-Mapping wie im E-Ink-Modus des Screens; ein Dithering-Muster
+   gehört nicht zu M1b).
 
 ---
 
@@ -204,8 +206,9 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
 - Bereich nicht vorhanden (z. B. kein Cartridge-RAM laut Header, ROM- oder RAM-Bank über der Bankanzahl): Der
   Bereich ist nicht wählbar oder zeigt einen Hinweis, nie erfundene Werte.
 - Speicherbereiche, die auf dem DMG beim Lesen besondere Werte liefern (z. B. „Not Usable“
-  `$FEA0–$FEFF`, VRAM/OAM während des LCD-Zugriffs): Der View zeigt den inneren Zustand des Emulators,
-  nicht das, was die CPU in diesem Moment lesen würde; das ist im View vermerkt.
+  `$FEA0–$FEFF`, VRAM/OAM während des LCD-Zugriffs): Alle Views zeigen den inneren Zustand des Emulators,
+  nicht das, was die CPU in diesem Moment lesen würde. Der Hex-View vermerkt das bei VRAM, OAM und I/O;
+  `$FEA0–$FEFF` und Echo-RAM bietet er nicht an.
 - Lesen darf das Spiel nicht beeinflussen: Ein angezeigtes I/O-Register mit Leseseiteneffekt wird nicht
   so gelesen, dass sich das Spielverhalten ändert (gleiche Bild- und Tonausgabe mit und ohne sichtbare
   Speicher-Views).
