@@ -110,7 +110,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
 ### 2b – Frame-Zustand und Hub (contracts/frame-state.md)
 
-- [ ] T007 Write tests in `tests/unit/frame-state-hub.test.ts` (extend):
+- [X] T007 Write tests in `tests/unit/frame-state-hub.test.ts` (extend):
   - `inspection` builds only while `setInspectionDemand(true)`, and the build callback receives the
     flag.
   - `prime(build)` followed by `requestSnapshot()` delivers before any `offer`.
@@ -119,15 +119,15 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - An `offer` before the microtask satisfies pending requests without an extra build.
   - Inside the subscriber callback `getDeliveryKind()` returns `'request'` for request deliveries and
     `'frame'` for `offer` deliveries.
-- [ ] T008 Extend `src/core/events/frame-state.ts` with `InspectionSnapshot`, `CartRamSnapshot`,
+- [X] T008 Extend `src/core/events/frame-state.ts` with `InspectionSnapshot`, `CartRamSnapshot`,
   `FrameSnapshot.inspection: InspectionSnapshot | null` and
   `FrameStatePublisher.setInspectionDemand(active: boolean)` and `getDeliveryKind(): 'frame' | 'request'`, exactly as in
   `specs/004-m1b-memory-views/contracts/frame-state.md`, and export them from `src/core/index.ts`. Fix
   every existing `FrameSnapshot` literal in tests (`inspection: null`).
-- [ ] T009 Implement demand, `prime`, request coalescing (`queueMicrotask`) and `getDeliveryKind()` in
+- [X] T009 Implement demand, `prime`, request coalescing (`queueMicrotask`) and `getDeliveryKind()` in
   `src/core/events/frame-state-hub.ts`. Change the `offer` build signature to
   `build(withInspection: boolean)`. T007 must be green.
-- [ ] T010 [P] Extend `tests/contract/events.test-d.ts`: `inspection` fields are `readonly`, and
+- [X] T010 [P] Extend `tests/contract/events.test-d.ts`: `inspection` fields are `readonly`, and
   `FrameSnapshot` without `inspection` does not compile.
 
 ### 2c – Test-ROMs (data-model.md, Neue Test-ROMs)

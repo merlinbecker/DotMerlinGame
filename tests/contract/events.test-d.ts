@@ -1,11 +1,13 @@
 import { useSyncExternalStore } from 'react';
 import { describe, expectTypeOf, it } from 'vitest';
 import type {
+  CartRamSnapshot,
   DomainEvent,
   DomainEventBus,
   EventOf,
   FrameSnapshot,
   FrameStateSource,
+  InspectionSnapshot,
   PublishRate,
 } from '../../src/core/index.ts';
 
@@ -64,6 +66,18 @@ describe('frame state', () => {
 
   it('carries the screen as shade indices', () => {
     expectTypeOf<FrameSnapshot['screen']>().toEqualTypeOf<Uint8Array>();
+  });
+
+  it('carries inspection data as a read-only, nullable field (M1b)', () => {
+    expectTypeOf<FrameSnapshot['inspection']>().toEqualTypeOf<InspectionSnapshot | null>();
+    expectTypeOf<InspectionSnapshot['cartRam']>().toEqualTypeOf<CartRamSnapshot | null>();
+    expectTypeOf<InspectionSnapshot['cpu']>().toEqualTypeOf<{ readonly ime: boolean; readonly halted: boolean }>();
+    const inspection = {} as InspectionSnapshot;
+    // @ts-expect-error inspection fields are read-only
+    inspection.romBank = 1;
+    // @ts-expect-error a snapshot without the inspection field does not compile
+    const missing: FrameSnapshot = { frame: 0, cycles: 0, registers: {} as FrameSnapshot['registers'], flags: {} as FrameSnapshot['flags'], changedMemory: [], screen: new Uint8Array() };
+    expectTypeOf(missing).toEqualTypeOf<FrameSnapshot>();
   });
 
   it('fits React useSyncExternalStore', () => {

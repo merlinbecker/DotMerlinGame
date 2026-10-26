@@ -56,6 +56,7 @@ function snapshot(frame: number): FrameSnapshot {
     registers: { a: 0, f: 0, b: 0, c: 0, d: 0, e: 0, h: 0, l: 0, sp: 0, pc: 0 },
     flags: { z: false, n: false, h: false, c: false },
     changedMemory: [],
+    inspection: null,
     screen: new Uint8Array(160 * 144),
   };
 }

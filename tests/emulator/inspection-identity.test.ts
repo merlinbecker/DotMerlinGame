@@ -33,6 +33,7 @@ async function run(name: string, mode: Mode) {
   // Read the result only after the last compared frame.
   emulator.frameState.subscribe(() => undefined);
   emulator.frameState.requestSnapshot();
+  await Promise.resolve();
   const screen = emulator.frameState.getSnapshot()?.screen ?? new Uint8Array();
   return { screen: hashBytes(screen), audio: hashBytes(new Uint8Array(new Uint32Array(audio).buffer)), samples: audio.length };
 }

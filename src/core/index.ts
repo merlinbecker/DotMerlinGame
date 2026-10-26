@@ -1,9 +1,12 @@
 export type { Button, JsonValue, Unsubscribe } from './types.ts';
 export type {
+  CartRamSnapshot,
+  DeliveryKind,
   Flags,
   FrameSnapshot,
   FrameStatePublisher,
   FrameStateSource,
+  InspectionSnapshot,
   MemoryRange,
   PublishRate,
   Registers,

@@ -11,6 +11,7 @@ function snapshot(frame: number): FrameSnapshot {
     registers: { a: 0, f: 0, b: 0, c: 0, d: 0, e: 0, h: 0, l: 0, sp: 0, pc: 0 },
     flags: { z: false, n: false, h: false, c: false },
     changedMemory: [],
+    inspection: null,
     screen: new Uint8Array(160 * 144),
   };
 }
@@ -52,7 +53,7 @@ describe('slot frame source', () => {
     expect(slot.getSnapshot()?.frame).toBe(12);
   });
 
-  it('delivers on demand only after a request', () => {
+  it('delivers on demand only after a request', async () => {
     const hub = createFrameStateHub();
     const slot = createSlotFrameSource(hub);
     const listener = vi.fn();
@@ -61,6 +62,7 @@ describe('slot frame source', () => {
     frames(hub, 1, 3);
     expect(listener).not.toHaveBeenCalled();
     slot.requestSnapshot();
+    await Promise.resolve();
     expect(listener).toHaveBeenCalledTimes(1);
   });
 });

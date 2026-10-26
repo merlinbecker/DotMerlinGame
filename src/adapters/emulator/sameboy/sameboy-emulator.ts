@@ -140,6 +140,7 @@ export async function createSameBoyEmulator(options: SameBoyOptions = {}): Promi
       flags: { z: (f & 0x80) !== 0, n: (f & 0x40) !== 0, h: (f & 0x20) !== 0, c: (f & 0x10) !== 0 },
       changedMemory: changedRanges(module),
       screen: module.HEAPU8.slice(screenStart, screenStart + SCREEN_BYTES),
+      inspection: null,
     };
   };
 
