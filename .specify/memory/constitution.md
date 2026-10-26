@@ -1,6 +1,7 @@
 <!--
 Sync Impact Report
-- Version: 1.1.2 → 1.2.0 (MINOR: Regel zur Versionsnummer der App ergänzt)
+- Version: 1.2.0 → 1.2.1 (PATCH: Meilenstein M1b in die Reihenfolge aufgenommen, Briefing 2026-10-26)
+- Vorher: 1.1.2 → 1.2.0 (MINOR: Regel zur Versionsnummer der App ergänzt)
 - Vorher: 1.1.1 → 1.1.2 (PATCH: VI. klargestellt, was als Fremdkomponente gilt)
 - Vorher: 1.1.0 → 1.1.1 (PATCH: Randbedingungen Browser und UI-Sprache ergänzt)
 - Vorher: 1.0.0 → 1.1.0 (MINOR: Prinzipien wesentlich erweitert)
@@ -141,7 +142,7 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
 
 ## Entwicklungsablauf und Qualitätstore
 
-- Meilensteine strikt in Reihenfolge (M0 → M1 → M2 → M3). Keine Features späterer Meilensteine vorziehen.
+- Meilensteine strikt in Reihenfolge (M0 → M1 → M1b → M2 → M3). Keine Features späterer Meilensteine vorziehen.
 - Ein Modul pro Auftrag; Änderungen außerhalb nur nach Rückfrage.
 - Plan zuerst bei größerem Code; echte Entscheidungen werden erfragt.
 - Definition of Done je Aufgabe: Tests geschrieben und grün; betroffene arc42-Kapitel in
@@ -167,4 +168,4 @@ Begründung: Falsche Hardware- oder Lizenzannahmen sind teuer und schwer zu entd
 - Jede Spec, jeder Plan (`/speckit-plan`, Constitution Check) und jedes Review prüft die
   Einhaltung. Abweichungen MÜSSEN im Plan begründet und dokumentiert werden.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.2.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-26
