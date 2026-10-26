@@ -35,7 +35,7 @@ SHA-256 festgelegt)
 **Storage**: IndexedDB (ein ROM + Spielstand), localStorage (Einstellungen, Layout)
 
 **Testing**: Vitest (Unit, Vertrag, Typ, Emulator-Integration mit WASM unter Node), Playwright (Chromium),
-selbst gebaute Test-ROMs (`tests/roms/src/*.asm`, gebaut beim Testen, nie committet)
+selbst gebaute Test-ROMs (Quellen `tests/roms/src/*.asm` committet, beim Testen gebaut; gebaute ROMs nie committet)
 
 **Target Platform**: aktuelles Chrome (Android, Desktop, E-Ink-Android); statisches Hosting
 
@@ -48,7 +48,7 @@ Frame im Codespace bei 16,7 ms Budget. Start in < 5 s (SC-005). Eingabe ≤ 1 Fr
 Laufzeit-Netzzugriffe, nur Graustufen und keine UI-Bewegung (außer Spielinhalt), Boot-ROM genau 256 Byte,
 keine Nintendo- oder fremden Boot-ROM-Bytes
 
-**Scale/Scope**: 1 Core-Adapter, 1 Audio-Adapter, 1 Storage-Adapter, 4 Views, ~10 Test-ROMs, 2 neue ADRs
+**Scale/Scope**: 1 Core-Adapter, 1 Audio-Adapter, 1 Storage-Adapter, 4 Views, 17 Test-ROMs, 2 neue ADRs
 (0004, 0006), 1 ADR-Nachtrag (0005)
 
 ## Constitution Check
@@ -62,7 +62,7 @@ keine Nintendo- oder fremden Boot-ROM-Bytes
 | III. Ports und Adapter | Neue Ports `RomStorePort`, `AudioOutputPort`. SameBoy nur in `src/adapters/emulator/sameboy/`, Header-Logik fremdcodefrei in `src/core/rom/` | ✅ |
 | IV. Getypte Kanäle, Layout getrennt | Nur Union-Erweiterungen, kein String-Bus. Rate pro Slot, E-Ink ohne Emulator-Sonderlogik. `LayoutState` nur um `maximizedSlot` erweitert. Schlüssel und DB-Namen aus `PROJECT_NAME` | ✅ |
 | V. E-Ink-first UI | Nur Spielinhalt ausgenommen. Tokens, keine Hover, Kopfleiste für View-Wechsel, Zoom nur per Schalter (keine Zoom-Geste, PI: sparsam mit Gesten) | ✅ |
-| VI. Lizenzsauberkeit | SameBoy Expat und Emscripten MIT/NCSA anhand der LICENSE-Dateien geprüft, musl MIT. Gelinkte System-Bibliotheken werden bei der Übernahme geprüft. `third_party/` + `THIRD_PARTY_LICENSES` im selben Commit, Lizenztext auch in `dist/`. `BootROMs/` wird nicht gebaut. Test-ROMs nie committet | ✅ |
+| VI. Lizenzsauberkeit | SameBoy Expat und Emscripten MIT/NCSA anhand der LICENSE-Dateien geprüft, musl MIT. Gelinkte System-Bibliotheken werden bei der Übernahme geprüft. `third_party/` + `THIRD_PARTY_LICENSES` im selben Commit, Lizenztext auch in `dist/`. `BootROMs/` wird nicht gebaut. Gebaute Test-ROMs nie committet (nur ihre Quellen) | ✅ |
 | VII. Hardware-Treue | Eigene Boot-ROM ohne fremde Bytes, Endzustand laut Pan Docs (DMG) inkl. F-Flags und DIV, als Tests. Beide Startmodi mit identischem Übergabezustand (Test). Nur DMG, CGB-only wird abgelehnt | ✅ |
 | VIII. Tests pro Baustein | Unit, Vertrag, Emulator-Integration mit echten Test-ROMs, E2E. Nachbau-Checks für Core und Boot-ROM | ✅ |
 | IX. Lokal und offline | Rein statisch, kein Service Worker, kein SAB/COOP. Persistenz IndexedDB/localStorage. Netz nur für Entwicklungswerkzeuge (RGBDS, Docker), nie zur Laufzeit | ✅ |

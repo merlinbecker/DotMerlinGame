@@ -47,6 +47,10 @@ fremde freie Boot-ROM wird nicht eingebunden.
   wirken auch, wenn das Controller-Quadrat nicht angezeigt wird.
 - Q (Analyse, 2026-10-18): Bleibt das Wischen in der Kopfleiste für den View-Wechsel? → A: Nein. View-Wechsel
   nur über Pfeiltasten in der Kopfleiste, weil Gesten fehleranfällig sind. Das Briefing wurde angepasst.
+- Q (Abnahme, 2026-10-19): Gilt FR-020 auch, wenn Chrome die Seite lange im Hintergrund hatte? → A: Nein.
+  Beim Pausieren, beim Tab-Wechsel und bei kurzer Gerätesperre ist das Fortsetzen störungsfrei. Lag die
+  Seite längere Zeit im Hintergrund und wird Chrome dann wieder geöffnet, darf der Ton beim Fortsetzen kurz
+  knacken. Das ist eine akzeptierte Einschränkung, festgehalten in arc42 Kapitel 9.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -97,7 +101,7 @@ Werten aus Pan Docs ("Power Up Sequence").
    **Then** stimmen sie mit den Pan-Docs-Werten für das DMG überein (automatischer Test).
 3. **Given** ein beliebiges Test-ROM des Projekts, **When** es mit eigener Boot-ROM und ohne Boot-ROM
    (Direktstart) ausgeführt wird, **Then** ist das Verhalten ab dem Sprung nach `$0100`
-   identisch (gleiche Bild- und Tonausgabe nach N Frames).
+   identisch (gleiche Bild- und Tonausgabe nach 300 Frames, siehe SC-002).
 4. **Given** der optionale Modus "Hardware-nah" ist aktiv, **When** ein ROM mit verändertem
    Header-Logo oder falscher Header-Checksumme gestartet wird, **Then** bleibt das System wie die
    Original-Hardware stehen und die Oberfläche zeigt den Grund an.
@@ -182,7 +186,7 @@ und mit der Emulationsgeschwindigkeit vergleichen; Graustufen-Screenshot prüfen
 
 ### User Story 6 - Wechsel der View-Inhalte über die Kopfleiste (Priority: P3)
 
-Die Nutzerin belegt die zwei Slots frei mit den Views Screen, Controller, ROM Info und Memory Map
+Die Nutzerin belegt die Slots des Rasters (im Hochformat zwei) frei mit den Views Screen, Controller, ROM Info und Memory Map
 und kann sie über die Pfeiltasten in der Kopfleiste wechseln (keine Wischgeste). Die Belegung bleibt nach Neustart erhalten.
 
 **Why this priority**: Erstes reales Nutzen des Rasters, aber nicht kritisch für den Emulator.
@@ -305,8 +309,9 @@ Grundlage für Editor und Disassembly in M2/M3.
   nur im Emulator verwendet wird, selbst geschrieben ist und keinen Code oder Daten der
   Nintendo-Boot-ROM enthält.
 - **FR-008**: Die eigene Boot-ROM MUSS kompatibel zur Nintendo-Boot-ROM des DMG-01 sein: Nach
-  ihrem Ablauf MÜSSEN CPU- und I/O-Register den Pan-Docs-Werten ("Power Up Sequence", nur die
-  Spalte „DMG“; DMG0 und MGB sind kein Ziel) entsprechen und die Ausführung MUSS bei `$0100` fortgesetzt werden; dies MUSS automatisch
+  ihrem Ablauf MÜSSEN CPU- und I/O-Register den Pan-Docs-Werten ("Power Up Sequence"; CPU-Register
+  Spalte „DMG“, Hardware-Register Spalte „DMG / MGB“, weil Pan Docs beide dort zusammenfasst; DMG0 und
+  MGB sind kein Ziel) entsprechen und die Ausführung MUSS bei `$0100` fortgesetzt werden; dies MUSS automatisch
   getestet werden.
 - **FR-009**: Das System MUSS zwei Startmodi unterstützen: eigene Boot-ROM und Direktstart ohne
   Boot-ROM. Fremde Boot-ROMs werden nicht eingebunden.
@@ -326,11 +331,13 @@ Grundlage für Editor und Disassembly in M2/M3.
   Spielinhalt im Screen-View ist davon ausgenommen.
 - **FR-017**: Das System MUSS ausschließlich den DMG-01 emulieren. Reine Game-Boy-Color-ROMs MÜSSEN
   mit Meldung abgelehnt werden; kompatible ROMs laufen im DMG-Modus.
-- **FR-018**: Das System MUSS den Ton des DMG-01 (vier Tonkanäle) synchron zum Bild ausgeben.
+- **FR-018**: Das System MUSS den Ton des DMG-01 (vier Tonkanäle) synchron zum Bild ausgeben;
+  messbar über SC-007 (keine Pufferunter- oder -überläufe, die Bild und Ton gegeneinander verschieben).
 - **FR-019**: Ton MUSS stumm schaltbar und in der Lautstärke einstellbar sein; die Einstellung
   bleibt erhalten. Die Tonausgabe MUSS nach der ersten Nutzeraktion freigegeben werden.
 - **FR-020**: Bei Pause, Hintergrund-Tab oder Gerätesperre MUSS der Ton verstummen und beim
-  Fortsetzen ohne Störgeräusche weiterlaufen.
+  Fortsetzen ohne Störgeräusche weiterlaufen. Ausgenommen ist das Fortsetzen, nachdem die Seite längere
+  Zeit im Hintergrund lag (siehe Clarification vom 2026-10-19).
 - **FR-021**: Der Screen-View MUSS einen E-Ink-Modus haben: reduzierte, einstellbare
   Aktualisierungsrate, kontrastreiches Graustufen-Mapping und optionales Dithering. Emulation und
   Ton laufen dabei mit voller Geschwindigkeit weiter.
@@ -354,7 +361,10 @@ Grundlage für Editor und Disassembly in M2/M3.
 - **FR-027**: Der View „ROM Info“ MUSS die Bedienelemente außerhalb des Gamepads bündeln: ROM
   laden, Startmodus (eigene Boot-ROM, Direktstart, „Hardware-nah“), Pause/Fortsetzen,
   Zurücksetzen und Lautstärke. Alle Aktionen laufen über den Aktionskanal. Zusätzlich MUSS die
-  Kopfleiste des Screen-Views einen Stumm-Schalter haben.
+  Kopfleiste des Screen-Views einen Stumm-Schalter haben. Damit nichts gescrollt werden muss
+  (Constitution V), verteilt der View die Inhalte auf Seiten, zwischen denen man im View blättert:
+  „ROM“ (Laden, gespeichertes ROM, Pause/Fortsetzen/Zurücksetzen, Game-Controller), „Start“
+  (Startmodus, Hardware-nah), „Sound“ (Lautstärke) und „Header“ (Header-Daten, Diagnose).
 
 ### Key Entities
 
@@ -368,7 +378,8 @@ Grundlage für Editor und Disassembly in M2/M3.
   Anzahl ROM-Bänke, RAM-Größe); abgeleitet aus dem ROM, nicht separat gespeichert.
 - **Spielstand**: Inhalt des batteriegepufferten Cartridge-RAMs; gehört zum einen gespeicherten
   ROM, wird mit ihm ersetzt; getrennt von Layout und Emulatorzustand.
-- **Eingabezustand**: gedrückte Tasten des Controllers.
+- **Eingabezustand**: gedrückte DMG-Tasten, zusammengeführt aus Controller-View (Touch), Tastatur
+  und Game-Controller; eine Taste gilt als gedrückt, solange irgendeine Quelle sie hält.
 - **Layout**: Slot-Belegung und ggf. vergrößerter Slot, getrennt von ROM und Emulatorzustand.
 
 ## Success Criteria *(mandatory)*
@@ -376,13 +387,14 @@ Grundlage für Editor und Disassembly in M2/M3.
 ### Measurable Outcomes
 
 - **SC-001**: 100 % der Boot-Zustandstests (alle Register laut Pan Docs, Spalte „DMG“) sind grün.
-- **SC-002**: Jedes Test-ROM des Projekts erzeugt mit eigener Boot-ROM und im Direktstart nach derselben
-  Anzahl Frames dieselbe Bild- und Tonausgabe.
+- **SC-002**: Jedes Test-ROM des Projekts erzeugt mit eigener Boot-ROM und im Direktstart 300 Frames
+  nach der Übergabe bei `$0100` dieselbe Bild- und Tonausgabe (Hash-Vergleich).
 - **SC-003**: Auf dem im Abnahmeprotokoll benannten Mittelklasse-Smartphone läuft der Emulator mit
   Screen und Controller mit voller Geschwindigkeit (ca. 60 Bilder pro Sekunde): Die Rechenzeit pro
   Frame liegt im 95. Perzentil unter 16,7 ms (über 5 Minuten gemessen).
-- **SC-004**: Zwischen Tastendruck im Controller-Quadrat und Reaktion im Spiel vergeht höchstens
-  ein Frame plus Anzeigeverzögerung.
+- **SC-004**: Zwischen dem Eingang eines Tastendrucks im Emulator und seiner Wirkung im Spiel vergeht
+  höchstens ein Frame (automatisch geprüft). Die Verzögerung von Touch-Erkennung und Anzeige des Geräts
+  wird am Gerät geprüft: Beim Spielen ist keine Verzögerung spürbar.
 - **SC-005**: Ein ROM ist von der Dateiauswahl bis zum laufenden Spiel in unter 5 Sekunden gestartet.
 - **SC-006**: Ausgeblendete Views verarbeiten 0 Frame-Updates.
 - **SC-007**: Der Ton läuft auf dem benannten Smartphone über 10 Minuten Spielzeit ohne Aussetzer und

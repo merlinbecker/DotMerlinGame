@@ -309,11 +309,11 @@ Adapter (Port unverändert).
 
 ## Offene Punkte (nicht blockierend, bei Umsetzung klären)
 
-0. Erster CI-Lauf von `core-reproducible` muss das lokal gebaute Artefakt bestätigen (R2).
+0. ~~Erster CI-Lauf von `core-reproducible` muss das lokal gebaute Artefakt bestätigen (R2).~~ erledigt (T017, siehe arc42 Kap. 7)
 
-1. Liste der gelinkten Emscripten-System-Bibliotheken und deren Lizenzen (R3).
-2. DMG-Bildrate und Zyklen pro Frame aus Pan Docs übernehmen (R8).
-3. Hardware-Register-Tabelle vollständig aus Pan Docs als Fixture übernehmen (R4).
-4. Byte-Budget der Boot-ROM per Mini-Spike belegen (R4).
+1. ~~Liste der gelinkten Emscripten-System-Bibliotheken und deren Lizenzen (R3).~~ erledigt (T013, `third_party/emscripten.md`)
+2. ~~DMG-Bildrate und Zyklen pro Frame aus Pan Docs übernehmen (R8).~~ erledigt (T043, T045)
+3. ~~Hardware-Register-Tabelle vollständig aus Pan Docs als Fixture übernehmen (R4).~~ erledigt (T054, `tests/boot-state/pan-docs-dmg.ts`)
+4. ~~Byte-Budget der Boot-ROM per Mini-Spike belegen (R4).~~ erledigt (T060, ADR-0004)
 5. ~~US5-AS4~~ entschieden: Normalmodus ist Standard, E-Ink als Schalter (Spec angepasst).
 6. RGBDS-Skript für macOS/Windows (R11).
