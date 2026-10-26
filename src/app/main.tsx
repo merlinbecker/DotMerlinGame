@@ -9,6 +9,7 @@ import { createIndexedDbRomStore } from '../adapters/storage/indexeddb-rom-store
 import { createEmulatorSession } from './session/emulator-session.ts';
 import { AppShell } from './shell/AppShell.tsx';
 import { M1_VIEWS } from './views/m1-views.ts';
+import { M1B_VIEWS } from './views/m1b-views.ts';
 import { registerViews } from './views/registry.ts';
 import './theme/base.css';
 
@@ -16,6 +17,7 @@ const root = document.getElementById('root');
 if (!root) throw new Error('Root element #root not found');
 
 registerViews(M1_VIEWS);
+registerViews(M1B_VIEWS);
 const emulator = await createSameBoyEmulator();
 // Without Web Audio (or if the worklet cannot load) the emulator simply runs silently.
 const audio = await createWebAudioOutput().catch(() => null);

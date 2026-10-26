@@ -41,6 +41,12 @@ APU-Syncs davon ab, ob und wie oft ein Snapshot gebaut wird (z. B. Screen im Nor
 Die M1-Determinismus-Tests vergleichen nur Läufe mit gleichem Abonnement und decken das nicht ab. Ob die
 Syncs die Ausgabe tatsächlich verändern, zeigt der Test, nicht eine Annahme.
 
+**Ergebnis (T001, 2026-10-26)**: Keine beobachtbare Abweichung. Mit allen 19 Einträgen aus
+`tests/roms/src/roms.json` (2 werden beim Laden abgelehnt und übersprungen) sind Bild und alle Ton-Samples
+nach 300 Frames gleich, egal ob kein Snapshot oder einer pro Frame gebaut wird. Die Umstellung von
+`changedRanges()` auf den direkten Lesepfad erfolgt trotzdem aus Prinzip (keine Abhängigkeit von
+Core-Interna beim Lesen), der Test bleibt als Regressionstest.
+
 **Alternatives considered**: Nur den neuen Pfad sauber bauen und M1 unverändert lassen. Verworfen, weil
 SC-003 „mit und ohne Views gleiche Ausgabe“ dann vom Screen-Abonnement abhängen könnte.
 

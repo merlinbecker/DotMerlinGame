@@ -20,6 +20,11 @@
   --game-eink-shade-2: #383838;
   --game-eink-shade-3: #000;
 
+  /* Memory views: marks for changed or selected values (inverted, never color alone) */
+  --mark-inverse-fg: #fff;
+  --mark-inverse-bg: #000;
+  --mark-border-width: 2px;
+
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
@@ -40,12 +45,19 @@
   --slot-min-size: 320px;
   --footer-height: 32px;
 
+  /* Smallest CSS pixel size of one tile pixel in the memory views (checked on the device, M1b T074) */
+  --tile-pixel-min: 2px;
+
   /* Typography */
   --font-family-ui: system-ui, sans-serif;
   --font-size-small: 14px;
   --font-size-body: 16px;
   --font-size-title: 18px;
   --font-weight-bold: 700;
+  --font-family-mono: ui-monospace, 'Roboto Mono', 'Droid Sans Mono', monospace;
+
+  /* Smallest readable size for hex rows; start value, checked on the reference devices (M1b T074) */
+  --font-size-mono-min: 14px;
 
   /* Time (motion off) */
   --duration-short: 0ms;

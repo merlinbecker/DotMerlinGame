@@ -13,7 +13,7 @@ export function defineView<S>(definition: ViewDefinition<S>, Component: Componen
 
 const views = new Map<string, RegisteredView>();
 
-/** Registers the views of M1; order of registration does not matter (cycle order: DEFAULT_VIEW_ORDER). */
+/** Registers the views of M1; order of registration does not matter (cycle order: VIEW_CYCLE_ORDER). */
 export function registerViews(list: readonly RegisteredView[]): void {
   for (const view of list) views.set(view.definition.typeId, view);
 }

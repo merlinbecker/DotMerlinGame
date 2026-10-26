@@ -46,7 +46,7 @@ relativ zum Repo-Root.
 
 **Purpose**: Befund aus M1 festhalten, Tokens, Registrierung
 
-- [ ] T001 Write `tests/emulator/inspection-identity.test.ts` (node environment). Drive the adapter from
+- [X] T001 Write `tests/emulator/inspection-identity.test.ts` (node environment). Drive the adapter from
   `tests/support/emulator.ts` with `advance(1)` for 300 frames per test ROM in `tests/roms/build/`
   (all entries of `tests/roms/src/roms.json` that are not rejected at load), in three runs:
   - (a) no frame-state subscriber
@@ -61,7 +61,7 @@ relativ zum Repo-Root.
   - If it differs, the result is "difference reproduced". Mark (b) `it.fails` with a comment pointing
     to T018.
   - If it is identical, the result is "no observable difference, fix still applied for principle".
-- [ ] T002 [P] Add tokens to `src/app/theme/tokens.css`:
+- [X] T002 [P] Add tokens to `src/app/theme/tokens.css`:
   - `--font-family-mono` (system monospace stack)
   - `--font-size-mono-min` (minimum readable size for hex rows, start value 14px, noted as checked on
     the device in T074)
@@ -69,7 +69,7 @@ relativ zum Repo-Root.
   - `--tile-pixel-min` (minimum CSS pixels per tile pixel)
 
   Extend the stylelint token test if one lists allowed tokens.
-- [ ] T003 [P] Create `src/app/views/m1b-views.ts` exporting `M1B_VIEWS: readonly RegisteredView[] = []`
+- [X] T003 [P] Create `src/app/views/m1b-views.ts` exporting `M1B_VIEWS: readonly RegisteredView[] = []`
   and register it next to `M1_VIEWS` where `registerViews` is called (`src/app/main.tsx` or
   `src/app/services.ts`). Extend `DEFAULT_VIEW_ORDER` in `src/app/layout/layout-store.ts` to `['screen',
   'controller', 'rom-info', 'memory-map', 'hex', 'registers', 'tiles', 'tilemaps', 'sprites']` and make

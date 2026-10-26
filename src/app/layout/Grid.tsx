@@ -4,7 +4,7 @@ import { ServicesContext } from '../services.ts';
 import { findView } from '../views/registry.ts';
 import { createFrameDemand } from './frame-demand.ts';
 import { computeGrid, type GridSpec } from './grid.ts';
-import { DEFAULT_VIEW_ORDER, loadLayout, saveLayout, withViewState } from './layout-store.ts';
+import { loadLayout, VIEW_CYCLE_ORDER, saveLayout, withViewState } from './layout-store.ts';
 import { isSlotShown, toggleMaximize } from './layout-zoom.ts';
 import { Slot } from './Slot.tsx';
 import { useDocumentVisible } from './useDocumentVisible.ts';
@@ -65,7 +65,7 @@ export function Grid() {
 
   const cycle = (index: number, direction: 1 | -1) => {
     const current = layout.slots[index]?.viewTypeId ?? null;
-    const order = DEFAULT_VIEW_ORDER.filter((id) => findView(id));
+    const order = VIEW_CYCLE_ORDER.filter((id) => findView(id));
     const next = cycleView(current, order, direction);
     const view = next ? findView(next) : undefined;
     if (!view) return;

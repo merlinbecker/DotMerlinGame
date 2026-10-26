@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { PROJECT_NAME } from '../../src/config/project.ts';
-import { DEFAULT_VIEW_ORDER, fitLayout, LAYOUT_KEY, loadLayout, saveLayout } from '../../src/app/layout/layout-store.ts';
+import { DEFAULT_VIEW_ORDER, fitLayout, VIEW_CYCLE_ORDER, LAYOUT_KEY, loadLayout, saveLayout } from '../../src/app/layout/layout-store.ts';
 
 const slot = (viewTypeId: string) => ({ viewTypeId, viewState: null });
 
@@ -19,6 +19,10 @@ describe('layout store', () => {
     expect(layout.slots.map((s) => s?.viewTypeId ?? null)).toEqual(['screen', 'controller', 'rom-info', 'memory-map', null, null]);
     expect(layout.maximizedSlot).toBeNull();
     expect(layout.version).toBe(1);
+  });
+
+  it('cycles through the M1 views, then the memory views of M1b', () => {
+    expect(VIEW_CYCLE_ORDER).toEqual(['screen', 'controller', 'rom-info', 'memory-map', 'hex', 'registers', 'tiles', 'tilemaps', 'sprites']);
   });
 
   it('round-trips a saved layout', () => {
