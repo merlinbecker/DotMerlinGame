@@ -252,3 +252,61 @@ EMSCRIPTEN_KEEPALIVE unsigned dmg_rom_bank(void)
     GB_get_direct_access(gb, GB_DIRECT_ACCESS_ROM, &size, &bank);
     return bank;
 }
+
+/*
+ * Read-only inspection for the memory views (specs/004-m1b-memory-views/contracts/wasm-abi.md). Everything
+ * here goes through GB_get_direct_access or plain fields, never through GB_safe_read_memory: that path syncs
+ * the PPU and APU and hides locked cartridge RAM (research.md R1). Callers copy at once and never write.
+ */
+enum { AREA_ROM = 0, AREA_VRAM = 1, AREA_WRAM = 2, AREA_OAM = 3, AREA_HRAM = 4, AREA_CART_RAM = 5 };
+
+EMSCRIPTEN_KEEPALIVE const uint8_t *dmg_area(int area, size_t *size)
+{
+    static const GB_direct_access_t access[] = {
+        GB_DIRECT_ACCESS_ROM, GB_DIRECT_ACCESS_VRAM, GB_DIRECT_ACCESS_RAM,
+        GB_DIRECT_ACCESS_OAM, GB_DIRECT_ACCESS_HRAM, GB_DIRECT_ACCESS_CART_RAM,
+    };
+    if (area < AREA_ROM || area > AREA_CART_RAM) {
+        *size = 0;
+        return NULL;
+    }
+    /* The DMG model allocates 8 KiB VRAM and WRAM (Core/gb.c:173-174); OAM is 160 bytes, HRAM 127. */
+    const uint8_t *data = GB_get_direct_access(gb, access[area], size, NULL);
+    if (!data) *size = 0;
+    return data;
+}
+
+EMSCRIPTEN_KEEPALIVE void dmg_io(uint8_t out[128])
+{
+    size_t size = 0;
+    const uint8_t *io = GB_get_direct_access(gb, GB_DIRECT_ACCESS_IO, &size, NULL);
+    memcpy(out, io, size < 128 ? size : 128);
+    /* GB_INTERNAL: DIV is not kept in io_registers but derived from div_counter (Core/memory.c:674). */
+    out[0x04] = (uint8_t)(gb->div_counter >> 8);
+}
+
+EMSCRIPTEN_KEEPALIVE uint8_t dmg_ie(void)
+{
+    return *(const uint8_t *)GB_get_direct_access(gb, GB_DIRECT_ACCESS_IE, NULL, NULL);
+}
+
+EMSCRIPTEN_KEEPALIVE void dmg_banks(uint16_t out[3])
+{
+    GB_get_direct_access(gb, GB_DIRECT_ACCESS_ROM, NULL, &out[0]);
+    GB_get_direct_access(gb, GB_DIRECT_ACCESS_ROM0, NULL, &out[1]);
+    /* GB_INTERNAL: the raw selected RAM bank; direct access masks it with a size that is 0 for MBC2. */
+    out[2] = gb->mbc_ram_bank;
+}
+
+EMSCRIPTEN_KEEPALIVE int dmg_cart_ram_enabled(void)
+{
+    /* GB_INTERNAL: cartridge_type and mbc_ram_enable are not exposed by the public API. */
+    if (gb->cartridge_type->mbc_type == GB_NO_MBC) return -1;
+    return gb->mbc_ram_enable ? 1 : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE unsigned dmg_cpu_flags(void)
+{
+    /* GB_INTERNAL: IME and the HALT state are not exposed by the public API (Core/gb.h:375, 383). */
+    return (gb->ime ? 1u : 0u) | (gb->halted ? 2u : 0u);
+}

@@ -28,7 +28,8 @@ for f in $CORE_FILES; do SOURCES="$SOURCES Core/$f.c"; done
 
 EXPORTS="_malloc,_free,_dmg_init,_dmg_set_sample_rate,_dmg_load_rom,_dmg_load_boot_rom,_dmg_capture_handoff,_dmg_reset,_dmg_set_halt_at_handoff,\
 _dmg_run_frame,_dmg_halt,_dmg_set_keys,_dmg_screen,_dmg_audio,_dmg_audio_count,_dmg_audio_clear,_dmg_cycles,_dmg_registers,\
-_dmg_peek,_dmg_dirty_pages,_dmg_dirty_clear,_dmg_battery_size,_dmg_battery_save,_dmg_battery_load,_dmg_battery_dirty,_dmg_rom_bank"
+_dmg_peek,_dmg_dirty_pages,_dmg_dirty_clear,_dmg_battery_size,_dmg_battery_save,_dmg_battery_load,_dmg_battery_dirty,_dmg_rom_bank,\
+_dmg_area,_dmg_io,_dmg_ie,_dmg_banks,_dmg_cart_ram_enabled,_dmg_cpu_flags"
 
 CFLAGS="-O3 -std=gnu11 -D_GNU_SOURCE -DGB_INTERNAL -DGB_DISABLE_TIMEKEEPING -DGB_DISABLE_REWIND -DGB_DISABLE_DEBUGGER \
 -DGB_DISABLE_CHEATS -DGB_DISABLE_CHEAT_SEARCH -DGB_VERSION='\"$SAMEBOY_COMMIT\"' -DGB_COPYRIGHT_YEAR='\"2026\"'"

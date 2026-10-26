@@ -1,5 +1,8 @@
 # Vertrag: WASM-Schnittstelle des SameBoy-Wrappers
 
+> Ergänzt in M1b um Lesefunktionen für die Speicher-Ansichten:
+> [../../004-m1b-memory-views/contracts/wasm-abi.md](../../004-m1b-memory-views/contracts/wasm-abi.md).
+
 Ort: `src/adapters/emulator/sameboy/wrapper.c` (eigener Code, MIT). Einziger Aufrufer ist
 `src/adapters/emulator/sameboy/sameboy-emulator.ts`. Kein anderer Code greift auf das WASM-Modul zu
 (ESLint-Regel: Import von `generated/` nur aus diesem Adapter).

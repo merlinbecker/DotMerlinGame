@@ -4,9 +4,9 @@
   "sameboyCommit": "26a56bd6a122a6318a456abd80558408742d5adf",
   "emsdkImage": "emscripten/emsdk@sha256:cdefec943f04fd4b2b2fe23b0a1a346be9fc560ef5784a83faa27dd351381372",
   "cflags": "-O3 -std=gnu11 -D_GNU_SOURCE -DGB_INTERNAL -DGB_DISABLE_TIMEKEEPING -DGB_DISABLE_REWIND -DGB_DISABLE_DEBUGGER -DGB_DISABLE_CHEATS -DGB_DISABLE_CHEAT_SEARCH -DGB_VERSION='\"26a56bd6a122a6318a456abd80558408742d5adf\"' -DGB_COPYRIGHT_YEAR='\"2026\"'",
-  "ldflags": "-s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=web,node -s FILESYSTEM=0 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=0 -s EXPORT_NAME=createSameBoy -s EXPORTED_FUNCTIONS=_malloc,_free,_dmg_init,_dmg_set_sample_rate,_dmg_load_rom,_dmg_load_boot_rom,_dmg_capture_handoff,_dmg_reset,_dmg_set_halt_at_handoff,_dmg_run_frame,_dmg_halt,_dmg_set_keys,_dmg_screen,_dmg_audio,_dmg_audio_count,_dmg_audio_clear,_dmg_cycles,_dmg_registers,_dmg_peek,_dmg_dirty_pages,_dmg_dirty_clear,_dmg_battery_size,_dmg_battery_save,_dmg_battery_load,_dmg_battery_dirty,_dmg_rom_bank -s EXPORTED_RUNTIME_METHODS=HEAPU8,HEAP16,HEAPU16",
+  "ldflags": "-s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=web,node -s FILESYSTEM=0 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=0 -s EXPORT_NAME=createSameBoy -s EXPORTED_FUNCTIONS=_malloc,_free,_dmg_init,_dmg_set_sample_rate,_dmg_load_rom,_dmg_load_boot_rom,_dmg_capture_handoff,_dmg_reset,_dmg_set_halt_at_handoff,_dmg_run_frame,_dmg_halt,_dmg_set_keys,_dmg_screen,_dmg_audio,_dmg_audio_count,_dmg_audio_clear,_dmg_cycles,_dmg_registers,_dmg_peek,_dmg_dirty_pages,_dmg_dirty_clear,_dmg_battery_size,_dmg_battery_save,_dmg_battery_load,_dmg_battery_dirty,_dmg_rom_bank,_dmg_area,_dmg_io,_dmg_ie,_dmg_banks,_dmg_cart_ram_enabled,_dmg_cpu_flags -s EXPORTED_RUNTIME_METHODS=HEAPU8,HEAP16,HEAPU16",
   "sha256": {
-    "sameboy.mjs": "9f351607c559fd195895803498572eec4b3f270b56facc6bbd4ee3529bafb2c7",
-    "sameboy.wasm": "60c99a01c767c8f00814fda213855689a168f8bdd8cf2ff7fe14942f982f8a6d"
+    "sameboy.mjs": "3abc0f340646b5ed2840f130bb4283775912a91b99924c549d2d9a8bcfb87a13",
+    "sameboy.wasm": "9462322879f8ba978d5ac39d48314061fcda1acbbae1b6164c24ecee4413a3e9"
   }
 }

@@ -30,6 +30,12 @@ declare module '*/generated/sameboy.mjs' {
     _dmg_battery_load(pointer: number, size: number): void;
     _dmg_battery_dirty(): number;
     _dmg_rom_bank(): number;
+    _dmg_area(area: number, sizePointer: number): number;
+    _dmg_io(pointer: number): void;
+    _dmg_ie(): number;
+    _dmg_banks(pointer: number): void;
+    _dmg_cart_ram_enabled(): number;
+    _dmg_cpu_flags(): number;
   }
   const createSameBoy: () => Promise<SameBoyModule>;
   export default createSameBoy;

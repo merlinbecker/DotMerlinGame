@@ -21,6 +21,9 @@ commit: 26a56bd6a122a6318a456abd80558408742d5adf
   Debugger, Rewind und Cheats (per `GB_DISABLE_*` abgeschaltet).
 - **Änderungen am Core**: keine. Eigener Code liegt nur im Wrapper
   `src/adapters/emulator/sameboy/wrapper.c` (MIT).
+- **Interne Felder** (`GB_INTERNAL`, nur gelesen, jede Stelle im Wrapper kommentiert): `boot_rom_finished`
+  (M1, Übergabepunkt), seit M1b außerdem `div_counter`, `mbc_ram_bank`, `mbc_ram_enable`, `cartridge_type`,
+  `ime`, `halted` für die Speicher-Ansichten (specs/004-m1b-memory-views/contracts/wasm-abi.md).
 - **Ausgeliefert als**: `src/adapters/emulator/sameboy/generated/sameboy.wasm` + `sameboy.mjs`, gebaut von
   `scripts/build-core.sh` im Image `emscripten/emsdk@sha256:cdefec943f04fd4b2b2fe23b0a1a346be9fc560ef5784a83faa27dd351381372`.
   Herkunft und Prüfsummen: `generated/BUILD-INFO.json`. Bauweg: arc42 Kapitel 7.3.

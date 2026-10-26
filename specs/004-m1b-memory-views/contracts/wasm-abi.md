@@ -12,7 +12,7 @@ Artefakt mit `npm run core:build` neu gebaut und committet; `core:verify` und de
 | `const uint8_t *dmg_area(int area, size_t *size)` | Zeiger und Größe eines Bereichs: 0 ROM, 1 VRAM, 2 WRAM, 3 OAM, 4 HRAM, 5 Cartridge-RAM. Nur lesen, nie über den Zeiger schreiben | `GB_get_direct_access` |
 | `void dmg_io(uint8_t out[128])` | Kopie von `io_registers`, `out[0x04]` = `div_counter >> 8` | `GB_DIRECT_ACCESS_IO`; `div_counter` (`GB_INTERNAL`) |
 | `uint8_t dmg_ie(void)` | `$FFFF` | `GB_DIRECT_ACCESS_IE` |
-| `void dmg_banks(uint16_t out[3])` | ROM-Bank, ROM0-Bank, Cartridge-RAM-Bank | `GB_get_direct_access(…, &bank)` |
+| `void dmg_banks(uint16_t out[3])` | ROM-Bank, ROM0-Bank, gewählte Cartridge-RAM-Bank (roh) | `GB_get_direct_access(…, &bank)`; RAM-Bank aus `mbc_ram_bank` (`GB_INTERNAL`), weil direkter Zugriff sie mit einer Größe maskiert, die bei MBC2 0 ist |
 | `int dmg_cart_ram_enabled(void)` | 1 freigegeben, 0 gesperrt, −1 Modul ohne MBC | `mbc_ram_enable`, `cartridge_type->mbc_type` (`GB_INTERNAL`) |
 | `unsigned dmg_cpu_flags(void)` | Bit 0 IME, Bit 1 HALT | `ime`, `halted` (`GB_INTERNAL`) |
 

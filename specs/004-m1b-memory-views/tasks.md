@@ -85,7 +85,7 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
 
 ### 2a – Wrapper und WASM (contracts/wasm-abi.md)
 
-- [ ] T004 Add the six functions from `specs/004-m1b-memory-views/contracts/wasm-abi.md` to
+- [X] T004 Add the six functions from `specs/004-m1b-memory-views/contracts/wasm-abi.md` to
   `src/adapters/emulator/sameboy/wrapper.c`:
   - `dmg_area(int area, size_t *size)` returns the pointer and size for area 0 ROM, 1 VRAM, 2 WRAM,
     3 OAM, 4 HRAM, 5 cartridge RAM via `GB_get_direct_access`. Unknown area → `NULL`, size 0.
@@ -99,11 +99,11 @@ Test-ROMs, gemeinsame View-Bausteine. **Keine Story-Arbeit vor Abschluss dieser 
   - `dmg_cpu_flags(void)` returns bit 0 `ime`, bit 1 `halted` with `GB_INTERNAL` comments.
 
   None of them may call `GB_read_memory`, `GB_safe_read_memory`, `GB_display_sync` or `GB_apu_run`.
-- [ ] T005 Add the six exports to `EXPORTS` in `scripts/build-core.sh`, declare them in
+- [X] T005 Add the six exports to `EXPORTS` in `scripts/build-core.sh`, declare them in
   `src/adapters/emulator/sameboy/sameboy-module.d.ts`, run `npm run core:build` (Docker), and commit the
   regenerated `generated/sameboy.mjs`, `generated/sameboy.wasm` and `generated/BUILD-INFO.json` together
   with T004. Run `npm run core:verify` and make sure `tests/unit/build-info.test.ts` stays green.
-- [ ] T006 Update `third_party/sameboy.md` in the same commit as T005 (wrapper functions added in M1b, list of all
+- [X] T006 Update `third_party/sameboy.md` in the same commit as T005 (wrapper functions added in M1b, list of all
   `GB_INTERNAL` fields used: `boot_rom_finished`, `div_counter`, `mbc_ram_enable`, `cartridge_type`,
   `ime`, `halted`; core unchanged) and the M1 ABI table in
   `specs/001-m1-emulator-bootrom/contracts/wasm-abi.md` with a pointer to the M1b addendum
