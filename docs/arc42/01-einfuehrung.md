@@ -17,6 +17,7 @@ Es ist ein Lernprojekt, das am Ende selbst für echte Spiele taugen soll. Alles 
 |---|---|
 | M0 Gerüst | Build, Tests, CI, Doku-Skelett, Interfaces für View-Vertrag und Eventmodell, App-Shell mit Schwarz-Weiß-Theme |
 | M1 Emulator-Kern | Emulator als Headless Service mit Ton, Screen-Quadrat mit E-Ink-Modus, Controller-Quadrat, ROM laden, eigene Nintendo-kompatible Boot-ROM |
+| M1b Speicher-Ansichten | Nur lesend: Hex-View, VRAM-Tiles, Tilemaps, OAM/Sprites, Register |
 | M2 Assembler, Editor, Export | RGBDS als WASM, Editor-Quadrat, Build-Pipeline, `.gb`-Export, ZIP-Export/-Import |
 | M3 Disassembler | ROM-Import als Quelltext, byte-identischer Roundtrip |
 | später (nicht beauftragt) | M4 Debugger, M5 Tile-Editor, M6 Tracker, M7 Layout-Feinschliff und PWA-Härtung |

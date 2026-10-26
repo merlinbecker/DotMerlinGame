@@ -23,7 +23,7 @@
 | Randbedingung | Erläuterung |
 |---|---|
 | Öffentliches Repo | Historie bleibt. Keine Secrets, keine persönlichen Pfade, nichts Privates. |
-| Meilensteine in Reihenfolge | M0 → M1 → M2 → M3, kein Vorgreifen |
+| Meilensteine in Reihenfolge | M0 → M1 → M1b → M2 → M3, kein Vorgreifen |
 | Agentengestützte Entwicklung | Ein Modul pro Auftrag, Tests pro Baustein, Definition of Done mit arc42- und ADR-Pflege |
 | Sprache | Doku auf Deutsch, Code, Bezeichner und Commits auf Englisch |
 

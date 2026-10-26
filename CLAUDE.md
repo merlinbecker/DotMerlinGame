@@ -56,7 +56,7 @@ TypeScript, Vite, Vitest, React. Zielbrowser in M0–M3: nur aktuelles Chrome (i
 5. **Versionsnummer** in `package.json` (Start `0.1.0`): Jeder Commit mit Codeänderung erhöht die Patch-Stelle um eins; mit der Abnahme einer Spec steigt die Minor-Stelle um eins, Patch auf 0. Reine Doku-Commits ändern die Version nicht.
 6. **Kleine, nachvollziehbare Commits** mit sprechenden Messages. Das Repo ist öffentlich: Historie bleibt, also nichts Privates und keine Secrets, auch nicht "vorübergehend".
 7. **Nichts erfinden.** Keine Annahmen zu Lizenzen, Hardware-Verhalten oder Registerwerten aus dem Gedächtnis. Maßgeblich sind Pan Docs, die RGBDS-Dokumentation und die LICENSE-Dateien. Unsicheres als offenen Punkt notieren.
-8. **Meilensteine strikt in Reihenfolge** (M0 → M1 → M2 → M3). Nicht vorgreifen, nicht "nebenbei" Features aus späteren Meilensteinen bauen.
+8. **Meilensteine strikt in Reihenfolge** (M0 → M1 → M1b → M2 → M3). Nicht vorgreifen, nicht "nebenbei" Features aus späteren Meilensteinen bauen.
 
 ## Hardware-Treue (wichtig für Export)
 

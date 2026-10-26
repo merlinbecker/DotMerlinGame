@@ -129,6 +129,10 @@ Emulator-Core im Browser als Headless Service. Screen-Quadrat und Controller-Qua
 - Ein freies Test-ROM läuft mit eigener Boot-ROM und ohne Boot-ROM (Direktstart) identisch.
 - Optionaler Modus "Hardware-nah": prüft Header-Logo und Checksumme wie die Original-Boot-ROM.
 
+### M1b – Speicher-Ansichten (nur lesen)
+Lese-Ansichten auf den laufenden Emulator, jeweils als eigener View: Hex-View (ROM bankweise, WRAM, HRAM, I/O-Register), VRAM-Tiles, Tilemaps (Hintergrund und Fenster), OAM/Sprites und CPU-Register mit Flags. Nur Anzeige: kein Schreiben in den Speicher, keine Breakpoints, kein Step (bleibt M4).
+**Abnahme:** Mit selbst gebauten Test-ROMs zeigen alle Ansichten nachweislich die Werte aus dem Emulator (automatische Tests), sie greifen nur über den View-Vertrag zu, ausgeblendete Ansichten erhalten keine Updates, und alle Ansichten sind auf E-Ink bedienbar (Blättern statt Scrollen, Hervorhebung ohne Farbe).
+
 ### M2 – Assembler, Editor, Export
 RGBDS-WASM, Editor-Quadrat, Build-Pipeline (`rgbasm` → `rgblink` → `rgbfix`), `.gb`-Export, Symbol-/Map-Datei, ZIP-Export und -Import von Projekten, Beispielprojekt.
 **Abnahme:** Das selbst geschriebene Beispielprojekt baut, läuft im Emulator, hat einen gültigen Header (Logo, Prüfsumme) und lässt sich als ZIP exportieren und wieder importieren.
@@ -138,7 +142,7 @@ ROM-Import → Quelltext. Konservative Analyse: Einstiegspunkte (Reset-Vektoren,
 **Abnahme:** Roundtrip ROM → Quelltext → Assemblieren ergibt byte-identisch das Original. Geprüft mit freien Homebrew-ROMs und mit selbst gebauten ROMs. Kommerzielle ROMs nur lokal.
 
 ### Danach (grob, noch nicht beauftragt)
-M4 Debugger (Breakpoints, Step, Register, Speicher-View, Quelltextzeilen) · M5 Tile-Editor · M6 Tracker (hUGEDriver-Format) · M7 Layout-Feinschliff, PWA/Offline-Härtung (Service Worker).
+M4 Debugger (Breakpoints, Step, Schreiben in Speicher und Register, Quelltextzeilen; erweitert die Ansichten aus M1b) · M5 Tile-Editor · M6 Tracker (hUGEDriver-Format) · M7 Layout-Feinschliff, PWA/Offline-Härtung (Service Worker).
 
 ## 9. Erste ADRs (im Rahmen von M0/M1)
 
@@ -177,3 +181,6 @@ M4 Debugger (Breakpoints, Step, Register, Speicher-View, Quelltextzeilen) · M5 
 - Die eigene DotMerlinGame-Boot-ROM ist kompatibel zur Nintendo-Boot-ROM (gleicher Endzustand laut Pan Docs). Fremde Boot-ROMs (z. B. SameBoy) werden nicht eingebunden; Startmodi sind eigene Boot-ROM und Direktstart.
 - Es gibt grundsätzlich kein Backend. Die App ist rein clientseitig und wird statisch ausgeliefert. Hosting vorerst über Replit, ein anderer statischer Hoster ist jederzeit möglich.
 - Keine Gesten für Rahmenfunktionen: View-Wechsel nur über Pfeiltasten in der Kopfleiste (kein Wischen), Zoom nur über einen Zoom-Schalter in der Kopfleiste (kein Doppeltipp). Begründung: Gesten sind fehleranfällig.
+
+**2026-10-26 (Entscheidung des Projektinhabers)**
+- Neuer Meilenstein M1b „Speicher-Ansichten (nur lesen)“ zwischen M1 und M2. Hex-View, VRAM-Tiles, Tilemaps, OAM/Sprites und Register werden aus M4 vorgezogen, damit bestehende ROMs schon vor dem Debugger genauer angeschaut werden können. Breakpoints, Step und Schreibzugriffe bleiben in M4. Die Nummern der übrigen Meilensteine bleiben unverändert.
