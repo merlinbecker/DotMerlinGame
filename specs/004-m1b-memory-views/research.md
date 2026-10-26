@@ -250,7 +250,8 @@ Speicher-View auf „Live“. Die bestehende Kennzahl bleibt für den Vergleich 
 ## R13 – I/O-Bereich als Registerliste (Umsetzung US1)
 
 **Decision**: Im Bereich I/O zeigt der Hex-View eine Adresse pro Zeile mit Wert und Kurzname
-(`$FF40 91 LCDC`). Die Zeilenbreite 8/16 aus FR-005 gilt für alle anderen Bereiche.
+(`$FF40 91 LCDC`). Die Zeilenbreite 8/16 aus FR-005 gilt für alle anderen Bereiche. Vom Projektinhaber am
+2026-10-26 bestätigt, FR-005 um die Ausnahme ergänzt.
 
 **Rationale**: US1-AS7 verlangt den Namen neben jeder belegten Adresse. In einer 8- oder 16-Byte-Zeile
 ist dafür kein Platz, ohne auf dem Palma horizontal zu scrollen. 128 Einträge sind mit Blättern schnell

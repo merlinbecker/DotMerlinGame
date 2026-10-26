@@ -240,7 +240,9 @@ messen, Emulationsgeschwindigkeit prüfen; Graustufen-Screenshot prüfen.
   Zustand „gesperrt“ ohne Farbe kennzeichnen. Er MUSS 16 Bytes pro Zeile zeigen, wenn diese bei
   Mindestschriftgröße (Design-Token) in den Slot passen, sonst 8 Bytes. Die Zeilenbreite wird bei jeder
   Größenänderung des Slots neu bestimmt; jede Zeile beginnt an einer durch die Zeilenbreite teilbaren
-  Adresse, und die aktuell oberste Adresse bleibt dabei auf der angezeigten Seite.
+  Adresse, und die aktuell oberste Adresse bleibt dabei auf der angezeigten Seite. Ausnahme: Im Bereich I/O
+  zeigt er eine Adresse pro Zeile mit Wert und Kurzname (z. B. `$FF40 91 LCDC`), damit die Namen ohne
+  horizontales Scrollen Platz haben (Entscheidung des Projektinhabers 2026-10-26, research.md R13).
 - **FR-006**: Der View „Registers“ MUSS A, F, B, C, D, E, H, L, SP, PC, die Paare BC, DE, HL und die Flags
   Z, N, H, C anzeigen. Zusätzlich MUSS er IME (Interrupts freigegeben) und HALT (CPU wartet) als
   an/aus durch Zeichen anzeigen (Entscheidung des Projektinhabers 2026-10-26, Lesbarkeit im Core belegt,
