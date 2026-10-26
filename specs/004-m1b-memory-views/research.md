@@ -119,6 +119,11 @@ Kanal, und Views würden direkt in den Emulator greifen (Constitution II).
    - bei `RomLoaded`,
    - bei `EmulatorReset` (neu, siehe unten).
 3. Die Header-Aktion „Refresh“ löst ebenfalls `RequestSnapshot` aus.
+4. Der Hub bündelt Anforderungen aus demselben Task zu einem Bau. Slots ohne Anforderung ignorieren
+   Lieferungen mit unveränderter Frame-Nummer. So zählen Anforderungen nicht als Frames für gedrosselte
+   Slots (SC-004), und der Screen zeichnet nicht unnötig neu. Heute ruft `requestSnapshot()` im Hub
+   `deliver` für alle Abonnenten auf. Ein 1/s-Slot würde dabei weiterzählen (`slot-frame-source.ts`,
+   `onUpstream`).
 
 **Rationale**: Ohne das zeigt ein View auf „1 pro Sekunde“ beim Pausieren bis zu einer Sekunde alten
 Stand (Konflikt mit FR-010). Ein im pausierten Zustand eingehängter View zeigt dann gar nichts, und nach
@@ -233,4 +238,7 @@ Speicher-View auf „Live“. Die bestehende Kennzahl bleibt für den Vergleich 
 
 1. R11: Belegung von MBC2- und MBC3-RTC im `mbc_ram`.
 2. R2: Ergebnis des Identitätstests gegen den M1-Code. Es wird im Abnahmeprotokoll notiert.
-3. Live-Rate 10/s am Gerät prüfen (Spec-Annahme).
+3. Bestehende Tests, die `changedMemory` auswerten (`tests/emulator/sameboy-adapter.test.ts`,
+   `service-contract.test.ts`), werden bei der Umstellung aus R2 gezielt angepasst. VRAM und OAM
+   liefern dann den inneren Zustand statt `$FF` während der LCD-Sperre.
+4. Live-Rate 10/s am Gerät prüfen (Spec-Annahme).

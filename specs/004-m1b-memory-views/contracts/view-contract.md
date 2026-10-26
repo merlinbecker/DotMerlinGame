@@ -32,6 +32,7 @@ export interface ViewDefinition<S> {
 | Was | Wo | Regel |
 |---|---|---|
 | `RequestSnapshot` | `Slot.tsx` → `SlotFrameSource.requestSnapshot()` | erreicht die Session nie (wie `SetFrameRate`) |
+| Lieferung auf Anforderung | `slot-frame-source.ts` | Nur der anfordernde Slot übernimmt sie. Andere Slots ignorieren jede Lieferung, deren `frame` gleich dem zuletzt gesehenen ist: kein Neuzeichnen, Drosselungszähler unverändert (frame-state.md Regel 7) |
 | Inspektionsbedarf | `frame-demand.ts` | aktiv, solange ein Slot sichtbar ist, abonniert hat und einen View mit `inspects: true` zeigt |
 | Ausgeblendet | `slot-frame-source.ts` | 0 Lieferungen, auch für `RequestSnapshot` (FR-013, SC-004) |
 | Neue Views im Zyklus | `layout-store.ts` `DEFAULT_VIEW_ORDER` | Reihenfolge `screen`, `controller`, `rom-info`, `memory-map`, `hex`, `registers`, `tiles`, `tilemaps`, `sprites` |
@@ -58,6 +59,6 @@ export interface ViewDefinition<S> {
 | Test | Prüft |
 |---|---|
 | `tests/contract/view-contract.test-d.ts` | neue Union-Glieder, `inspects` optional |
-| `tests/contract/slot-view.test.tsx` | `RequestSnapshot` liefert genau einen Snapshot an genau diesen Slot. Ausgeblendet: 0. Bedarf an/aus folgt der Sichtbarkeit |
+| `tests/contract/slot-view.test.tsx` | `RequestSnapshot` liefert genau einen Snapshot an genau diesen Slot. Alle anderen Slots erhalten 0 zusätzliche Lieferungen, und ihr Zähler bleibt unverändert (ein 1/s-Slot liefert nicht früher). Ausgeblendet: 0. Bedarf an/aus folgt der Sichtbarkeit |
 | `tests/unit/frame-demand.test.ts` | Inspektionsbedarf nur bei sichtbaren `inspects`-Slots |
 | `tests/unit/emulator-session.test.ts` | `EmulatorReset` nach Reset, auch im laufenden Zustand |

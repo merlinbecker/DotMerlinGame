@@ -73,14 +73,20 @@ export interface FrameStateHub extends FrameStatePublisher {
    ein Blick in den WASM-Heap. `rom` ist pro geladenem ROM eine Kopie, die dieselbe Referenz bleibt.
 5. **`requestSnapshot()` nach `prime()`** liefert den Stand zum Zeitpunkt des Aufrufs, auch vor dem ersten
    emulierten Frame.
-6. **Bereiche ohne Speicher** (`$E000–$FDFF` Echo, `$FEA0–$FEFF`) enthält der Snapshot nicht. Der Hex-View
+6. **Bündeln**: Mehrere `requestSnapshot()`-Aufrufe im selben Task führen zu genau einem Bau. Der Hub
+   plant ihn per `queueMicrotask` und liefert einmal aus. Läuft vorher ein echter Frame, deckt dieser die
+   Anforderung ab.
+7. **Kein Frame-Ersatz**: Eine Lieferung auf Anforderung trägt dieselbe `frame`-Nummer wie der zuletzt
+   gelieferte Snapshot (oder 0 nach `prime`). Slots, die nichts angefordert haben, erkennen sie daran und
+   ignorieren sie: kein Neuzeichnen, kein Weiterzählen der Drosselung (contracts/view-contract.md).
+8. **Bereiche ohne Speicher** (`$E000–$FDFF` Echo, `$FEA0–$FEFF`) enthält der Snapshot nicht. Der Hex-View
    bietet sie nicht an.
 
 ## Tests
 
 | Test | Prüft |
 |---|---|
-| `tests/unit/frame-state-hub.test.ts` (erweitert) | Bedarf an/aus, `prime` + `requestSnapshot` vor dem ersten Frame |
+| `tests/unit/frame-state-hub.test.ts` (erweitert) | Bedarf an/aus, `prime` + `requestSnapshot` vor dem ersten Frame, fünf Anforderungen im selben Task ergeben genau einen Bau |
 | `tests/emulator/inspection.test.ts` (neu) | Inhalte gegen Test-ROMs (SC-001), Kopie statt Heap-Sicht, ROM-Referenz stabil |
 | `tests/emulator/inspection-identity.test.ts` (neu) | Regel 2 (SC-003), läuft zuerst gegen den M1-Code (research.md R2) |
 | `tests/contract/events.test-d.ts` (erweitert) | `inspection` ist im Typ optional erreichbar, nur lesend |

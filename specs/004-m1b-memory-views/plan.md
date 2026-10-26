@@ -103,7 +103,7 @@ specs/004-m1b-memory-views/
 ```text
 src/
 ├── core/
-│   ├── events/              # frame-state.ts (+inspection, +setInspectionDemand), frame-state-hub.ts (+prime), domain-events.ts (+EmulatorReset)
+│   ├── events/              # frame-state.ts (+inspection, +setInspectionDemand), frame-state-hub.ts (+prime, gebündelte Anforderungen), domain-events.ts (+EmulatorReset)
 │   ├── view/                # view-actions.ts (+RequestSnapshot), view-contract.ts (+inspects, Diagnostics +frameWorkP95Ms, +emulatedFps)
 │   └── inspect/             # io-registers, areas, tiles, tilemap, oam, palette, changes, hex-layout (neu)
 ├── adapters/emulator/sameboy/
@@ -111,7 +111,7 @@ src/
 │   ├── sameboy-emulator.ts  # inspection bauen, changedRanges ohne dmg_peek, prime, Messung
 │   └── generated/           # neu gebaut (core:build), BUILD-INFO.json
 ├── app/
-│   ├── layout/              # Slot.tsx (+RequestSnapshot), frame-demand.ts (+Inspektionsbedarf), layout-store.ts (Zyklus)
+│   ├── layout/              # Slot.tsx (+RequestSnapshot), slot-frame-source.ts (Anforderung nur für den eigenen Slot), frame-demand.ts (+Inspektionsbedarf), layout-store.ts (Zyklus)
 │   ├── session/             # emulator-session.ts (+EmulatorReset, Diagnose)
 │   └── views/               # m1b-views.ts (Registrierung)
 ├── app/theme/tokens.css     # + Monospace-Schrift, Mindestschriftgröße, Markierungs-Tokens
