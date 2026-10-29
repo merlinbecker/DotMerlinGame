@@ -1,0 +1,1 @@
+- [Browser verification on Replit](browser-verification.md) — async emulator startup can outlast snapshots; Playwright also needs Nix browser libraries.

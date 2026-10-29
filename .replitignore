@@ -1,0 +1,5 @@
+.cache/
+.tools/
+test-results/
+playwright-report/
+coverage/

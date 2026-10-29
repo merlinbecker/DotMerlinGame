@@ -30,6 +30,12 @@ flowchart LR
 
 Die Build-Version (Commit-Hash) ist immer in der Oberfläche sichtbar, damit am Gerät erkennbar ist, welcher Stand läuft. Service Worker brauchen HTTPS oder localhost.
 
+**Replit-Entwicklung:** Node.js 24 ist in `.replit` eingerichtet. Der Run-Workflow
+`Start application` startet `npm run dev` auf `0.0.0.0:5000`. Vite akzeptiert
+Proxy-Hosts; `strictPort` verhindert einen unbemerkten Portwechsel. Es werden
+keine Backend-Dienste oder Secrets benötigt. Einrichtung und Prüfbefehle stehen
+in `replit.md`. Der Playwright-Preview-Server verwendet separat Port 4173.
+
 ## 7.3 Emulator-Core: Herkunft und Bauweg
 
 Der Emulator-Core ist ein Binärartefakt im Repo. Woher er stammt und wie er entsteht, muss ohne
