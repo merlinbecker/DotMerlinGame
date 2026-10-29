@@ -45,6 +45,61 @@ Abweichung. Der Pfad wurde trotzdem auf direkten Lesezugriff umgestellt.
 | Lesbar und bedienbar auf Boox Palma und Boox Go Color 7 (SC-005) | Gerätetest | ⏳ offen |
 | Live-Rate 10/s auf E-Ink bedienbar (Spec-Annahme) | Gerätetest | ⏳ offen |
 
+## Anleitung für die Gerätetests
+
+Getestet wird der Produktions-Build auf Replit, Branch `main` (arc42 7.4). Vorher prüfen, dass in der App
+unten der erwartete Commit-Hash steht (Stand der Anleitung: `d23e254`). Zum Laden braucht man ein eigenes
+oder frei lizenziertes Homebrew-`.gb`.
+
+### Was die App in diesem Stand kann
+
+- **Raster:** Der Inhalt eines Quadrats wechselt über die Pfeile in seiner Kopfleiste. Zoom geht nur
+  über den Schalter in der Kopfleiste. Die Belegung wird gespeichert.
+- **Emulator:** `.gb` laden und spielen (ohne MBC, MBC1, MBC3, MBC5).
+  - Start mit eigener Boot-ROM oder direkt.
+  - Steuerung über Touch-Controller, Tastatur (WASD, J/K, Enter/Leertaste) oder Gamepad.
+  - Spielstand wird gespeichert, Neustart aus dem Speicher möglich. CGB-only-ROMs werden abgelehnt.
+- **Ton:** vier Kanäle, Stumm und Lautstärke.
+- **E-Ink-Modus:** Bildrate, Grauwert-Zuordnung und Dithering.
+- **ROM Info und Memory Map:** ROM Info zeigt jetzt auch `frame-work` (Arbeit pro Frame, p95) und
+  `emulated-fps`.
+- **Neu in M1b, fünf nur lesende Ansichten:**
+  - **Hex:** ROM pro Bank, VRAM, WRAM, Cartridge-RAM pro Bank, OAM, I/O mit Registernamen, HRAM. Mit
+    Sprung zu einer Adresse und Blättern, 8 oder 16 Bytes pro Zeile.
+  - **Registers:** CPU-Register, Flags, IME und HALT.
+  - **Tiles:** 384 Kacheln, umschaltbar zwischen Rohwerten und Palette.
+  - **Tilemaps:** Hintergrund und Fenster.
+  - **Sprites:** 40 OAM-Einträge mit allen Feldern.
+  - Alle fünf haben die Raten Live, 1/s und Manual (Start mit 1/s). Änderungen werden invertiert
+    angezeigt, die Auswahl bekommt einen Rahmen, beides ohne Farbe.
+
+### 1. Smartphone (SC-002)
+
+1. ROM laden. Zwei Quadrate belegen: Screen und Hex mit Rate **Live**.
+2. Etwa eine Minute spielen. Dann in ROM Info `frame-work` und `emulated-fps` ablesen.
+   - Ziel: `frame-work` unter 16,7 ms, `emulated-fps` mindestens 59.
+3. Notieren: Modell, Android- und Chrome-Version, Messdauer, `innerWidth` × `innerHeight` und
+   `devicePixelRatio`.
+
+### 2. Boox Palma und Boox Go Color 7 (SC-005)
+
+1. Jede der fünf Ansichten einmal im schmalen und einmal im gezoomten Quadrat öffnen.
+   - Ist alles lesbar?
+   - Wird etwas abgeschnitten, oder gibt es seitliches Scrollen?
+2. Hex: zu `FF40` springen und blättern. Im I/O-Bereich stehen Zeilen wie `$FF40 91 LCDC`.
+3. Tiles: zwischen Rohwerten und Palette umschalten.
+4. Rate **Live**:
+   - Lässt sie sich noch bedienen, oder flackert es zu stark?
+   - Danach **1/s** und **Manual** mit Refresh ausprobieren.
+5. Pause: Die Ansichten bleiben auf dem Pausenstand stehen.
+6. Viewport notieren wie beim Smartphone.
+
+### 3. Schnellcheck auf allen Geräten
+
+- Der Commit-Hash ist sichtbar.
+- Nach dem Neuladen bleiben die Belegung der Quadrate und die gewählten Raten erhalten.
+- Ohne geladenes ROM zeigen die Ansichten einen Hinweis statt eines Fehlers.
+
 ## Gerätetests (offen)
 
 Zu notieren je Gerät: Modell, Android- und Chrome-Version, Messdauer, CSS-Viewport (`innerWidth` ×

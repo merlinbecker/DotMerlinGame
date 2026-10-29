@@ -79,3 +79,20 @@ SHA-256-Werte zu den Dateien passen.
 (Linux-x86_64-Release, SHA-256 `3e19e50ea602e316be709160acaf0a708b1fa6d32d219ec541f244442895dbb7`, geladen
 von `scripts/fetch-rgbds.ts` nach `.tools/`). Ausgabe ist `src/adapters/emulator/bootrom/generated/`.
 `npm run check` baut sie neu und prüft per `git diff` ([ADR-0004](../adr/0004-boot-rom-strategie.md)).
+
+## 7.4 Auslieferung und Gerätetests
+
+| Weg | Quelle | Einstellungen | Zweck |
+|---|---|---|---|
+| Replit (statisches Deployment) | Branch `main` | Build-Befehl `npm run build`, Ausgabeordner `dist` | Gerätetests und Abnahme am Smartphone und auf E-Ink |
+| Dev-Server im Codespace | jeder Branch | `npm run dev`, Port 5173 weitergeleitet | Schnelle Sichtprüfung vor dem Merge |
+
+- Nach `main` kommt nur, was auf dem Feature-Branch eine grüne CI hat. Der Merge erfolgt als
+  Fast-Forward.
+- Der Build braucht weder Docker noch RGBDS. Core und Boot-ROM liegen gebaut im Repo (7.3).
+- Der weitergeleitete Codespace-Port ist privat, die Geräte brauchen also eine GitHub-Anmeldung. Vite
+  akzeptiert den fremden Host nur, wenn man ihn für den Lauf freigibt:
+  `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.app.github.dev npm run dev`. Die Projekt-Config bleibt
+  unverändert.
+- Leistungswerte (z. B. SC-002 in M1b) werden nur am Produktions-Build gemessen (Replit oder
+  `npm run preview`), nie am Dev-Server.
