@@ -17,6 +17,14 @@ im Browser; kein Backend, keine Datenbank und keine Secrets erforderlich.
   Für den normalen Start ist kein Neubau des Emulator-Cores erforderlich.
 - ROMs werden lokal im Browser geöffnet; gespeicherte Daten liegen in IndexedDB.
 
+## Veröffentlichen
+
+- Der Projektinhaber hat statisches Publishing gewählt: kein Produktionsserver.
+- Build-Befehl: `npm run build`; öffentliches Verzeichnis: `dist`.
+- Die Einstellungen stehen im Abschnitt `[deployment]` der `.replit`.
+- Kein Run-Befehl erforderlich; die gebauten Dateien werden direkt ausgeliefert.
+- Änderungen dieser Einstellungen werden erst beim erneuten Veröffentlichen aktiv.
+
 ## Prüfen
 
 - `npm run build`: Typprüfung und statischer Build nach `dist/`.
