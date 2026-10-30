@@ -25,6 +25,9 @@
   --mark-inverse-bg: #000;
   --mark-border-width: 2px;
 
+  /* Selected text in the source editor */
+  --color-selection: #bbb;
+
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;

@@ -1,0 +1,21 @@
+.editorView {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 0;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.controls {
+  display: flex;
+  flex: none;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.file {
+  flex: 1;
+  min-width: 0;
+}

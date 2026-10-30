@@ -72,8 +72,9 @@ SC-005 ist für M2 in diesem Sinn zu lesen.
 `warning:` und ordnet die erste folgende Zeile `at datei(zeile)` zu. Die innerste Datei zählt, die `<-`-Zeilen sind
 nur Kontext. Meldungen ohne Ort, etwa vom Linker, haben `file: null`. Deshalb wird `Diagnostic` nullable.
 
-**Offen**: Das genaue Format bei Makros und `REPT` wird mit echten Ausgaben als Fixture belegt (SC-004). `--color`
-ist in `rgbasm` belegt, in `rgblink` und `rgbfix` noch zu prüfen.
+**Belegt (T009)**: Alle drei Werkzeuge kennen `--color never`. Makros erscheinen als `at datei::m(2)`, `REPT` als
+`at datei::REPT~1(3)`, jeweils mit der Zeile in der Datei. Dazu kommen `FATAL:` und mehrzeilige Listen. Echte Ausgaben
+liegen in `tests/assembler/fixtures/`.
 
 ## R6: Editor
 
@@ -133,7 +134,7 @@ damit keinen neuen Eintrag in `third_party/`.
 
 1. ~~Gelinkte Laufzeiten des C++-Baus und ihre Lizenzen (R2).~~ Belegt (T003).
 2. ~~Bison 3.8.2 im festgelegten Bauweg (R3).~~ Belegt (T001).
-3. Meldungsformat bei Makros, `--color` bei `rgblink` und `rgbfix` (R5).
+3. ~~Meldungsformat bei Makros, `--color` bei `rgblink` und `rgbfix` (R5).~~ Belegt (T009).
 4. Build-Dauer auf dem Mittelklasse-Smartphone (SC-003), bisher nur Node im Codespace gemessen.
 5. Editor auf E-Ink: Blättern, Tastatur, Neuzeichnen (R6).
 6. Kaltstart ohne Netz erst ab M7 (R4). Der Projektinhaber sollte das bei der Abnahme von SC-005 kennen.

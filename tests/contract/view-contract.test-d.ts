@@ -1,8 +1,12 @@
 import { describe, expectTypeOf, it } from 'vitest';
 import type {
+  Diagnostic,
   HeaderAction,
   LayoutState,
   Notice,
+  Project,
+  ProjectSettings,
+  ProjectState,
   SessionState,
   ViewAction,
   ViewContext,
@@ -56,6 +60,18 @@ describe('view actions (M1, M1b)', () => {
       | 'UnlockAudio'
       | 'SetFrameRate'
       | 'RequestSnapshot'
+      | 'NewProjectFromExample'
+      | 'OpenProject'
+      | 'DeleteProject'
+      | 'OpenFile'
+      | 'EditFile'
+      | 'Build'
+      | 'RunBuild'
+      | 'ExportRom'
+      | 'ExportZip'
+      | 'ImportZip'
+      | 'ResolveImport'
+      | 'GoToDiagnostic'
     >();
   });
 
@@ -93,5 +109,14 @@ describe('view definition and layout (M1)', () => {
   it('stores the maximized slot only in the layout', () => {
     expectTypeOf<LayoutState['maximizedSlot']>().toEqualTypeOf<number | null>();
     expectTypeOf<LayoutState['version']>().toEqualTypeOf<1>();
+  });
+});
+
+describe('project contract (M2)', () => {
+  it('reads a project state, and diagnostics may have no location', () => {
+    expectTypeOf<ReturnType<ViewContext['project']['getSnapshot']>>().toEqualTypeOf<ProjectState>();
+    expectTypeOf<Diagnostic['file']>().toEqualTypeOf<string | null>();
+    expectTypeOf<Diagnostic['line']>().toEqualTypeOf<number | null>();
+    expectTypeOf<Project['settings']>().toEqualTypeOf<ProjectSettings>();
   });
 });

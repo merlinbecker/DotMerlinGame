@@ -1,5 +1,6 @@
 import { createDomainEventBus } from '../../core/events/domain-event-bus.ts';
 import {
+  IDLE_PROJECT_STATE,
   parseHeader,
   RomLoadError,
   StorageFullError,
@@ -50,6 +51,10 @@ export interface EmulatorSession extends AppServices {
   setGamepads(names: readonly string[]): void;
   /** Checks for a stored ROM; does not start it (US1-AS4: start without file picker on request). */
   init(): Promise<void>;
+  /** Runs a built ROM: it is not stored and its save data is not kept (Constitution I, M2 research.md R8). */
+  runBuiltRom(bytes: Uint8Array, fileName: string): Promise<void>;
+  /** For the project session, which shares the discrete event channel. */
+  publish(event: DomainEvent): void;
   /** Resolves when all dispatched actions are processed (tests). */
   idle(): Promise<void>;
   dispose(): void;
@@ -84,6 +89,8 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   };
   let queue: Promise<void> = Promise.resolve();
   let pausedByPage = false;
+  /** Save data belongs to the stored ROM; a built ROM must never write into its record. */
+  let runSource: 'stored' | 'build' = 'stored';
   let batteryTimer: ReturnType<typeof setInterval> | null = null;
   let diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -107,7 +114,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   };
 
   const saveBattery = async () => {
-    if (!emulator.batteryRamDirty) return;
+    if (runSource === 'build' || !emulator.batteryRamDirty) return;
     const data = emulator.readBatteryRam();
     if (!data) return;
     try {
@@ -154,7 +161,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   };
 
   /** Loads into the emulator; on rejection nothing changes (edge case: emulator keeps its state). */
-  const start = async (bytes: Uint8Array, fileName: string, battery: Uint8Array | null): Promise<boolean> => {
+  const start = async (bytes: Uint8Array, fileName: string, battery: Uint8Array | null, source: 'stored' | 'build' = 'stored'): Promise<boolean> => {
     try {
       await emulator.loadRom(bytes, { bootMode: settings.bootMode, hardwareChecks: settings.hardwareChecks });
     } catch (error) {
@@ -163,6 +170,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       notify({ kind: 'rejected', reason: error.reason });
       return false;
     }
+    runSource = source;
     if (battery) emulator.writeBatteryRam(battery);
     const rom = await parseHeader(bytes);
     const headerInvalid = !(rom.logoValid && rom.headerChecksumValid);
@@ -260,6 +268,19 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       case 'SetBreakpoint':
       case 'ClearBreakpoint':
         return; // per slot (SetFrameRate, RequestSnapshot) or M4 (breakpoints)
+      case 'NewProjectFromExample':
+      case 'OpenProject':
+      case 'DeleteProject':
+      case 'OpenFile':
+      case 'EditFile':
+      case 'Build':
+      case 'RunBuild':
+      case 'ExportRom':
+      case 'ExportZip':
+      case 'ImportZip':
+      case 'ResolveImport':
+      case 'GoToDiagnostic':
+        return; // the project session
     }
   };
 
@@ -296,7 +317,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   audio?.setMuted(settings.muted);
   if (audio && !audio.unlocked) state = { ...state, notice: { kind: 'audio-locked' } };
 
-  const project: ProjectStateSource = { subscribe: () => () => undefined, getSnapshot: () => null };
+  const project: ProjectStateSource = { subscribe: () => () => undefined, getSnapshot: () => IDLE_PROJECT_STATE };
 
   return {
     frameState: emulator.frameState,
@@ -326,6 +347,18 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       update({ storedRomAvailable: stored !== null });
     },
     idle: () => queue,
+    runBuiltRom(bytes, fileName) {
+      queue = queue
+        .then(async () => {
+          await saveBattery();
+          await start(bytes, fileName, null, 'build');
+        })
+        .catch((error: unknown) => {
+          console.error('Could not run the build', error);
+        });
+      return queue;
+    },
+    publish,
     setGamepads(names) {
       update({ gamepads: [...names] });
     },

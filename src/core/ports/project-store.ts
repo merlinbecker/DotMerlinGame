@@ -1,3 +1,4 @@
+import type { ProjectSettings } from '../project/model.ts';
 import type { SourceFile } from './assembler.ts';
 
 export interface ProjectSummary {
@@ -11,10 +12,12 @@ export interface ProjectSummary {
 export interface Project {
   readonly id: string;
   readonly name: string;
+  readonly settings: ProjectSettings;
   readonly files: readonly SourceFile[];
 }
 
 export interface ProjectStorePort {
+  /** Most recently changed first. */
   list(): Promise<readonly ProjectSummary[]>;
   load(id: string): Promise<Project | undefined>;
   save(project: Project): Promise<void>;

@@ -1,0 +1,36 @@
+.build {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 0;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.status {
+  flex: none;
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+}
+
+.messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.message {
+  flex: none;
+  max-height: calc(2 * var(--touch-target-min));
+  overflow: hidden;
+  text-align: left;
+  font-weight: normal;
+}
+
+.severity {
+  font-weight: var(--font-weight-bold);
+}

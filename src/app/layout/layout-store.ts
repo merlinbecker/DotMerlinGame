@@ -7,7 +7,7 @@ export const LAYOUT_KEY = `${PROJECT_NAME.toLowerCase()}:layout`;
 export const DEFAULT_VIEW_ORDER: readonly string[] = ['screen', 'controller', 'rom-info', 'memory-map'];
 
 /** Order of the header arrows; views that are not registered are skipped. The first-start layout stays DEFAULT_VIEW_ORDER. */
-export const VIEW_CYCLE_ORDER: readonly string[] = [...DEFAULT_VIEW_ORDER, 'hex', 'registers', 'tiles', 'tilemaps', 'sprites'];
+export const VIEW_CYCLE_ORDER: readonly string[] = [...DEFAULT_VIEW_ORDER, 'hex', 'registers', 'tiles', 'tilemaps', 'sprites', 'editor', 'build', 'project'];
 
 function defaultLayout(slotCount: number): LayoutState {
   return {

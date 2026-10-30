@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { JsonValue, ViewAction, ViewContext, ViewDefinition } from '../../src/core/index.ts';
+import { IDLE_PROJECT_STATE, type JsonValue, type ViewAction, type ViewContext, type ViewDefinition } from '../../src/core/index.ts';
 import { staticSession } from '../support/session.ts';
 
 interface CounterState {
@@ -28,7 +28,7 @@ function fakeContext(dispatched: ViewAction[]): ViewContext {
     size: { width: 320, height: 320 },
     frameState: { subscribe: noSubscription, getSnapshot: () => null },
     events: { subscribe: noSubscription },
-    project: { subscribe: noSubscription, getSnapshot: () => null },
+    project: { subscribe: noSubscription, getSnapshot: () => IDLE_PROJECT_STATE },
     session: staticSession(),
     dispatch: (action) => dispatched.push(action),
     visible: true,

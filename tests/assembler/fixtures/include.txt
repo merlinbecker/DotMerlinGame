@@ -1,0 +1,4 @@
+error: syntax error, unexpected end of line
+    at inc/b.inc(3)
+    <- inc.asm(1)
+Assembly aborted with 1 error

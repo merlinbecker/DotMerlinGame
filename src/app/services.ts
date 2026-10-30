@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 import { createDomainEventBus } from '../core/events/domain-event-bus.ts';
 import { createFrameStateHub } from '../core/events/frame-state-hub.ts';
+import { IDLE_PROJECT_STATE } from '../core/project/model.ts';
 import type {
   DomainEventSubscriber,
   FrameStatePublisher,
@@ -38,7 +39,7 @@ export function createIdleServices(): AppServices {
   return {
     frameState: createFrameStateHub(),
     events: createDomainEventBus(),
-    project: { subscribe: noSubscription, getSnapshot: () => null },
+    project: { subscribe: noSubscription, getSnapshot: () => IDLE_PROJECT_STATE },
     session: { subscribe: noSubscription, getSnapshot: () => IDLE_SESSION },
     dispatch: () => undefined,
   };

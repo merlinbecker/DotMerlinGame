@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globalSetup: ['tests/support/inspection-fixtures.setup.ts'],
-    include: ['tests/{unit,contract,roundtrip,boot-state,tooling,emulator}/**/*.test.{ts,tsx}'],
+    include: ['tests/{unit,contract,roundtrip,boot-state,tooling,emulator,assembler}/**/*.test.{ts,tsx}'],
     typecheck: {
       enabled: true,
       include: ['tests/contract/**/*.test-d.ts'],

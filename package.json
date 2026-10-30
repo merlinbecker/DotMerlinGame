@@ -1,6 +1,6 @@
 {
   "name": "dotmerlingame",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -29,6 +29,10 @@
     "check": "npm run lint && npm run test && npm run bootrom:build && git diff --exit-code -- src/core/rom/logo-hash.generated.ts src/adapters/emulator/bootrom/generated && npm run build && npm run test:e2e && npm run licenses && npm run secrets"
   },
   "dependencies": {
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.15",
+    "fflate": "0.8.3",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

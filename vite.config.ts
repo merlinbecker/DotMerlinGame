@@ -14,6 +14,9 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(appVersion),
     __BUILD_VERSION__: JSON.stringify(buildVersion),
   },
+  worker: {
+    format: 'es',
+  },
   server: {
     host: true,
     port: 5000,

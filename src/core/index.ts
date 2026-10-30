@@ -18,7 +18,6 @@ export type {
   HeaderAction,
   IconId,
   Notice,
-  ProjectInfo,
   ProjectStateSource,
   SessionState,
   SessionStateSource,
@@ -33,9 +32,18 @@ export { RomLoadError } from './ports/emulator.ts';
 export type { AudioOutputPort, AudioSink } from './ports/audio-output.ts';
 export type { RomStorePort, StoredRom } from './ports/rom-store.ts';
 export { StorageFullError } from './ports/rom-store.ts';
-export type { AssemblerPort, BuildResult, Diagnostic, SourceFile } from './ports/assembler.ts';
+export type { AssemblerPort, BuildResult, Diagnostic, DiagnosticTool, SourceFile } from './ports/assembler.ts';
 export type { Project, ProjectStorePort, ProjectSummary } from './ports/project-store.ts';
-export type { ArchivePort } from './ports/archive.ts';
+export type { ArchivePort, ArchiveRejectReason } from './ports/archive.ts';
+export { ArchiveRejectedError } from './ports/archive.ts';
+export type { FileSaverPort } from './ports/file-saver.ts';
+export type { BuildState, CursorTarget, ExampleInfo, ProjectNotice, ProjectProblem, ProjectSettings, ProjectState, SaveState } from './project/model.ts';
+export { decodeSource, defaultSettings, encodeSource, IDLE_PROJECT_STATE, MAX_PROJECT_NAME_LENGTH, MAX_TITLE_LENGTH, projectProblem } from './project/model.ts';
+export { isSafePath } from './project/paths.ts';
+export { parseDiagnostics } from './build/diagnostics.ts';
+export type { SourceEditorProps } from './view/source-editor.ts';
+export type { Token, TokenKind } from './build/highlight.ts';
+export { tokenizeLine } from './build/highlight.ts';
 export type { LayoutState, SlotContent } from './layout/layout-state.ts';
 export type { CartridgeType, LoadValidation, Mbc, RomHeaderInfo, RomRejectReason } from './rom/header.ts';
 export { computeHeaderChecksum, logoMatches, parseHeader, validateForLoad } from './rom/header.ts';

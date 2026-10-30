@@ -14,6 +14,8 @@ Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Vorlage: [`docs/adr/0
 | ADR-0008 | [Eventmodell sowie Service Worker und Offline](../adr/0008-eventmodell-und-offline.md) | M0 | akzeptiert, Nachtrag M1b |
 | ADR-0009 | [UI-Prinzipien für E-Ink](../adr/0009-ui-prinzipien-eink.md) | M0 | akzeptiert |
 | ADR-0010 | [Kein Backend, statische Auslieferung](../adr/0010-kein-backend-statisches-hosting.md) | M0 | akzeptiert |
+| [ADR-0011](../adr/0011-rgbds-wasm-und-bison.md) | RGBDS als selbst gebautes WASM und erzeugter Bison-Parser | M2 | M2 |
+| [ADR-0012](../adr/0012-editor-und-zip.md) | Editor CodeMirror 6 und ZIP mit fflate | M2 | M2 |
 
 ## Offene Punkte
 

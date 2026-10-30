@@ -1,0 +1,2 @@
+warning: Expression must be 8-bit; use `LOW()` to force 8-bit [-Wtruncation]
+    at warn.asm(2)

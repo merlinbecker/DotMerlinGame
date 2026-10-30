@@ -1,0 +1,1 @@
+warning: MBC "MBC1" has no RAM, but RAM size was set to 3 [-Wmbc]

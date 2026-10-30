@@ -2,6 +2,7 @@ import type { DomainEventSubscriber, HaltReason, RunState } from '../events/doma
 import type { FrameStateSource } from '../events/frame-state.ts';
 import type { JsonValue, Unsubscribe } from '../types.ts';
 import type { BootMode } from '../ports/emulator.ts';
+import type { ProjectState } from '../project/model.ts';
 import type { RomHeaderInfo, RomRejectReason } from '../rom/header.ts';
 import type { ViewAction } from './view-actions.ts';
 
@@ -13,15 +14,10 @@ export interface ViewSize {
   readonly height: number;
 }
 
-export interface ProjectInfo {
-  readonly id: string;
-  readonly name: string;
-}
-
-/** Read-only access to the open project; `null` if none is open. */
+/** Read-only access to the open project and its build. */
 export interface ProjectStateSource {
   subscribe(onChange: () => void): Unsubscribe;
-  getSnapshot(): ProjectInfo | null;
+  getSnapshot(): ProjectState;
 }
 
 /** A hint the session shows until the next ROM start or until it is resolved. */

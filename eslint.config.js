@@ -2,6 +2,9 @@ import { defineConfig } from 'eslint/config';
 import importX from 'eslint-plugin-import-x';
 import tseslint from 'typescript-eslint';
 
+const SAMEBOY_WASM = { group: ['**/sameboy/generated/**'], message: 'Only sameboy-emulator.ts may load the WASM module.' };
+const RGBDS_WASM = { group: ['**/rgbds/generated/**'], message: 'Only rgbds.worker.ts may load the RGBDS WASM modules.' };
+
 export default defineConfig(
   {
     ignores: ['dist/', 'coverage/', 'test-results/', 'playwright-report/', 'node_modules/', '.specify/', '.claude/', '.local/', '.tools/', '.build/', '**/generated/**', '**/*.generated.ts'],
@@ -75,15 +78,14 @@ export default defineConfig(
       ],
     },
   },
-  // The WASM build output is private to the SameBoy adapter (contracts/wasm-abi.md).
+  // The WASM build output is private: SameBoy to its adapter (contracts/wasm-abi.md), RGBDS to its worker (ADR-0011).
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/adapters/emulator/sameboy/sameboy-emulator.ts', 'src/core/**', 'src/views/**'],
+    ignores: ['src/adapters/emulator/sameboy/sameboy-emulator.ts', 'src/adapters/assembler/rgbds/rgbds.worker.ts', 'src/core/**', 'src/views/**'],
     rules: {
-      'no-restricted-imports': [
-        'error',
-        { patterns: [{ group: ['**/sameboy/generated/**'], message: 'Only sameboy-emulator.ts may load the WASM module.' }] },
-      ],
+      'no-restricted-imports': ['error', { patterns: [SAMEBOY_WASM, RGBDS_WASM] }],
     },
   },
+  { files: ['src/adapters/emulator/sameboy/sameboy-emulator.ts'], rules: { 'no-restricted-imports': ['error', { patterns: [RGBDS_WASM] }] } },
+  { files: ['src/adapters/assembler/rgbds/rgbds.worker.ts'], rules: { 'no-restricted-imports': ['error', { patterns: [SAMEBOY_WASM] }] } },
 );

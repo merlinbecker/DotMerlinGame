@@ -50,7 +50,7 @@ describe('domain events', () => {
     expectTypeOf<EventOf<'RomRejected'>['reason']>().toEqualTypeOf<'invalid' | 'cgb-only' | 'unsupported-cartridge'>();
     expectTypeOf<EventOf<'EmulatorHalted'>['reason']>().toEqualTypeOf<'header-logo' | 'header-checksum'>();
     expectTypeOf<EventOf<'RunStateChanged'>['runState']>().toEqualTypeOf<'empty' | 'running' | 'paused' | 'halted'>();
-    expectTypeOf<EventOf<'StorageFailed'>['operation']>().toEqualTypeOf<'save-rom' | 'save-battery'>();
+    expectTypeOf<EventOf<'StorageFailed'>['operation']>().toEqualTypeOf<'save-rom' | 'save-battery' | 'save-project'>();
     // @ts-expect-error a halt always names its reason
     bus.publish({ type: 'EmulatorHalted' });
   });

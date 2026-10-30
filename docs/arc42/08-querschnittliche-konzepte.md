@@ -68,3 +68,17 @@ Werkzeuge sind festgelegt: emsdk-Image per Digest, RGBDS per Version und SHA-256
 - **Anforderung statt Warten**: Bei Pause, Halt, Laden, Reset, beim Einhängen und mit „Refresh“ fordert ein
   Speicher-View genau einen Snapshot an (`RequestSnapshot`). Der Hub bündelt Anforderungen eines Tasks und
   kennzeichnet die Lieferung; andere Slots ignorieren sie, ihre Drosselung zählt nur echte Frames.
+
+## Build-Pipeline und ROM als Ergebnis (M2)
+
+- Jeder Build läuft im Worker mit frischen WASM-Instanzen. Nach 10 s beendet die App den Worker, ein vorbereiteter zweiter
+  übernimmt (research.md R4).
+- Das ROM liegt nur im Speicher. `RunBuild` schreibt nicht in den ROM-Speicher, und ein Build-Lauf ändert den Spielstand
+  des gespeicherten ROMs nicht (Constitution I).
+- **Offline**: Worker und WASM werden beim App-Start geladen. Der Build geht danach ohne Netz, ein Kaltstart ohne Netz erst
+  mit dem Service Worker in M7.
+- **Tastatur**: Die Spieltasten gelten nicht, solange ein Textfeld den Fokus hat. Ein gehaltener Knopf wird trotzdem
+  losgelassen.
+- **Autosave**: Text liegt sofort im Projektzustand und überlebt einen Wechsel des View-Inhalts. Gespeichert wird nach 1 s
+  und sofort, wenn die Seite verborgen wird.
+

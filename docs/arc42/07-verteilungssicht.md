@@ -86,6 +86,19 @@ SHA-256-Werte zu den Dateien passen.
 von `scripts/fetch-rgbds.ts` nach `.tools/`). Ausgabe ist `src/adapters/emulator/bootrom/generated/`.
 `npm run check` baut sie neu und prüft per `git diff` ([ADR-0004](../adr/0004-boot-rom-strategie.md)).
 
+## 7.3a Assembler: Herkunft und Bauweg
+
+RGBDS ist wie der Emulator-Core ein Binärartefakt im Repo (ADR-0011, `third_party/rgbds.md`).
+
+| Punkt | Wert |
+|---|---|
+| Quelle | `gbdev/rgbds` v1.0.4, Commit `f7b8207`, ohne Patch |
+| Werkzeuge | `rgbasm`, `rgblink`, `rgbfix`; kein `rgbgfx` |
+| Bauumgebung | dasselbe emsdk-Image wie beim Core, Bison `2:3.8.2+dfsg-1build2` |
+| Ausgabe | `src/adapters/assembler/rgbds/generated/`, mit `BUILD-INFO.json` |
+| Skript | `scripts/build-assembler.sh` (`npm run assembler:build`) |
+| Prüfung | `npm run assembler:verify`, CI-Job `assembler-reproducible` |
+
 ## 7.4 Auslieferung und Gerätetests
 
 | Weg | Quelle | Einstellungen | Zweck |

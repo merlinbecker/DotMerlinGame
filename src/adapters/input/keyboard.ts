@@ -26,6 +26,11 @@ function isControl(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'A'].includes(target.tagName));
 }
 
+/** Typing belongs to the text field, every key of it (M2 editor, jump input of the Hex view). */
+function isTextEntry(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA'].includes(target.tagName));
+}
+
 /** Plays with the keyboard whether or not the controller view is shown. Returns detach. */
 export function attachKeyboard(target: KeyboardTarget, press: (button: Button, pressed: boolean) => void): () => void {
   const held = new Set<Button>();
@@ -33,6 +38,8 @@ export function attachKeyboard(target: KeyboardTarget, press: (button: Button, p
     const button = KEY_MAP[event.code];
     if (!button) return;
     if (UI_KEYS.has(event.code) && isControl(event.target)) return;
+    // A key held before the focus moved to a text field must still be released.
+    if (isTextEntry(event.target) && !(event.type === 'keyup' && held.has(button))) return;
     event.preventDefault();
     const pressed = event.type === 'keydown';
     if (pressed === held.has(button)) return; // key repeat, or release of a key pressed elsewhere

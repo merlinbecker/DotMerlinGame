@@ -21,4 +21,17 @@ export type ViewAction =
   /** Handled per slot by the app, never by the emulator (FR-022). */
   | { readonly type: 'SetFrameRate'; readonly rate: PublishRate }
   /** One current snapshot for this slot only; handled by the app, never by the emulator (M1b). */
-  | { readonly type: 'RequestSnapshot' };
+  | { readonly type: 'RequestSnapshot' }
+  // Project actions of M2, handled by the project session.
+  | { readonly type: 'NewProjectFromExample'; readonly exampleId: string }
+  | { readonly type: 'OpenProject'; readonly projectId: string }
+  | { readonly type: 'DeleteProject'; readonly projectId: string }
+  | { readonly type: 'OpenFile'; readonly path: string }
+  | { readonly type: 'EditFile'; readonly path: string; readonly text: string }
+  | { readonly type: 'Build' }
+  | { readonly type: 'RunBuild' }
+  | { readonly type: 'ExportRom' }
+  | { readonly type: 'ExportZip' }
+  | { readonly type: 'ImportZip'; readonly bytes: Uint8Array }
+  | { readonly type: 'ResolveImport'; readonly choice: 'replace' | 'copy' | 'cancel' }
+  | { readonly type: 'GoToDiagnostic'; readonly file: string; readonly line: number };

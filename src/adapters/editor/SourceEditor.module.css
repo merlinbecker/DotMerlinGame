@@ -1,0 +1,56 @@
+/* Editor text: no scrolling by hand, no color, no blinking (FR-009). Three classes beat CodeMirror's own theme. */
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-mono-min);
+}
+
+.editor :global(.cm-editor) {
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.editor :global(.cm-editor) :global(.cm-scroller) {
+  overflow: hidden;
+  font-family: var(--font-family-mono);
+}
+
+.editor :global(.cm-editor) :global(.cm-content) {
+  caret-color: transparent;
+}
+
+.editor :global(.cm-editor) :global(.cm-cursor) {
+  border-left: var(--mark-border-width) solid var(--color-fg);
+}
+
+.editor :global(.cm-editor) :global(.cm-selectionBackground) {
+  background: var(--color-selection);
+}
+
+.editor :global(.cm-editor.cm-focused) :global(.cm-selectionLayer) :global(.cm-selectionBackground) {
+  background: var(--color-selection);
+}
+
+.editor :global(.cm-editor.cm-focused) {
+  outline: var(--mark-border-width) solid var(--color-border);
+  outline-offset: calc(-1 * var(--mark-border-width));
+}
+
+.instruction {
+  font-weight: var(--font-weight-bold);
+}
+
+.label {
+  text-decoration: underline;
+}
+
+.comment {
+  font-style: italic;
+}
+
+.number {
+  text-decoration: underline dotted;
+}

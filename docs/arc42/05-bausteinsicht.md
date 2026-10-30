@@ -198,3 +198,17 @@ flowchart LR
 Abgesichert durch `tests/emulator/inspection*.test.ts` (Inhalte und gleiche Bild-/Tonausgabe mit und ohne
 Inspektion), `tests/unit/inspect-*` und `view-*` mit echten Snapshots der Test-ROMs `inspect-*` und durch
 `tests/e2e/m1b-*.spec.ts`.
+
+## Bausteine von M2
+
+| Baustein | Ort | Aufgabe |
+|---|---|---|
+| Build-Fachlogik | `src/core/build/` | Meldungen von RGBDS lesen, Quelltext für die Hervorhebung zerlegen |
+| Projektmodell | `src/core/project/` | Projekt, Einstellungen, Pfadregeln, `ProjectState` |
+| Assembler-Adapter | `src/adapters/assembler/rgbds/` | Worker, Zeitgrenze, Pipeline `rgbasm` → `rgblink` → `rgbfix` |
+| Editor-Adapter | `src/adapters/editor/` | CodeMirror 6, Hervorhebung, Blättern |
+| Archiv-Adapter | `src/adapters/archive/` | ZIP mit Grenzen und Bytezähler |
+| Projektspeicher | `src/adapters/storage/` | IndexedDB, gemeinsamer Helfer `idb.ts` |
+| Project Session | `src/app/session/project-session.ts` | offenes Projekt, Autosave, Build, Import und Export |
+| Views | `src/views/editor`, `build`, `project` | nur über den View-Vertrag |
+

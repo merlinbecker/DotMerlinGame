@@ -1,0 +1,4 @@
+error: syntax error, unexpected end of line
+    at mac.asm::m(2)
+    <- mac.asm(6)
+Assembly aborted with 1 error

@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import type { ViewAction, ViewContext } from '../../src/core/index.ts';
+import { IDLE_PROJECT_STATE, type ViewAction, type ViewContext } from '../../src/core/index.ts';
 import { ControllerView } from '../../src/views/controller/ControllerView.tsx';
 import { staticSession } from '../support/session.ts';
 
@@ -17,7 +17,7 @@ function setup() {
     size: { width: 320, height: 320 },
     frameState: { subscribe: noSubscription, getSnapshot: () => null },
     events: { subscribe: noSubscription },
-    project: { subscribe: noSubscription, getSnapshot: () => null },
+    project: { subscribe: noSubscription, getSnapshot: () => IDLE_PROJECT_STATE },
     session: staticSession(),
     dispatch: (action) => actions.push(action),
     visible: true,

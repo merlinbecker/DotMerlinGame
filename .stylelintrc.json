@@ -1,17 +1,41 @@
 {
-  "extends": ["stylelint-config-standard"],
+  "extends": [
+    "stylelint-config-standard"
+  ],
   "rules": {
     "color-no-hex": true,
     "color-named": "never",
-    "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch", "color"],
-    "unit-disallowed-list": ["px", "ms", "s"],
-    "property-disallowed-list": ["/^transition/", "/^animation/"],
-    "selector-pseudo-class-disallowed-list": ["hover"],
+    "function-disallowed-list": [
+      "rgb",
+      "rgba",
+      "hsl",
+      "hsla",
+      "hwb",
+      "lab",
+      "lch",
+      "oklab",
+      "oklch",
+      "color"
+    ],
+    "unit-disallowed-list": [
+      "px",
+      "ms",
+      "s"
+    ],
+    "property-disallowed-list": [
+      "/^transition/",
+      "/^animation/"
+    ],
+    "selector-pseudo-class-disallowed-list": [
+      "hover"
+    ],
     "selector-class-pattern": "^[a-z][a-zA-Z0-9]*$"
   },
   "overrides": [
     {
-      "files": ["src/app/theme/tokens.css"],
+      "files": [
+        "src/app/theme/tokens.css"
+      ],
       "rules": {
         "color-no-hex": null,
         "color-named": null,
@@ -20,9 +44,27 @@
       }
     },
     {
-      "files": ["src/app/theme/base.css"],
+      "files": [
+        "src/app/theme/base.css"
+      ],
       "rules": {
         "property-disallowed-list": null
+      }
+    },
+    {
+      "files": [
+        "src/adapters/editor/*.css"
+      ],
+      "rules": {
+        "selector-pseudo-class-no-unknown": [
+          true,
+          {
+            "ignorePseudoClasses": [
+              "global"
+            ]
+          }
+        ],
+        "selector-class-pattern": null
       }
     }
   ]

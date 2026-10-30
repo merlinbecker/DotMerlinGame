@@ -21,6 +21,26 @@ describe('keyboard (FR-006)', () => {
     expect(KEY_MAP).toEqual({ KeyW: 'Up', KeyA: 'Left', KeyS: 'Down', KeyD: 'Right', KeyJ: 'A', KeyK: 'B', Enter: 'Start', Space: 'Select' });
   });
 
+  it('leaves every key to a text field, so nothing is lost while typing', () => {
+    const { presses, target } = keyTarget();
+    const input = document.createElement('input');
+    target.addEventListener('keydown', () => undefined);
+    const event = new KeyboardEvent('keydown', { code: 'KeyS', cancelable: true, bubbles: true });
+    Object.defineProperty(event, 'target', { value: input });
+    target.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+    expect(presses).toEqual([]);
+  });
+
+  it('still releases a key that was held when the focus moved to a text field', () => {
+    const { presses, target, key } = keyTarget();
+    key('keydown', 'KeyS');
+    const event = new KeyboardEvent('keyup', { code: 'KeyS', cancelable: true });
+    Object.defineProperty(event, 'target', { value: document.createElement('textarea') });
+    target.dispatchEvent(event);
+    expect(presses).toEqual([['Down', true], ['Down', false]]);
+  });
+
   it('presses and releases, ignores key repeat, prevents default (no scrolling with Space)', () => {
     const { presses, key } = keyTarget();
     const down = key('keydown', 'Space');

@@ -96,3 +96,27 @@ export async function motionProblems(page: Page): Promise<string[]> {
   });
 }
 
+
+/** Two slots with the views of a build: the first is the editor, the second the build result. */
+export async function openProjectFromExample(page: Page) {
+  await openApp(page);
+  const slots = page.locator('[data-testid="slot"]');
+  const project = slots.nth(2);
+  await switchTo(project, 'project');
+  await project.getByRole('button', { name: 'New: hello' }).click();
+  await expect(project.getByTestId('project-row')).toHaveCount(1);
+  const editor = slots.nth(3);
+  const build = slots.nth(4);
+  await switchTo(editor, 'editor');
+  await switchTo(build, 'build');
+  return { slots, project, editor, build, screen: page.locator('[data-view="screen"]') };
+}
+
+/** Replaces the whole text of the editor by typing, as a user would. */
+export async function replaceSource(editor: Locator, text: string) {
+  const content = editor.locator('.cm-content');
+  await editor.locator('.cm-line').first().click(); // the content is taller than the page: its middle is out of sight
+  await content.press('ControlOrMeta+a');
+  await content.press('Delete');
+  await content.pressSequentially(text);
+}

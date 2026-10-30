@@ -1,6 +1,7 @@
 import { expect } from 'vitest';
 import { createDomainEventBus } from '../../src/core/events/domain-event-bus.ts';
 import type { DomainEventBus, FrameSnapshot, SessionState, ViewAction, ViewContext } from '../../src/core/index.ts';
+import { IDLE_PROJECT_STATE } from '../../src/core/index.ts';
 import { IDLE_SESSION } from '../../src/app/services.ts';
 
 /**
@@ -25,7 +26,7 @@ export function fakeViewContext(options: { visible?: boolean; size?: number; ses
       getSnapshot: () => snapshot,
     },
     events,
-    project: { subscribe: () => () => undefined, getSnapshot: () => null },
+    project: { subscribe: () => () => undefined, getSnapshot: () => IDLE_PROJECT_STATE },
     session: {
       subscribe(onChange) {
         sessionListeners.add(onChange);

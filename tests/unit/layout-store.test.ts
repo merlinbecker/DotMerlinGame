@@ -21,8 +21,8 @@ describe('layout store', () => {
     expect(layout.version).toBe(1);
   });
 
-  it('cycles through the M1 views, then the memory views of M1b', () => {
-    expect(VIEW_CYCLE_ORDER).toEqual(['screen', 'controller', 'rom-info', 'memory-map', 'hex', 'registers', 'tiles', 'tilemaps', 'sprites']);
+  it('cycles through the M1 views, the memory views of M1b, then the M2 views', () => {
+    expect(VIEW_CYCLE_ORDER).toEqual(['screen', 'controller', 'rom-info', 'memory-map', 'hex', 'registers', 'tiles', 'tilemaps', 'sprites', 'editor', 'build', 'project']);
   });
 
   it('round-trips a saved layout', () => {

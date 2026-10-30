@@ -203,6 +203,27 @@ describe('emulator session (US1)', () => {
     expect(session.session.getSnapshot().runState).toBe('empty');
   });
 
+  it('runs a built ROM without storing it and keeps the save game of the stored ROM (M2 R8)', async () => {
+    vi.useFakeTimers();
+    const stored = { bytes: testRom('marker'), fileName: 'marker.gb', loadedAt: '', battery: new Uint8Array([7]) };
+    const romStore = memoryRomStore(stored);
+    const emulator = fakeEmulator({ battery: new Uint8Array([9]) });
+    const session = createEmulatorSession({ emulator, romStore });
+    await session.runBuiltRom(testRom('marker'), 'built.gb');
+    expect(session.session.getSnapshot()).toMatchObject({ runState: 'running', fileName: 'built.gb' });
+    expect(romStore.replace).not.toHaveBeenCalled();
+
+    emulator.markBatteryDirty();
+    await vi.advanceTimersByTimeAsync(BATTERY_SAVE_INTERVAL_MS);
+    expect(romStore.saveBattery).not.toHaveBeenCalled();
+
+    session.dispatch({ type: 'StartStoredRom' });
+    await session.idle();
+    expect(emulator.writeBatteryRam).toHaveBeenCalledWith(new Uint8Array([7]));
+    session.dispose();
+    vi.useRealTimers();
+  });
+
   it('turns a hardware-near halt into run state halted with a notice (US2)', async () => {
     const emulator = fakeEmulator();
     const session = createEmulatorSession({ emulator, romStore: memoryRomStore() });

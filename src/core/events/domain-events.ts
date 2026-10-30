@@ -12,7 +12,7 @@ export type DomainEvent =
   | { readonly type: 'RomRejected'; readonly reason: RomRejectReason }
   | { readonly type: 'EmulatorHalted'; readonly reason: HaltReason }
   | { readonly type: 'RunStateChanged'; readonly runState: RunState }
-  | { readonly type: 'StorageFailed'; readonly operation: 'save-rom' | 'save-battery' }
+  | { readonly type: 'StorageFailed'; readonly operation: 'save-rom' | 'save-battery' | 'save-project' }
   | {
       readonly type: 'BuildFinished';
       readonly success: boolean;
