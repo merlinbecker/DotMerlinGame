@@ -111,9 +111,8 @@ kein blinkender Cursor, Blättern statt Dauer-Scrollen, Vollbild über den Slot-
    Kommentare und Zahlen ohne Farbe unterscheidbar (z. B. fett, kursiv, unterstrichen).
 2. **Given** eine lange Datei, **When** weitergeblättert wird, **Then** springt die Ansicht
    seitenweise ohne Animation.
-3. **Given** das Editor-Quadrat, **When** der Slot-Zoom des Rasters (Doppeltipp oder Zoom-Schalter, M1)
-   genutzt wird, **Then** füllt der Editor die Rasterfläche; Doppeltipps im Textbereich dienen weiter
-   der Textauswahl, der Zoom erfolgt dort über den Schalter in der Kopfleiste.
+3. **Given** das Editor-Quadrat, **When** der Zoom-Schalter in der Kopfleiste (M1) genutzt wird, **Then**
+   füllt der Editor die Rasterfläche; Doppeltipps im Textbereich dienen der Textauswahl.
 
 ---
 
