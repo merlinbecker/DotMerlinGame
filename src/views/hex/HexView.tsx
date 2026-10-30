@@ -15,6 +15,8 @@ import styles from './HexView.module.css';
 
 /** Rows per page until the slot has been measured (and in tests without layout). */
 const FALLBACK_ROWS = 8;
+/** Below this slot height (CSS px) the bytes need the room of the rate bar; zooming the slot brings it back. */
+const COMPACT_HEIGHT = 280;
 
 const hex2 = (n: number) => n.toString(16).toUpperCase().padStart(2, '0');
 const hex4 = (n: number) => `$${n.toString(16).toUpperCase().padStart(4, '0')}`;
@@ -42,6 +44,9 @@ function mappedBank(area: HexArea, inspection: InspectionSnapshot): number | nul
 /** Bytes of the running game, read-only (US1). Paging instead of scrolling; the I/O area lists one register per row. */
 export function HexView({ context, state, setState }: ViewInstanceProps<HexViewState>) {
   const { snapshot, inspection, session } = useInspection(context, state.rate);
+  const root = useRef<HTMLDivElement>(null);
+  const rootFit = useFit(root);
+  const compact = rootFit.height > 0 && rootFit.height < COMPACT_HEIGHT;
   const rowsBox = useRef<HTMLDivElement>(null);
   const charProbe = useRef<HTMLSpanElement>(null);
   const fit = useFit(rowsBox);
@@ -83,10 +88,33 @@ export function HexView({ context, state, setState }: ViewInstanceProps<HexViewS
     update({ topAddress: rowWidth === 1 ? target : alignTop(target, base, rowWidth), selected: target });
   };
 
-  const header = (
+  const mapped = inspection !== null && banks > 0 && mappedBank(area, inspection) === bank;
+  const locked = area === 'cart-ram' && inspection?.cartRam?.enabled === false;
+
+  const bankBar = (banks > 1 || mapped || locked) && (
     <div className={common.bar}>
+      {banks > 1 && (
+        <>
+          <button type="button" className={common.button} aria-label="Previous bank" disabled={bank === 0} onClick={() => { update(area === 'rom' ? { romBank: bank - 1 } : { ramBank: bank - 1 }); }}>
+            −
+          </button>
+          <span data-testid="bank">
+            Bank {bank} / {banks}
+          </span>
+          <button type="button" className={common.button} aria-label="Next bank" disabled={bank >= banks - 1} onClick={() => { update(area === 'rom' ? { romBank: bank + 1 } : { ramBank: bank + 1 }); }}>
+            +
+          </button>
+        </>
+      )}
+      {mapped && <span className={styles.tag}>mapped</span>}
+      {locked && <span className={styles.tag}>locked</span>}
+    </div>
+  );
+
+  return (
+    <div ref={root} className={styles.hex} data-frame={snapshot?.frame ?? 0} data-updates={updates.current} data-row-width={rowWidth}>
+      <form className={styles.controls} onSubmit={go}>
       <label className={styles.field}>
-        <span>Area</span>
         <select
           aria-label="Area"
           className={common.button}
@@ -104,28 +132,6 @@ export function HexView({ context, state, setState }: ViewInstanceProps<HexViewS
           ))}
         </select>
       </label>
-      {banks > 1 && (
-        <>
-          <button type="button" className={common.button} disabled={bank === 0} onClick={() => { update(area === 'rom' ? { romBank: bank - 1 } : { ramBank: bank - 1 }); }}>
-            Previous bank
-          </button>
-          <span data-testid="bank">
-            Bank {bank} / {banks}
-          </span>
-          <button type="button" className={common.button} disabled={bank >= banks - 1} onClick={() => { update(area === 'rom' ? { romBank: bank + 1 } : { ramBank: bank + 1 }); }}>
-            Next bank
-          </button>
-        </>
-      )}
-      {inspection && banks > 0 && mappedBank(area, inspection) === bank && <span className={styles.tag}>mapped</span>}
-      {area === 'cart-ram' && inspection?.cartRam?.enabled === false && <span className={styles.tag}>locked</span>}
-    </div>
-  );
-
-  return (
-    <div className={styles.hex} data-frame={snapshot?.frame ?? 0} data-updates={updates.current} data-row-width={rowWidth}>
-      {header}
-      <form className={common.bar} onSubmit={go}>
         <input
           aria-label="Go to address"
           className={`${common.button} ${common.mono} ${styles.jump}`}
@@ -141,6 +147,7 @@ export function HexView({ context, state, setState }: ViewInstanceProps<HexViewS
           Go
         </button>
       </form>
+      {bankBar}
       <div ref={rowsBox} className={styles.rows}>
         <span ref={charProbe} className={`${common.mono} ${styles.probe}`} aria-hidden="true">
           0000000000
@@ -191,8 +198,8 @@ export function HexView({ context, state, setState }: ViewInstanceProps<HexViewS
           }}
         />
       )}
-      {AREA_NOTES[area] && <p className={common.note}>{AREA_NOTES[area]}</p>}
-      <RateBar rate={state.rate} onChange={(rate) => { update({ rate }); }} />
+      {!compact && AREA_NOTES[area] && <p className={common.note}>{AREA_NOTES[area]}</p>}
+      {!compact && <RateBar rate={state.rate} onChange={(rate) => { update({ rate }); }} />}
     </div>
   );
 }

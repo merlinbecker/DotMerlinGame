@@ -8,14 +8,28 @@
   overflow: hidden;
 }
 
-.field {
+/* Area, address and Go stay on one line, so a small slot keeps its height for the bytes. */
+.controls {
   display: flex;
+  flex: none;
   gap: var(--space-1);
   align-items: center;
 }
 
+.field {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.field select {
+  width: 100%;
+  min-width: 0;
+}
+
 .jump {
-  width: calc(6 * var(--font-size-mono-min));
+  width: calc(4 * var(--font-size-mono-min));
+  min-width: 0;
 }
 
 .tag {

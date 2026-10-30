@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { canvasColors, frameOf, loadRom, openApp, romFile } from './support.ts';
+import { canvasColors, frameOf, loadRom, openApp, romFile, romInfoPage } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -48,6 +48,40 @@ test('starts the stored ROM after a reload without a file picker', async ({ page
   await expect(page.getByTestId('run-state')).toHaveText('empty');
   await page.getByRole('button', { name: 'Start stored ROM' }).click();
   await expect.poll(() => frameOf(page)).toBeGreaterThan(5);
+});
+
+test('starts the stored ROM after the browser closed the storage connection in the background', async ({ page }) => {
+  await page.addInitScript(() => {
+    const open = indexedDB.open.bind(indexedDB);
+    const connections: IDBDatabase[] = [];
+    Object.assign(window, { closeStorage: () => { for (const db of connections) db.close(); } });
+    indexedDB.open = (...args) => {
+      const req = open(...args);
+      req.addEventListener('success', () => connections.push(req.result));
+      return req;
+    };
+  });
+  await openApp(page);
+  await loadRom(page, 'pattern');
+  await expect.poll(() => frameOf(page)).toBeGreaterThan(5);
+  await page.reload();
+  await expect(page.getByTestId('run-state')).toHaveText('empty');
+  await page.evaluate(() => { (window as unknown as { closeStorage(): void }).closeStorage(); });
+  await page.getByRole('button', { name: 'Start stored ROM' }).click();
+  await expect(page.getByTestId('run-state')).toHaveText('running');
+});
+
+test('runs a good ROM loaded after a halted one', async ({ page }) => {
+  await openApp(page);
+  await romInfoPage(page, 'Start');
+  await page.getByRole('button', { name: 'Hardware-near checks' }).click();
+  await romInfoPage(page, 'ROM');
+  await loadRom(page, 'bad-logo');
+  await expect(page.getByTestId('run-state')).toHaveText('halted', { timeout: 10_000 });
+  await page.getByTestId('rom-file').setInputFiles(romFile('pattern'));
+  await page.getByRole('button', { name: 'Replace' }).click();
+  await expect(page.getByTestId('run-state')).toHaveText('running');
+  await expect(page.getByRole('status')).toHaveCount(0);
 });
 
 test('asks before replacing the stored ROM', async ({ page }) => {

@@ -44,19 +44,35 @@ export function createIndexedDbRomStore(databaseName = ROM_DB_NAME): RomStorePor
         req.result.createObjectStore(STORE);
       };
       req.onsuccess = () => {
+        // The browser may close the connection while the page is in the background.
+        req.result.onclose = () => {
+          database = null;
+        };
         resolve(req.result);
       };
       req.onerror = () => {
+        database = null;
         reject(req.error ?? new Error('Cannot open IndexedDB'));
       };
     });
     return database;
   };
 
-  const write = async (change: (store: IDBObjectStore) => void) => {
+  /** A connection can be closing without a close event; then one new connection is opened. */
+  const transaction = async (mode: IDBTransactionMode) => {
     const db = await open();
     try {
-      const tx = db.transaction(STORE, 'readwrite');
+      return db.transaction(STORE, mode);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'InvalidStateError')) throw error;
+      database = null;
+      return (await open()).transaction(STORE, mode);
+    }
+  };
+
+  const write = async (change: (store: IDBObjectStore) => void) => {
+    try {
+      const tx = await transaction('readwrite');
       change(tx.objectStore(STORE));
       await done(tx);
     } catch (error) {
@@ -67,8 +83,8 @@ export function createIndexedDbRomStore(databaseName = ROM_DB_NAME): RomStorePor
 
   return {
     async load() {
-      const db = await open();
-      const value: unknown = await request(db.transaction(STORE).objectStore(STORE).get(KEY));
+      const tx = await transaction('readonly');
+      const value: unknown = await request(tx.objectStore(STORE).get(KEY));
       return (value as StoredRom | undefined) ?? null;
     },
     async replace(rom) {

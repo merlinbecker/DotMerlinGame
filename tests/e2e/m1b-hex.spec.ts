@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { loadRom, openApp, switchTo } from './support.ts';
+import { loadRom, openApp, romFile, switchTo } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -64,4 +64,26 @@ test('fits 8 bytes per row in a narrow portrait slot and 16 in a large maximized
   // Approximate Boox Go Color 7 in landscape (also replaced by measured values in T074).
   await page.setViewportSize({ width: 840, height: 632 });
   await expect.poll(() => rowWidth(slot)).toBe(16);
+});
+
+test('keeps bytes visible in a small slot, controls on one line', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto('/');
+  const slots = page.locator('[data-testid="slot"]:not([hidden])');
+  await switchTo(slots.nth(1), 'rom-info');
+  await page.getByTestId('rom-file').setInputFiles(romFile('inspect-mem'));
+  const slot = slots.nth(0);
+  await switchTo(slot, 'hex');
+  await slot.getByLabel('Area').selectOption('rom');
+
+  const boxes = await Promise.all([slot.getByLabel('Area'), slot.getByLabel('Go to address'), slot.getByRole('button', { name: 'Go' })].map((c) => c.boundingBox()));
+  expect(new Set(boxes.map((box) => box?.y)).size).toBe(1);
+
+  const visibleRows = await slot.evaluate((el) => {
+    const bottom = el.getBoundingClientRect().bottom;
+    const rowBoxes = [...el.querySelectorAll('[data-testid^="row-"]')].map((row) => row.getBoundingClientRect());
+    return rowBoxes.filter((box) => box.height > 0 && box.bottom <= bottom).length;
+  });
+  expect(visibleRows).toBeGreaterThanOrEqual(2);
+  await expect(slot.getByRole('button', { name: 'Next page' })).toBeInViewport();
 });

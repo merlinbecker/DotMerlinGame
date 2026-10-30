@@ -168,7 +168,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     const headerInvalid = !(rom.logoValid && rom.headerChecksumValid);
     update({ rom, fileName, notice: headerInvalid && !settings.hardwareChecks ? { kind: 'header-invalid' } : null });
     publish({ type: 'RomLoaded', romId: await sha256Hex(bytes), title: rom.title || fileName });
-    if (state.runState !== 'halted') run();
+    run(); // also after a halted ROM: loading resets the emulator's halt
     return true;
   };
 
