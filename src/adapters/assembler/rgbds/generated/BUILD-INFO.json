@@ -1,0 +1,18 @@
+{
+  "component": "RGBDS",
+  "rgbdsRepo": "https://github.com/gbdev/rgbds",
+  "rgbdsVersion": "v1.0.4",
+  "rgbdsCommit": "f7b8207322aa9e3714ef0d98d01989f320103026",
+  "bison": "2:3.8.2+dfsg-1build2",
+  "emsdkImage": "emscripten/emsdk@sha256:cdefec943f04fd4b2b2fe23b0a1a346be9fc560ef5784a83faa27dd351381372",
+  "cxxflags": "-O2 -std=c++20 -I include -I src/asm -I src/link -fno-exceptions -fno-rtti -DNDEBUG -DBUILD_VERSION_STRING='\"v1.0.4\"'",
+  "ldflags": "-s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=web,worker,node -s FORCE_FILESYSTEM=1 -s INVOKE_RUN=0 -s EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=1048576 -s EXPORTED_RUNTIME_METHODS=FS,callMain",
+  "sha256": {
+    "rgbasm.mjs": "40e2e4bc5d9f739a4a8a62954c217c5d1ffa5c5aeb8a3aeacab76e4c2c6d7282",
+    "rgbasm.wasm": "c41ea62d95db2844a83162aa31f3ab1b955a75e9c7c12483b653a61d66a84c88",
+    "rgblink.mjs": "2243372322bc4d1313115cb079bb19beeb8ac0ffea00160035c6d70d2878f7be",
+    "rgblink.wasm": "284343af3f8649880d681acd1394b1aef928072c948760a02ac19e9b40f191bb",
+    "rgbfix.mjs": "4994072f38d0885a1b4573a4d5e6c068723c7af54c3904f0361f990312c80be3",
+    "rgbfix.wasm": "574dcdc89158c55380514bbce9cadce422ca3e57594da3f8ad231cc504c8c359"
+  }
+}

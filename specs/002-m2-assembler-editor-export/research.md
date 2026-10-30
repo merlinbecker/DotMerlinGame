@@ -40,18 +40,18 @@ Flags des Spikes: `-O2 -std=c++20 -fno-exceptions -fno-rtti`, Linker `MODULARIZE
   Dieses Projekt ist keiner.
 - Bison selbst ist Build-Werkzeug und wird nicht ausgeliefert.
 
-**Offen**: Der C++-Build linkt zusätzlich libc++, libc++abi und weitere Emscripten-Laufzeiten. Welche genau und
-unter welcher Lizenz, wird beim Bau aus der Linkerausgabe und den Lizenzdateien im Image belegt und in
-`third_party/emscripten.md` ergänzt. Ohne diesen Beleg wird nichts ausgeliefert.
+**Belegt (T003)**: Der C++-Build linkt laut `-Wl,--trace` zusätzlich `libc++-noexcept`, `libc++abi-noexcept` und
+`libclang_rt.builtins`. Alle drei stehen laut `LICENSE.TXT` im Image unter Apache-2.0 mit LLVM-Ausnahme. Text und
+Nachweis stehen in `third_party/emscripten.md` und `third_party/licenses/emscripten-LICENSE`.
 
 ## R3: Reproduzierbarer Bau
 
 **Decision**: `scripts/build-assembler.sh`, `npm run assembler:build`, `npm run assembler:verify` und ein CI-Job
 wie beim Core. Artefakte und `BUILD-INFO.json` liegen in `src/adapters/assembler/rgbds/generated/`.
 
-**Offen**: Das Image enthält kein Bison. Geplant ist die Installation im Container mit harter Prüfung auf
-`bison 3.8.2`. Der Spike nutzte Bison auf dem Host. Ob das Image diese Version bereitstellt, ist nicht geprüft.
-Falls nicht, wird der Parser mit einem zweiten festgelegten Image erzeugt.
+**Belegt (T001, T002)**: Das Image enthält kein Bison. Das Skript installiert im Container das Paket
+`bison=2:3.8.2+dfsg-1build2` aus dem Ubuntu-24.04-Archiv und prüft die Version hart. Zwei Läufe waren byte-identisch.
+Grenze: Der Bau braucht das Ubuntu-Archiv im Netz; verschwindet dieses Paket, schlägt der CI-Job sichtbar fehl.
 
 ## R4: Ausführung im Worker und Zeitgrenze
 
@@ -131,8 +131,8 @@ damit keinen neuen Eintrag in `third_party/`.
 
 ## Offene Punkte
 
-1. Gelinkte Laufzeiten des C++-Baus und ihre Lizenzen (R2). Blockiert die Auslieferung.
-2. Bison 3.8.2 im festgelegten Bauweg (R3).
+1. ~~Gelinkte Laufzeiten des C++-Baus und ihre Lizenzen (R2).~~ Belegt (T003).
+2. ~~Bison 3.8.2 im festgelegten Bauweg (R3).~~ Belegt (T001).
 3. Meldungsformat bei Makros, `--color` bei `rgblink` und `rgbfix` (R5).
 4. Build-Dauer auf dem Mittelklasse-Smartphone (SC-003), bisher nur Node im Codespace gemessen.
 5. Editor auf E-Ink: Blättern, Tastatur, Neuzeichnen (R6).

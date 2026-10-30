@@ -41,7 +41,7 @@ nie abschwächen oder auskommentieren.
 
 **Purpose**: RGBDS reproduzierbar bauen und die Lizenzfragen vor jeder Auslieferung klären
 
-- [ ] T001 Write `scripts/build-assembler.sh` modeled on `scripts/build-core.sh`: clone `https://github.com/gbdev/rgbds` at
+- [X] T001 Write `scripts/build-assembler.sh` modeled on `scripts/build-core.sh`: clone `https://github.com/gbdev/rgbds` at
   commit `f7b8207322aa9e3714ef0d98d01989f320103026` (v1.0.4) to `.build/rgbds`, then in the emsdk image pinned in
   `scripts/build-core.sh` generate `src/asm/parser.cpp` and `src/link/script.cpp` with `src/bison.sh` and build `rgbasm`,
   `rgblink` and `rgbfix` with the flags of research.md R1, plus `-I src/asm -I src/link`. Source lists come from the
@@ -49,14 +49,14 @@ nie abschwächen oder auskommentieren.
   3.8.2. If the image cannot provide that version, generate the parser in a second image pinned by digest and record
   this in research.md R3 (open point 2). Output: `src/adapters/assembler/rgbds/generated/` with the `.mjs` and `.wasm`
   files and `BUILD-INFO.json` (commit, image, bison version, flags, SHA-256).
-- [ ] T002 Add `"assembler:build"` and `"assembler:verify"` to `package.json` (same pattern as `core:build` and `core:verify`),
+- [X] T002 Add `"assembler:build"` and `"assembler:verify"` to `package.json` (same pattern as `core:build` and `core:verify`),
   run the build twice and confirm identical artifacts, and add a CI job `assembler-reproducible` to the workflow in
   `.github/workflows/` next to `core-reproducible`. Add both commands to the command list in `CLAUDE.md`.
-- [ ] T003 Determine which runtime libraries the C++ link pulls in (emcc linker output, e.g. `EMCC_DEBUG` or `-v`) and read
+- [X] T003 Determine which runtime libraries the C++ link pulls in (emcc linker output, e.g. `EMCC_DEBUG` or `-v`) and read
   their license files inside the image. Record the result in `third_party/emscripten.md` and
   `third_party/licenses/`. Closes open point 1 of research.md. **Stop and ask the project owner** if any license is not on
   the allowlist of `scripts/check-licenses.ts`.
-- [ ] T004 Write `docs/adr/0011-rgbds-wasm-und-bison.md` (German, from `docs/adr/0000-template.md`): own build instead of
+- [X] T004 Write `docs/adr/0011-rgbds-wasm-und-bison.md` (German, from `docs/adr/0000-template.md`): own build instead of
   a package or rgbds-live, the owner's decision of 2026-10-30, the Bison special exception quoted verbatim from the
   generated `parser.cpp`, no `rgbgfx`, consequences. Create `third_party/rgbds.md` with front matter per
   `third_party/README.md`, `third_party/licenses/rgbds-LICENSE` verbatim, and run `npm run licenses:generate`. Commit
