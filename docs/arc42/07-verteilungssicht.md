@@ -91,7 +91,7 @@ von `scripts/fetch-rgbds.ts` nach `.tools/`). Ausgabe ist `src/adapters/emulator
 | Weg | Quelle | Einstellungen | Zweck |
 |---|---|---|---|
 | Replit (statisches Deployment) | Branch `main` | Build-Befehl `npm run build`, Ausgabeordner `dist` | Gerätetests und Abnahme am Smartphone und auf E-Ink |
-| Dev-Server im Codespace | jeder Branch | `npm run dev`, Port 5173 weitergeleitet | Schnelle Sichtprüfung vor dem Merge |
+| Dev-Server im Codespace | jeder Branch | `npm run dev`, Port 5000 weitergeleitet | Schnelle Sichtprüfung vor dem Merge |
 
 - Nach `main` kommt nur, was auf dem Feature-Branch eine grüne CI hat. Der Merge erfolgt als
   Fast-Forward.

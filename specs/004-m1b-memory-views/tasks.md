@@ -552,7 +552,7 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
   `npm run core:verify`
 - [X] T073 Create `docs/abnahme/m1b.md` with a table of all FR/SC including evidence (test file or device
   check) and the result of T001.
-- [ ] T074 Device tests per quickstart "Manuelle Prüfungen am Gerät". Record device model,
+- [ ] T074 (**Nicht vollständig ausgeführt, Verzicht des Projektinhabers 2026-10-30, siehe `docs/abnahme/m1b.md`.**) Device tests per quickstart "Manuelle Prüfungen am Gerät". Record device model,
   Android/Chrome version and measurement duration for:
   - the smartphone (SC-002: `frameWorkP95Ms`, `emulatedFps`)
   - Boox Palma
@@ -562,9 +562,9 @@ Diagnosewerte prüfen, Graustufen-Screenshot.
   the Boox Go Color 7 in Chrome, record it, and replace the approximate viewport in T046/T068 with the
   measured Palma values (analysis finding A1). Adjust `--font-size-mono-min` / `--tile-pixel-min` if
   needed (a code commit, so +1 patch).
-- [ ] T075 Close the open points in `specs/004-m1b-memory-views/research.md` (strike through with a
+- [X] T075 Close the open points in `specs/004-m1b-memory-views/research.md` (strike through with a
   reference)
-- [ ] T076 On acceptance by the project owner, set the version to `0.4.0` in `package.json` and mark the
+- [X] T076 On acceptance by the project owner, set the version to `0.4.0` in `package.json` and mark the
   spec status "Accepted" in `specs/004-m1b-memory-views/spec.md`
 
 ---

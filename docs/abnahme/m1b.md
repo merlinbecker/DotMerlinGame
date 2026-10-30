@@ -1,11 +1,12 @@
 # Abnahme M1b – Speicher-Ansichten (nur lesen)
 
-Stand: 2026-10-26 · Branch `feature/firstSteps` · **Gerätetests offen, noch nicht abgenommen** (Version 0.3.14) ·
+Stand: 2026-10-30 · Branch `feature/firstSteps` · **M1b abgeschlossen ohne vollständige Gerätetests, Version 0.4.0** ·
 Grundlage: [quickstart.md](../../specs/004-m1b-memory-views/quickstart.md)
 
 ## Automatische Prüfung
 
-Lokal im Codespace, Node v24, `npm run check` (identisch zum CI-Job `check`) und `npm run core:verify`:
+Lokal im Codespace, Node v24, `npm run check` (identisch zum CI-Job `check`) und `npm run core:verify`.
+Geprüft auf dem Stand von Version 0.3.16. Der Core-Nachbau stammt von Version 0.3.14 und wurde nicht wiederholt, der Core ist seitdem unverändert:
 
 | Stufe | Ergebnis |
 |---|---|
@@ -14,7 +15,7 @@ Lokal im Codespace, Node v24, `npm run check` (identisch zum CI-Job `check`) und
 | Vitest | 601 bestanden, 1 ausstehend (`it.todo` Roundtrip, M3) |
 | Nachbau Boot-ROM und Logo-Hash (`git diff`) | identisch |
 | Build | grün |
-| Abnahmetests Chromium | 56 bestanden |
+| Abnahmetests Chromium | 59 bestanden |
 | Lizenz-Check | bestanden, keine neue Fremdkomponente |
 | Secret-Scan | bestanden |
 | Core-Nachbau mit neuen Wrapper-Funktionen (`npm run core:verify`, Docker) | byte-identisch |
@@ -40,16 +41,16 @@ Abweichung. Der Pfad wurde trotzdem auf direkten Lesezugriff umgestellt.
 | E-Ink-Regeln: keine Bewegung, nur Graustufen (FR-014) | `tests/e2e/m1b-eink.spec.ts` | ✅ automatisch |
 | Hinweis ohne ROM (FR-015) | View-Tests | ✅ automatisch |
 | Sprung zur Adresse mit einer Neuzeichnung (SC-006) | `tests/unit/view-hex.test.tsx` | ✅ automatisch |
-| Kein horizontales Scrollen im schmalen Slot (Randfall, SC-005) | `tests/e2e/m1b-eink.spec.ts` mit angenähertem Palma-Viewport. Der Test findet Scrollbalken, aber keinen abgeschnittenen Inhalt in Containern mit `overflow: hidden`; das deckt nur der Gerätetest ab | ⏳ teilweise automatisch, Gerät offen |
-| Leistung: `frameWorkP95Ms` < 16,7 ms und `emulatedFps` ≥ 59 mit Screen + Hex auf „Live“ (SC-002) | Gerätetest | ⏳ offen |
-| Lesbar und bedienbar auf Boox Palma und Boox Go Color 7 (SC-005) | Gerätetest | ⏳ offen |
-| Live-Rate 10/s auf E-Ink bedienbar (Spec-Annahme) | Gerätetest | ⏳ offen |
+| Kein horizontales Scrollen im schmalen Slot (Randfall, SC-005) | `tests/e2e/m1b-eink.spec.ts` mit angenähertem Palma-Viewport. Der Test findet Scrollbalken, aber keinen abgeschnittenen Inhalt in Containern mit `overflow: hidden`; das deckt nur der Gerätetest ab | ⚠️ automatisch; am Gerät ohne Protokollwerte, siehe unten |
+| Leistung: `frameWorkP95Ms` < 16,7 ms und `emulatedFps` ≥ 59 mit Screen + Hex auf „Live“ (SC-002) | Nicht auf dem Smartphone gemessen | ⚠️ Verzicht des Projektinhabers |
+| Lesbar und bedienbar auf Boox Palma und Boox Go Color 7 (SC-005) | Sichtprüfung des Projektinhabers, siehe unten | ⚠️ teilweise |
+| Live-Rate 10/s auf E-Ink bedienbar (Spec-Annahme) | Nicht gezielt geprüft | ⚠️ Verzicht des Projektinhabers |
 
 ## Anleitung für die Gerätetests
 
 Getestet wird der Produktions-Build auf Replit, Branch `main` (arc42 7.4). Vorher prüfen, dass in der App
-unten der erwartete Commit-Hash steht (Stand der Anleitung: `d23e254`). Zum Laden braucht man ein eigenes
-oder frei lizenziertes Homebrew-`.gb`.
+unten `v0.4.0` oder neuer steht, und den angezeigten Commit-Hash je Gerät in der Tabelle notieren. Zum Laden
+braucht man ein eigenes oder frei lizenziertes Homebrew-`.gb`, z. B. die Test-ROMs aus `tests/roms/build/`.
 
 ### Was die App in diesem Stand kann
 
@@ -76,7 +77,7 @@ oder frei lizenziertes Homebrew-`.gb`.
 ### 1. Smartphone (SC-002)
 
 1. ROM laden. Zwei Quadrate belegen: Screen und Hex mit Rate **Live**.
-2. Etwa eine Minute spielen. Dann in ROM Info `frame-work` und `emulated-fps` ablesen.
+2. 5 Minuten spielen. Dann in ROM Info `frame-work` und `emulated-fps` ablesen.
    - Ziel: `frame-work` unter 16,7 ms, `emulated-fps` mindestens 59.
 3. Notieren: Modell, Android- und Chrome-Version, Messdauer, `innerWidth` × `innerHeight` und
    `devicePixelRatio`.
@@ -86,13 +87,19 @@ oder frei lizenziertes Homebrew-`.gb`.
 1. Jede der fünf Ansichten einmal im schmalen und einmal im gezoomten Quadrat öffnen.
    - Ist alles lesbar?
    - Wird etwas abgeschnitten, oder gibt es seitliches Scrollen?
-2. Hex: zu `FF40` springen und blättern. Im I/O-Bereich stehen Zeilen wie `$FF40 91 LCDC`.
+2. Hex: zu `FF40` springen und blättern. Im I/O-Bereich stehen Zeilen wie `$FF40 91 LCDC`. Die
+   Zeilenbreite passt zum Quadrat (8 oder 16 Bytes, ohne Abschneiden).
 3. Tiles: zwischen Rohwerten und Palette umschalten.
-4. Rate **Live**:
+4. Markierungen auf dem Display prüfen, alle ohne Farbe erkennbar:
+   - geändert (invertiert)
+   - ausgewählt (Rahmen)
+   - eingeblendete Bank („mapped“)
+   - gesperrter RAM („locked“, im ROM `inspect-mem`)
+5. Rate **Live**:
    - Lässt sie sich noch bedienen, oder flackert es zu stark?
    - Danach **1/s** und **Manual** mit Refresh ausprobieren.
-5. Pause: Die Ansichten bleiben auf dem Pausenstand stehen.
-6. Viewport notieren wie beim Smartphone.
+6. Pause: Die Ansichten bleiben auf dem Pausenstand stehen.
+7. Viewport notieren wie beim Smartphone.
 
 ### 3. Schnellcheck auf allen Geräten
 
@@ -100,13 +107,34 @@ oder frei lizenziertes Homebrew-`.gb`.
 - Nach dem Neuladen bleiben die Belegung der Quadrate und die gewählten Raten erhalten.
 - Ohne geladenes ROM zeigen die Ansichten einen Hinweis statt eines Fehlers.
 
-## Gerätetests (offen)
+## Abschluss ohne vollständige Gerätetests
 
-Zu notieren je Gerät: Modell, Android- und Chrome-Version, Messdauer, CSS-Viewport (`innerWidth` ×
-`innerHeight`, `devicePixelRatio`) für T046/T068.
+Der Projektinhaber hat am 2026-10-30 entschieden, M1b ohne die restlichen Gerätetests abzuschließen, weil
+die Änderungen danach klein waren. Die Anleitung oben bleibt für einen späteren Test gültig.
 
-| Gerät | Modell / Android / Chrome | Viewport | Messdauer | Ergebnis |
-|---|---|---|---|---|
-| Smartphone (SC-002) | | | | |
-| Boox Palma (SC-005) | | | | |
-| Boox Go Color 7 (SC-005) | | | | |
+**Rückmeldung des Projektinhabers** (Boox Palma und Boox Go Color 7, vor den Korrekturen in 0.3.16):
+
+- Alle fünf Ansichten sind sichtbar, Tiles usw. werden angezeigt, die Navigation ist gut.
+- Die Werte in ROM Info liegen im Rahmen der Vorgabe. Zahlen wurden nicht notiert.
+- Der Hex-View war im kleinen Quadrat nicht nutzbar, weil keine Bytes zu sehen waren.
+- ROMs ließen sich teils nicht laden, es passierte nichts.
+- Nach einem Fokuswechsel von Chrome ließ sich ein geladenes ROM gefühlt nicht mehr aktivieren.
+
+**Korrekturen in 0.3.16** (automatisch getestet, nicht am Gerät):
+
+- Hex-View: Bedienelemente kompakter, mindestens 2 Bytezeilen bei 360 × 640.
+- Ein ROM startet auch, wenn das vorherige wegen der Hardware-Prüfung angehalten wurde.
+- Der ROM-Speicher öffnet die IndexedDB-Verbindung neu, wenn sie geschlossen wurde. Dass Chrome das auf dem
+  Boox wirklich tut, ist nicht belegt.
+
+**Nicht nachgewiesen:**
+
+- SC-002 auf dem Smartphone (`frame-work`, `emulated-fps`) und die Live-Rate 10/s auf E-Ink.
+- SC-005 mit Modell, Chrome-Version und Viewport. Die E2E-Tests nutzen weiter den angenäherten Palma-Viewport.
+- Die Ursache des Fokus-Problems und die Wirksamkeit der Korrekturen am Gerät.
+
+| Gerät | Build-Hash | Modell / Android / Chrome | Viewport | Messdauer | Ergebnis |
+|---|---|---|---|---|---|
+| Smartphone (SC-002) | – | – | – | – | nicht getestet |
+| Boox Palma (SC-005) | nicht notiert | nicht notiert | nicht notiert | – | siehe Rückmeldung |
+| Boox Go Color 7 (SC-005) | nicht notiert | nicht notiert | nicht notiert | – | siehe Rückmeldung |

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-26
 
-**Status**: Draft
+**Status**: Abgeschlossen (2026-10-30, Version 0.4.0), Gerätetests teilweise erlassen, siehe `docs/abnahme/m1b.md`
 
 **Input**: Meilenstein M1b aus `docs/BOOTSTRAP-BRIEFING.md`, Abschnitt 8 (Entscheidung des Projektinhabers
 vom 2026-10-26): Lese-Ansichten auf den laufenden Emulator, jeweils als eigener View im Raster: Hex-View

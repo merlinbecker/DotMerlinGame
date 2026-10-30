@@ -264,4 +264,4 @@ durchgesehen.
 3. ~~Bestehende Tests, die `changedMemory` auswerten (`tests/emulator/sameboy-adapter.test.ts`,
    `service-contract.test.ts`), werden bei der Umstellung aus R2 gezielt angepasst. VRAM und OAM
    liefern dann den inneren Zustand statt `$FF` während der LCD-Sperre.~~ Erledigt in T018; die Tests prüfen keine betroffenen Werte, ergänzt um den Ausschluss von Echo-RAM und `$FEA0–$FEFF`.
-4. Live-Rate 10/s am Gerät prüfen (Spec-Annahme).
+4. ~~Live-Rate 10/s am Gerät prüfen (Spec-Annahme).~~ Nicht geprüft, Verzicht des Projektinhabers (`docs/abnahme/m1b.md`).
