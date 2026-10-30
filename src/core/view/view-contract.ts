@@ -26,7 +26,9 @@ export type Notice =
   | { readonly kind: 'halted'; readonly reason: HaltReason }
   | { readonly kind: 'rejected'; readonly reason: RomRejectReason }
   | { readonly kind: 'storage-full' }
-  | { readonly kind: 'audio-locked' };
+  | { readonly kind: 'audio-locked' }
+  /** An action failed unexpectedly; never fail silently. */
+  | { readonly kind: 'action-failed' };
 
 /** Read-only emulator session state for views (contracts/view-contract.md). */
 export interface SessionState {
@@ -35,6 +37,8 @@ export interface SessionState {
   readonly fileName: string | null;
   /** A ROM is stored locally and can be started without a file picker. */
   readonly storedRomAvailable: boolean;
+  /** The running ROM is a build result, not the stored ROM (M2). */
+  readonly runningBuild: boolean;
   readonly settings: { readonly bootMode: BootMode; readonly hardwareChecks: boolean };
   readonly audio: { readonly muted: boolean; readonly volume: number; readonly unlocked: boolean };
   readonly notice: Notice | null;

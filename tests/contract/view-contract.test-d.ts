@@ -25,7 +25,7 @@ describe('view context', () => {
   it('reads the emulator session read-only', () => {
     expectTypeOf(context.session.getSnapshot()).toEqualTypeOf<SessionState>();
     expectTypeOf<SessionState['runState']>().toEqualTypeOf<'empty' | 'running' | 'paused' | 'halted'>();
-    expectTypeOf<Notice['kind']>().toEqualTypeOf<'header-invalid' | 'halted' | 'rejected' | 'storage-full' | 'audio-locked'>();
+    expectTypeOf<Notice['kind']>().toEqualTypeOf<'header-invalid' | 'halted' | 'rejected' | 'storage-full' | 'audio-locked' | 'action-failed'>();
     // @ts-expect-error the session source has no setters
     context.session.setSnapshot({});
   });
@@ -65,6 +65,11 @@ describe('view actions (M1, M1b)', () => {
       | 'DeleteProject'
       | 'OpenFile'
       | 'EditFile'
+      | 'CreateFile'
+      | 'RenameFile'
+      | 'DeleteFile'
+      | 'RenameProject'
+      | 'SetProjectSettings'
       | 'Build'
       | 'RunBuild'
       | 'ExportRom'

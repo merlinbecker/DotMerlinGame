@@ -35,6 +35,14 @@ export async function createWebAudioOutput(): Promise<AudioOutputPort> {
   };
   applyGain();
 
+  // Leaving and coming back quickly: a resume waits for the suspend still under way, or the sound would stay off.
+  let transition: Promise<void> = Promise.resolve();
+  const inOrder = (step: () => Promise<void>) => {
+    const next = transition.then(step);
+    transition = next.catch(() => undefined);
+    return next;
+  };
+
   return {
     sampleRate: context.sampleRate,
     push(samples) {
@@ -65,17 +73,21 @@ export async function createWebAudioOutput(): Promise<AudioOutputPort> {
     get overflows() {
       return overflows;
     },
-    async suspend() {
-      if (context.state !== 'running') return;
-      post({ type: 'fade', target: 0 });
-      await new Promise((resolve) => setTimeout(resolve, FADE_MS));
-      await context.suspend();
-      post({ type: 'clear' });
+    suspend() {
+      return inOrder(async () => {
+        if (context.state !== 'running') return;
+        post({ type: 'fade', target: 0 });
+        await new Promise((resolve) => setTimeout(resolve, FADE_MS));
+        await context.suspend();
+        post({ type: 'clear' });
+      });
     },
-    async resume() {
-      if (context.state !== 'suspended') return;
-      await context.resume();
-      post({ type: 'fade', target: 1 });
+    resume() {
+      return inOrder(async () => {
+        if (context.state !== 'suspended') return;
+        await context.resume();
+        post({ type: 'fade', target: 1 });
+      });
     },
   };
 }

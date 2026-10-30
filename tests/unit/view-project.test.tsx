@@ -1,17 +1,17 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { IDLE_PROJECT_STATE, type ProjectState } from '../../src/core/index.ts';
-import { INITIAL_PROJECT_STATE } from '../../src/views/project/definition.ts';
+import { defaultSettings, encodeSource, IDLE_PROJECT_STATE, type ProjectState } from '../../src/core/index.ts';
+import { INITIAL_PROJECT_STATE, projectDefinition, type ProjectTab } from '../../src/views/project/definition.ts';
 import { ProjectView } from '../../src/views/project/ProjectView.tsx';
 import { fakeViewContext } from '../support/dispatch-spy.ts';
 
 const summaries = ['a', 'b', 'c', 'd'].map((name) => ({ id: name, name, updatedAt: '' }));
 
-function show(patch: Partial<ProjectState>, page = 0) {
+function show(patch: Partial<ProjectState>, page = 0, tab: ProjectTab = 'projects') {
   const fake = fakeViewContext();
   const state = { ...IDLE_PROJECT_STATE, examples: [{ id: 'hello', name: 'hello' }], ...patch };
   const context = { ...fake.context, project: { subscribe: () => () => undefined, getSnapshot: () => state } };
-  render(<ProjectView context={context} state={{ page }} setState={() => undefined} />);
+  render(<ProjectView context={context} state={{ page, tab }} setState={() => undefined} />);
   return fake;
 }
 
@@ -50,6 +50,54 @@ describe('Project view', () => {
     const fake = show({ importConflict: 'a' });
     fireEvent.click(screen.getByRole('button', { name: 'Keep as copy' }));
     expect(fake.actions).toEqual([{ type: 'ResolveImport', choice: 'copy' }]);
+  });
+
+  const open = {
+    id: 'p',
+    name: 'p',
+    settings: defaultSettings('p'),
+    files: [{ path: 'main.asm', content: encodeSource('') }, { path: 'a.inc', content: encodeSource('') }],
+  };
+
+  it('creates, renames and deletes files; the entry file cannot be deleted', () => {
+    const fake = show({ project: open, activeFile: 'main.asm' }, 0, 'files');
+    fireEvent.change(screen.getByLabelText('New file path'), { target: { value: 'b.inc' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Apply New file path' }));
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Delete main.asm' }).disabled).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Rename a.inc' }));
+    fireEvent.change(screen.getByLabelText('New path for a.inc'), { target: { value: 'c.inc' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Apply New path for a.inc' }));
+    expect(fake.actions).toEqual([{ type: 'CreateFile', path: 'b.inc' }, { type: 'RenameFile', from: 'a.inc', to: 'c.inc' }]);
+  });
+
+  it('asks before deleting a file', () => {
+    const fake = show({ project: open, activeFile: 'main.asm' }, 0, 'files');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete a.inc' }));
+    expect(fake.actions).toEqual([]);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete a.inc' }));
+    expect(fake.actions).toEqual([{ type: 'DeleteFile', path: 'a.inc' }]);
+  });
+
+  it('changes the name on the first settings page', () => {
+    const fake = show({ project: open }, 0, 'settings');
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'q' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Project name' }));
+    expect(fake.actions).toEqual([{ type: 'RenameProject', name: 'q' }]);
+  });
+
+  it('changes cartridge settings on the next page', () => {
+    const fake = show({ project: open }, 1, 'settings');
+    fireEvent.change(screen.getByLabelText('Cartridge'), { target: { value: 'MBC5+RAM' } });
+    fireEvent.change(screen.getByLabelText('Cartridge RAM'), { target: { value: '2' } });
+    expect(fake.actions).toEqual([
+      { type: 'SetProjectSettings', settings: { ...open.settings, mbc: 'MBC5+RAM' } },
+      { type: 'SetProjectSettings', settings: { ...open.settings, ramSize: 2 } },
+    ]);
+  });
+
+  it('round trips its tab and survives bad data', () => {
+    expect(projectDefinition.deserialize(projectDefinition.serialize({ page: 1, tab: 'files' }))).toEqual({ page: 1, tab: 'files' });
+    expect(projectDefinition.deserialize({ tab: 'nope' })).toEqual(INITIAL_PROJECT_STATE);
   });
 
   it('shows the reason of a rejected archive as text', () => {

@@ -10,6 +10,11 @@ Nur getypte Ergänzungen (Constitution IV), kein dritter Eventkanal.
 | { readonly type: 'DeleteProject'; readonly projectId: string }
 | { readonly type: 'OpenFile'; readonly path: string }
 | { readonly type: 'EditFile'; readonly path: string; readonly text: string }
+| { readonly type: 'CreateFile'; readonly path: string }
+| { readonly type: 'RenameFile'; readonly from: string; readonly to: string }
+| { readonly type: 'DeleteFile'; readonly path: string }
+| { readonly type: 'RenameProject'; readonly name: string }
+| { readonly type: 'SetProjectSettings'; readonly settings: ProjectSettings }
 | { readonly type: 'Build' }
 | { readonly type: 'RunBuild' }
 | { readonly type: 'ExportRom' }

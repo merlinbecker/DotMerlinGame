@@ -18,9 +18,15 @@ const OK: BuildResult = { success: true, rom: new Uint8Array([1, 2]), symbols: '
 function memoryStore(): ProjectStorePort & { saved: Project[]; map: Map<string, Project> } {
   const map = new Map<string, Project>();
   const saved: Project[] = [];
+  const saves = new Map<string, Uint8Array>();
   return {
     saved,
     map,
+    loadSaveData: (id) => Promise.resolve(saves.get(id) ?? null),
+    saveSaveData: (id, data) => {
+      saves.set(id, data);
+      return Promise.resolve();
+    },
     list: () => Promise.resolve([...map.values()].reverse().map(({ id, name }) => ({ id, name, updatedAt: '' }))),
     load: (id) => Promise.resolve(map.get(id)),
     save: (project) => {
@@ -38,7 +44,7 @@ function memoryStore(): ProjectStorePort & { saved: Project[]; map: Map<string, 
 function setup(overrides: Partial<ProjectSessionDeps> = {}) {
   const store = memoryStore();
   const events: DomainEvent[] = [];
-  const runRom = vi.fn(() => Promise.resolve());
+  const runRom = vi.fn<ProjectSessionDeps['runRom']>(() => Promise.resolve());
   const save = vi.fn();
   let id = 0;
   const importProject = vi.fn<(zip: Uint8Array) => Promise<Project>>();
@@ -145,7 +151,7 @@ describe('project session', () => {
     await t.session.idle();
     expect(t.state().build).toEqual({ status: 'finished', result: OK });
     expect(t.events).toContainEqual({ type: 'BuildFinished', success: true, errorCount: 0, warningCount: 0 });
-    expect(t.runRom).toHaveBeenCalledWith(OK.rom, 'hello.gb');
+    expect(t.runRom).toHaveBeenCalledWith(OK.rom, 'hello.gb', null, expect.any(Function));
   });
 
   it('runs nothing after a failed build and counts its messages', async () => {
@@ -258,6 +264,75 @@ describe('project session', () => {
     t.session.dispatch({ type: 'ResolveImport', choice: 'copy' });
     await t.session.idle();
     expect(t.state().project).toMatchObject({ id: 'zip', name: 'hello copy' });
+  });
+
+  it('keeps save data per project and hands it to the next run', async () => {
+    const t = setup();
+    await t.fromExample();
+    t.session.dispatch({ type: 'Build' });
+    await t.session.idle();
+    const saveData = t.runRom.mock.calls[0]?.[3] as (d: Uint8Array) => Promise<void>;
+    await saveData(new Uint8Array([5]));
+    t.session.dispatch({ type: 'RunBuild' });
+    await t.session.idle();
+    expect(t.runRom.mock.calls[1]?.[2]).toEqual(new Uint8Array([5]));
+  });
+
+  it('creates, renames and deletes files, and saves them', async () => {
+    const t = setup();
+    await t.fromExample();
+    t.session.dispatch({ type: 'CreateFile', path: 'inc/a.inc' });
+    await t.session.idle();
+    expect(t.state().activeFile).toBe('inc/a.inc');
+    expect(t.state().saveState).toBe('pending');
+    t.session.dispatch({ type: 'RenameFile', from: 'inc/a.inc', to: 'b.inc' });
+    await t.session.idle();
+    expect(t.state().activeFile).toBe('b.inc');
+    t.session.dispatch({ type: 'DeleteFile', path: 'b.inc' });
+    await t.session.idle();
+    expect(t.state().activeFile).toBe('main.asm');
+    await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+    await t.session.idle();
+    expect(t.store.map.get('p1')?.files.map((f) => f.path)).toEqual(['main.asm']);
+  });
+
+  it('reports a refused file change and changes nothing', async () => {
+    const t = setup();
+    await t.fromExample();
+    t.session.dispatch({ type: 'CreateFile', path: '../x' });
+    t.session.dispatch({ type: 'DeleteFile', path: 'main.asm' });
+    await t.session.idle();
+    expect(t.state().notice).toEqual({ kind: 'file-rejected', reason: 'last-file' });
+    expect(t.state().project?.files).toHaveLength(1);
+  });
+
+  it('changes valid settings and names, and refuses others', async () => {
+    const t = setup();
+    await t.fromExample();
+    const settings = { ...example.settings, mbc: 'MBC5+RAM', ramSize: 2 };
+    t.session.dispatch({ type: 'SetProjectSettings', settings });
+    await t.session.idle();
+    expect(t.state().project?.settings).toEqual(settings);
+    t.session.dispatch({ type: 'SetProjectSettings', settings: { ...settings, mbc: 'BOGUS' } });
+    await t.session.idle();
+    expect(t.state().notice).toEqual({ kind: 'settings-rejected' });
+    expect(t.state().project?.settings).toEqual(settings);
+    t.session.dispatch({ type: 'RenameProject', name: 'better' });
+    await t.session.idle();
+    expect(t.state().project?.name).toBe('better');
+    t.session.dispatch({ type: 'RenameProject', name: ' ' });
+    await t.session.idle();
+    expect(t.state().notice).toEqual({ kind: 'name-rejected' });
+  });
+
+  it('shows when an action fails unexpectedly instead of doing nothing', async () => {
+    const t = setup();
+    t.store.load = () => Promise.reject(new Error('closed'));
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    t.session.dispatch({ type: 'OpenProject', projectId: 'x' });
+    await t.session.idle();
+    expect(t.state().notice).toEqual({ kind: 'action-failed' });
+    vi.restoreAllMocks();
   });
 
   it('closes a deleted open project', async () => {

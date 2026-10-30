@@ -38,6 +38,17 @@ describe('IndexedDB project store', () => {
     expect(await s.list()).toEqual([]);
   });
 
+  it('keeps save data apart from the project and removes it with the project', async () => {
+    const s = store();
+    await s.save(project('a'));
+    expect(await s.loadSaveData('a')).toBeNull();
+    await s.saveSaveData('a', new Uint8Array([1, 2]));
+    expect(await s.loadSaveData('a')).toEqual(new Uint8Array([1, 2]));
+    expect(await s.load('a')).toEqual(project('a'));
+    await s.remove('a');
+    expect(await s.loadSaveData('a')).toBeNull();
+  });
+
   it('turns a full disk into StorageFullError', async () => {
     const s = store();
     const put = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(() => {

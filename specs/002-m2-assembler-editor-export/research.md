@@ -111,7 +111,8 @@ Grenze überschritten ist.
 ## R8: Lauf eines Builds und gespeichertes ROM
 
 **Decision**: Ein gebautes ROM läuft über `RunBuild`, wird nie in `RomStore` geschrieben und zeigt keinen
-Ersetzen-Dialog. Spielstände werden für Build-Läufe in M2 nicht gespeichert.
+Ersetzen-Dialog. Spielstände von Build-Läufen liegen je Projekt in einer eigenen Datenbank und nicht im ZIP
+(Nachtrag 2026-10-30, Wunsch des Projektinhabers).
 
 **Rationale**: Constitution I und FR-005. Der M1-Pfad `saveBattery` schreibt in den Datensatz des gespeicherten
 ROMs. Ohne Trennung würde ein Build-Lauf den Spielstand eines fremden ROMs überschreiben. Die Session merkt sich

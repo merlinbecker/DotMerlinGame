@@ -4,6 +4,7 @@ import { openObjectStore, request } from './idb.ts';
 
 export const PROJECT_DB_NAME = `${PROJECT_NAME.toLowerCase()}-projects`;
 const STORE = 'projects';
+const SAVES = 'saves';
 
 interface StoredProject extends Project {
   readonly updatedAt: string;
@@ -12,6 +13,7 @@ interface StoredProject extends Project {
 /** Projects are the single source of truth (Constitution I); they stay on the device (Constitution IX). */
 export function createIndexedDbProjectStore(databaseName = PROJECT_DB_NAME): ProjectStorePort {
   const access = openObjectStore(databaseName, STORE);
+  const saves = openObjectStore(`${databaseName}-saves`, SAVES);
 
   return {
     async list() {
@@ -34,6 +36,14 @@ export function createIndexedDbProjectStore(databaseName = PROJECT_DB_NAME): Pro
     },
     async remove(id) {
       await access.write((store) => store.delete(id));
+      await saves.write((store) => store.delete(id));
+    },
+    async loadSaveData(id) {
+      const tx = await saves.transaction('readonly');
+      return ((await request(tx.objectStore(SAVES).get(id))) as Uint8Array | undefined) ?? null;
+    },
+    async saveSaveData(id, data) {
+      await saves.write((store) => store.put(data, id));
     },
   };
 }

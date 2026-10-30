@@ -8,7 +8,7 @@ import { runPipeline, type RgbdsTools } from '../../src/adapters/assembler/rgbds
 import createRgbasm from '../../src/adapters/assembler/rgbds/generated/rgbasm.mjs';
 import createRgbfix from '../../src/adapters/assembler/rgbds/generated/rgbfix.mjs';
 import createRgblink from '../../src/adapters/assembler/rgbds/generated/rgblink.mjs';
-import { computeHeaderChecksum, defaultSettings, encodeSource, logoMatches, type ProjectSettings } from '../../src/core/index.ts';
+import { computeHeaderChecksum, defaultSettings, encodeSource, logoMatches, MBC_OPTIONS, RAM_SIZE_OPTIONS, type ProjectSettings } from '../../src/core/index.ts';
 
 const tools: RgbdsTools = { rgbasm: createRgbasm, rgblink: createRgblink, rgbfix: createRgbfix };
 const settings: ProjectSettings = { ...defaultSettings('test'), title: 'TEST' };
@@ -73,5 +73,17 @@ describe('RGBDS WASM pipeline', () => {
     const result = await runPipeline(tools, [text('main.asm', ENTRY_POINT)], { ...settings, mbc: 'BOGUS' });
     expect(result.success).toBe(false);
     expect(result.diagnostics).toMatchObject([{ file: null, tool: 'rgbfix', severity: 'error' }]);
+  });
+});
+
+describe('settings the app offers', () => {
+  it.each(MBC_OPTIONS)('rgbfix accepts the cartridge type %s', async (mbc) => {
+    const result = await runPipeline(tools, [text('main.asm', ENTRY_POINT)], { ...settings, mbc });
+    expect(result.success).toBe(true);
+  });
+
+  it.each(RAM_SIZE_OPTIONS)('writes the RAM code %o into $0149', async ({ code }) => {
+    const result = await runPipeline(tools, [text('main.asm', ENTRY_POINT)], { ...settings, mbc: 'MBC5+RAM', ramSize: code });
+    expect(result.rom?.[0x149]).toBe(code);
   });
 });

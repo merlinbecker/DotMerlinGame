@@ -15,5 +15,7 @@ export function noticeText(notice: Notice): string {
       return 'Browser storage is full. The ROM runs now but is not saved.';
     case 'audio-locked':
       return 'Tap anywhere to enable sound.';
+    case 'action-failed':
+      return 'That did not work. Try again, or reload the page.';
   }
 }

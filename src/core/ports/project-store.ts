@@ -22,4 +22,7 @@ export interface ProjectStorePort {
   load(id: string): Promise<Project | undefined>;
   save(project: Project): Promise<void>;
   remove(id: string): Promise<void>;
+  /** Save data of a build run: kept per project, not part of the source and not in the ZIP. */
+  loadSaveData(id: string): Promise<Uint8Array | null>;
+  saveSaveData(id: string, data: Uint8Array): Promise<void>;
 }

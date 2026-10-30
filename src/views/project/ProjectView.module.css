@@ -27,3 +27,27 @@
 .file {
   display: none;
 }
+
+.tabs {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+}
+
+.row {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fieldName {
+  flex: none;
+}

@@ -51,8 +51,8 @@ export interface EmulatorSession extends AppServices {
   setGamepads(names: readonly string[]): void;
   /** Checks for a stored ROM; does not start it (US1-AS4: start without file picker on request). */
   init(): Promise<void>;
-  /** Runs a built ROM: it is not stored and its save data is not kept (Constitution I, M2 research.md R8). */
-  runBuiltRom(bytes: Uint8Array, fileName: string): Promise<void>;
+  /** Runs a built ROM: it is never stored; its save data goes to `saveData`, not to the stored ROM (Constitution I, M2 research.md R8). */
+  runBuiltRom(bytes: Uint8Array, fileName: string, battery: Uint8Array | null, saveData: (data: Uint8Array) => Promise<void>): Promise<void>;
   /** For the project session, which shares the discrete event channel. */
   publish(event: DomainEvent): void;
   /** Resolves when all dispatched actions are processed (tests). */
@@ -81,6 +81,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     rom: null,
     fileName: null,
     storedRomAvailable: false,
+    runningBuild: false,
     settings: { bootMode: settings.bootMode, hardwareChecks: settings.hardwareChecks },
     audio: { muted: settings.muted, volume: settings.volume, unlocked: audio?.unlocked ?? false },
     notice: null,
@@ -89,8 +90,8 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   };
   let queue: Promise<void> = Promise.resolve();
   let pausedByPage = false;
-  /** Save data belongs to the stored ROM; a built ROM must never write into its record. */
-  let runSource: 'stored' | 'build' = 'stored';
+  /** Where save data of a built ROM goes; it must never reach the record of the stored ROM. */
+  let buildSaveData: ((data: Uint8Array) => Promise<void>) | null = null;
   let batteryTimer: ReturnType<typeof setInterval> | null = null;
   let diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -114,11 +115,11 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
   };
 
   const saveBattery = async () => {
-    if (runSource === 'build' || !emulator.batteryRamDirty) return;
+    if (!emulator.batteryRamDirty) return;
     const data = emulator.readBatteryRam();
     if (!data) return;
     try {
-      await romStore.saveBattery(data);
+      await (buildSaveData ? buildSaveData(data) : romStore.saveBattery(data));
     } catch (error) {
       if (!(error instanceof StorageFullError)) throw error;
       publish({ type: 'StorageFailed', operation: 'save-battery' });
@@ -157,11 +158,12 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
     if (state.runState === 'running') setRunState('paused');
     stopBatteryTimer();
     await saveBattery();
-    await audio?.suspend();
+    // Not awaited: a browser that never answers must not block later actions in the queue.
+    void audio?.suspend();
   };
 
   /** Loads into the emulator; on rejection nothing changes (edge case: emulator keeps its state). */
-  const start = async (bytes: Uint8Array, fileName: string, battery: Uint8Array | null, source: 'stored' | 'build' = 'stored'): Promise<boolean> => {
+  const start = async (bytes: Uint8Array, fileName: string, battery: Uint8Array | null, saveData: ((data: Uint8Array) => Promise<void>) | null = null): Promise<boolean> => {
     try {
       await emulator.loadRom(bytes, { bootMode: settings.bootMode, hardwareChecks: settings.hardwareChecks });
     } catch (error) {
@@ -170,11 +172,11 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       notify({ kind: 'rejected', reason: error.reason });
       return false;
     }
-    runSource = source;
+    buildSaveData = saveData;
     if (battery) emulator.writeBatteryRam(battery);
     const rom = await parseHeader(bytes);
     const headerInvalid = !(rom.logoValid && rom.headerChecksumValid);
-    update({ rom, fileName, notice: headerInvalid && !settings.hardwareChecks ? { kind: 'header-invalid' } : null });
+    update({ rom, fileName, runningBuild: saveData !== null, notice: headerInvalid && !settings.hardwareChecks ? { kind: 'header-invalid' } : null });
     publish({ type: 'RomLoaded', romId: await sha256Hex(bytes), title: rom.title || fileName });
     run(); // also after a halted ROM: loading resets the emulator's halt
     return true;
@@ -273,6 +275,11 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       case 'DeleteProject':
       case 'OpenFile':
       case 'EditFile':
+      case 'CreateFile':
+      case 'RenameFile':
+      case 'DeleteFile':
+      case 'RenameProject':
+      case 'SetProjectSettings':
       case 'Build':
       case 'RunBuild':
       case 'ExportRom':
@@ -340,6 +347,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
         .then(() => handle(action))
         .catch((error: unknown) => {
           console.error(`Action ${action.type} failed`, error);
+          notify({ kind: 'action-failed' });
         });
     },
     async init() {
@@ -347,11 +355,11 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       update({ storedRomAvailable: stored !== null });
     },
     idle: () => queue,
-    runBuiltRom(bytes, fileName) {
+    runBuiltRom(bytes, fileName, battery, saveData) {
       queue = queue
         .then(async () => {
           await saveBattery();
-          await start(bytes, fileName, null, 'build');
+          await start(bytes, fileName, battery, saveData);
         })
         .catch((error: unknown) => {
           console.error('Could not run the build', error);

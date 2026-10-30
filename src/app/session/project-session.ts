@@ -1,11 +1,17 @@
 import {
   ArchiveRejectedError,
+  createFile,
+  deleteFile,
   encodeSource,
   IDLE_PROJECT_STATE,
+  projectNameValid,
+  renameFile,
+  settingsValid,
   StorageFullError,
   type ArchivePort,
   type AssemblerPort,
   type DomainEvent,
+  type EditResult,
   type FileSaverPort,
   type Project,
   type ProjectState,
@@ -21,11 +27,11 @@ const ZIP_MIME = 'application/zip';
 
 export type ProjectAction = Extract<
   ViewAction,
-  { type: 'NewProjectFromExample' | 'OpenProject' | 'DeleteProject' | 'OpenFile' | 'EditFile' | 'Build' | 'RunBuild' | 'ExportRom' | 'ExportZip' | 'ImportZip' | 'ResolveImport' | 'GoToDiagnostic' }
+  { type: 'NewProjectFromExample' | 'OpenProject' | 'DeleteProject' | 'OpenFile' | 'EditFile' | 'CreateFile' | 'RenameFile' | 'DeleteFile' | 'RenameProject' | 'SetProjectSettings' | 'Build' | 'RunBuild' | 'ExportRom' | 'ExportZip' | 'ImportZip' | 'ResolveImport' | 'GoToDiagnostic' }
 >;
 
 const PROJECT_ACTIONS: ReadonlySet<ViewAction['type']> = new Set<ProjectAction['type']>([
-  'NewProjectFromExample', 'OpenProject', 'DeleteProject', 'OpenFile', 'EditFile', 'Build', 'RunBuild', 'ExportRom', 'ExportZip', 'ImportZip', 'ResolveImport', 'GoToDiagnostic',
+  'NewProjectFromExample', 'OpenProject', 'DeleteProject', 'OpenFile', 'EditFile', 'CreateFile', 'RenameFile', 'DeleteFile', 'RenameProject', 'SetProjectSettings', 'Build', 'RunBuild', 'ExportRom', 'ExportZip', 'ImportZip', 'ResolveImport', 'GoToDiagnostic',
 ]);
 
 export function isProjectAction(action: ViewAction): action is ProjectAction {
@@ -47,7 +53,7 @@ export interface ProjectSessionDeps {
   readonly files: FileSaverPort;
   readonly examples: readonly ExampleProject[];
   /** Starts a built ROM in the emulator. */
-  readonly runRom: (bytes: Uint8Array, fileName: string) => Promise<void>;
+  readonly runRom: (bytes: Uint8Array, fileName: string, battery: Uint8Array | null, saveData: (data: Uint8Array) => Promise<void>) => Promise<void>;
   readonly publish: (event: DomainEvent) => void;
   readonly page?: Page | null;
   readonly createId?: () => string;
@@ -82,6 +88,13 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
 
   const refreshList = async () => {
     update({ projects: await store.list() });
+  };
+
+  const scheduleSave = () => {
+    if (saveTimer !== null) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      void saveNow();
+    }, AUTOSAVE_DELAY_MS);
   };
 
   const saveNow = async (): Promise<void> => {
@@ -143,6 +156,29 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
     open(project);
   };
 
+  /** Save data stays with the project and is dropped with it, also if the project closes while the ROM runs. */
+  const runBuilt = async (rom: Uint8Array, project: Project) => {
+    const { id } = project;
+    const battery = await store.loadSaveData(id);
+    await deps.runRom(rom, `${project.name}.gb`, battery, async (data) => {
+      if (state.projects.some((p) => p.id === id)) await store.saveSaveData(id, data);
+    });
+  };
+
+  /** A change to the project other than typing: saved the same way. */
+  const changeProject = (project: Project, activeFile = state.activeFile) => {
+    update({ project, activeFile, saveState: 'pending', buildIsStale: state.build.status !== 'idle', notice: null });
+    scheduleSave();
+  };
+
+  const applyEdit = (result: EditResult, activeFile: string | null) => {
+    if ('problem' in result) {
+      update({ notice: { kind: 'file-rejected', reason: result.problem } });
+      return;
+    }
+    changeProject(result.project, activeFile);
+  };
+
   const build = async () => {
     const project = state.project;
     if (!project || state.build.status === 'running') return;
@@ -153,7 +189,7 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
     update({ build: { status, result }, buildIsStale: state.project !== built });
     const count = (severity: 'error' | 'warning') => result.diagnostics.filter((d) => d.severity === severity).length;
     deps.publish({ type: 'BuildFinished', success: result.success, errorCount: count('error'), warningCount: count('warning') });
-    if (result.rom) await deps.runRom(result.rom, `${built.name}.gb`);
+    if (result.rom) await runBuilt(result.rom, built);
   };
 
   const successfulRom = () => (state.build.status === 'finished' ? state.build.result.rom : undefined);
@@ -214,6 +250,27 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
         await refreshList();
         return;
       }
+      case 'CreateFile':
+        if (state.project) applyEdit(createFile(state.project, action.path), action.path);
+        return;
+      case 'RenameFile':
+        if (state.project) applyEdit(renameFile(state.project, action.from, action.to), state.activeFile === action.from ? action.to : state.activeFile);
+        return;
+      case 'DeleteFile':
+        if (state.project) applyEdit(deleteFile(state.project, action.path), state.activeFile === action.path ? state.project.settings.entry : state.activeFile);
+        return;
+      case 'RenameProject': {
+        if (!state.project) return;
+        const taken = state.projects.some((p) => p.name === action.name && p.id !== state.project?.id);
+        if (!projectNameValid(action.name) || taken) update({ notice: { kind: 'name-rejected' } });
+        else changeProject({ ...state.project, name: action.name });
+        return;
+      }
+      case 'SetProjectSettings':
+        if (!state.project) return;
+        if (settingsValid(state.project, action.settings)) changeProject({ ...state.project, settings: action.settings });
+        else update({ notice: { kind: 'settings-rejected' } });
+        return;
       case 'OpenFile':
         if (state.project?.files.some((file) => file.path === action.path)) update({ activeFile: action.path });
         return;
@@ -221,7 +278,7 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
         return build();
       case 'RunBuild': {
         const rom = successfulRom();
-        if (rom && state.project) await deps.runRom(rom, `${state.project.name}.gb`);
+        if (rom && state.project) await runBuilt(rom, state.project);
         return;
       }
       case 'ExportRom': {
@@ -259,10 +316,7 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
       saveState: 'pending',
       buildIsStale: state.build.status !== 'idle',
     });
-    if (saveTimer !== null) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      void saveNow();
-    }, AUTOSAVE_DELAY_MS);
+    scheduleSave();
   };
 
   const onVisibility = () => {
@@ -293,6 +347,7 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
         .then(() => handle(action))
         .catch((error: unknown) => {
           console.error(`Action ${action.type} failed`, error);
+          update({ notice: { kind: 'action-failed' } });
         });
     },
     async init() {

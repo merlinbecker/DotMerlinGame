@@ -56,7 +56,7 @@ const projects = createProjectSession({
   archive: createFflateArchive(),
   files: createAnchorFileSaver(),
   examples: loadExamples(),
-  runRom: (bytes, fileName) => session.runBuiltRom(bytes, fileName),
+  runRom: (bytes, fileName, battery, saveData) => session.runBuiltRom(bytes, fileName, battery, saveData),
   publish: (event) => {
     session.publish(event);
   },

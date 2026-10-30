@@ -1,6 +1,7 @@
 import type { BuildResult, SourceFile } from '../ports/assembler.ts';
 import type { ArchiveRejectReason } from '../ports/archive.ts';
 import type { Project, ProjectSummary } from '../ports/project-store.ts';
+import type { FileProblem } from './edit.ts';
 import { isSafePath } from './paths.ts';
 
 export const MAX_PROJECT_NAME_LENGTH = 64;
@@ -65,7 +66,11 @@ export interface CursorTarget {
 
 export type ProjectNotice =
   | { readonly kind: 'import-rejected'; readonly reason: ArchiveRejectReason }
-  | { readonly kind: 'storage-full' };
+  | { readonly kind: 'file-rejected'; readonly reason: FileProblem }
+  | { readonly kind: 'name-rejected' }
+  | { readonly kind: 'settings-rejected' }
+  | { readonly kind: 'storage-full' }
+  | { readonly kind: 'action-failed' };
 
 export interface ExampleInfo {
   readonly id: string;

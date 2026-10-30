@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { canvasColors, frameOf, openProjectFromExample, replaceSource, switchTo } from './support.ts';
+import { canvasColors, frameOf, openProjectFromExample, replaceSource, romFile, switchTo } from './support.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -68,6 +68,21 @@ test('a build run leaves the stored ROM and blocks nothing (M2 R8)', async ({ pa
   await info.getByRole('button', { name: 'Next view' }).waitFor();
   const romInfo = page.locator('[data-testid="slot"]').filter({ has: page.getByTestId('rom-file') });
   await expect(romInfo.getByRole('button', { name: 'Start stored ROM' })).toHaveCount(0);
+});
+
+test('offers the stored ROM while a build runs', async ({ page }) => {
+  const { editor, build } = await openProjectFromExample(page);
+  const slots = page.locator('[data-testid="slot"]');
+  const info = slots.nth(5);
+  await switchTo(info, 'rom-info');
+  await info.getByTestId('rom-file').setInputFiles(romFile('pattern'));
+  await expect(info.getByTestId('run-state')).toHaveText('running');
+  await expect(info.getByRole('button', { name: 'Start stored ROM' })).toHaveCount(0);
+  await editor.getByRole('button', { name: 'Build' }).click();
+  await expect(build.getByTestId('build-status')).toContainText('Built in');
+  await info.getByRole('button', { name: 'Start stored ROM' }).click();
+  await expect(info.getByRole('button', { name: 'Start stored ROM' })).toHaveCount(0);
+  await expect(info.getByText('pattern.gb')).toBeVisible();
 });
 
 test('stops an endless build, stays usable, and builds again (spec edge case)', async ({ page }) => {

@@ -5,6 +5,7 @@ export const EMPTY_SESSION: SessionState = {
   rom: null,
   fileName: null,
   storedRomAvailable: false,
+  runningBuild: false,
   settings: { bootMode: 'own-boot-rom', hardwareChecks: false },
   audio: { muted: false, volume: 0.5, unlocked: false },
   notice: null,

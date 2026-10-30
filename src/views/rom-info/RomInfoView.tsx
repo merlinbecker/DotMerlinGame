@@ -46,7 +46,7 @@ function RomPage({ session, dispatch, pending, onPick, onReplace, onCancel }: Ro
         <button type="button" className={styles.button} onClick={onPick}>
           Load ROM
         </button>
-        {session.runState === 'empty' && session.storedRomAvailable && (
+        {(session.runState === 'empty' || session.runningBuild) && session.storedRomAvailable && (
           <button type="button" className={styles.button} onClick={() => { dispatch({ type: 'StartStoredRom' }); }}>
             Start stored ROM
           </button>

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StorageFullError, type DomainEvent } from '../../src/core/index.ts';
 import { BATTERY_SAVE_INTERVAL_MS, createEmulatorSession } from '../../src/app/session/emulator-session.ts';
 import { DEFAULT_SETTINGS, loadSettings, SETTINGS_KEY } from '../../src/app/session/settings-store.ts';
-import { fakeEmulator, fakePage, memoryRomStore } from '../support/fakes.ts';
+import { fakeAudio, fakeEmulator, fakePage, memoryRomStore } from '../support/fakes.ts';
 import { testRom } from '../support/roms.ts';
 
 class MemoryStorage {
@@ -203,23 +203,52 @@ describe('emulator session (US1)', () => {
     expect(session.session.getSnapshot().runState).toBe('empty');
   });
 
+  it('reports a failing action instead of doing nothing', async () => {
+    const romStore = memoryRomStore();
+    romStore.load.mockRejectedValueOnce(new Error('closed'));
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const session = createEmulatorSession({ emulator: fakeEmulator(), romStore });
+    session.dispatch({ type: 'StartStoredRom' });
+    await session.idle();
+    expect(session.session.getSnapshot().notice).toEqual({ kind: 'action-failed' });
+    error.mockRestore();
+    session.dispose();
+  });
+
+  it('does not wait for the audio on pause, so a browser that never answers blocks nothing', async () => {
+    const audio = fakeAudio(true);
+    audio.suspend.mockImplementation(() => new Promise<void>(() => undefined));
+    const emulator = fakeEmulator();
+    const session = createEmulatorSession({ emulator, romStore: memoryRomStore(), audio });
+    session.dispatch({ type: 'LoadRom', bytes: testRom('marker'), fileName: 'm.gb' });
+    session.dispatch({ type: 'Pause' });
+    session.dispatch({ type: 'Resume' });
+    await session.idle();
+    expect(session.session.getSnapshot().runState).toBe('running');
+    session.dispose();
+  });
+
   it('runs a built ROM without storing it and keeps the save game of the stored ROM (M2 R8)', async () => {
     vi.useFakeTimers();
     const stored = { bytes: testRom('marker'), fileName: 'marker.gb', loadedAt: '', battery: new Uint8Array([7]) };
     const romStore = memoryRomStore(stored);
     const emulator = fakeEmulator({ battery: new Uint8Array([9]) });
     const session = createEmulatorSession({ emulator, romStore });
-    await session.runBuiltRom(testRom('marker'), 'built.gb');
-    expect(session.session.getSnapshot()).toMatchObject({ runState: 'running', fileName: 'built.gb' });
+    const saveData = vi.fn(() => Promise.resolve());
+    await session.runBuiltRom(testRom('marker'), 'built.gb', new Uint8Array([3]), saveData);
+    expect(session.session.getSnapshot()).toMatchObject({ runState: 'running', fileName: 'built.gb', runningBuild: true });
     expect(romStore.replace).not.toHaveBeenCalled();
+    expect(emulator.writeBatteryRam).toHaveBeenCalledWith(new Uint8Array([3]));
 
     emulator.markBatteryDirty();
     await vi.advanceTimersByTimeAsync(BATTERY_SAVE_INTERVAL_MS);
     expect(romStore.saveBattery).not.toHaveBeenCalled();
+    expect(saveData).toHaveBeenCalledWith(new Uint8Array([9]));
 
     session.dispatch({ type: 'StartStoredRom' });
     await session.idle();
     expect(emulator.writeBatteryRam).toHaveBeenCalledWith(new Uint8Array([7]));
+    expect(session.session.getSnapshot().runningBuild).toBe(false);
     session.dispose();
     vi.useRealTimers();
   });

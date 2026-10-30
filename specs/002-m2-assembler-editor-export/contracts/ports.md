@@ -37,6 +37,15 @@ export interface Project {
   readonly files: readonly SourceFile[];
 }
 
+// project-store.ts, added for save data of build runs
+loadSaveData(id: string): Promise<Uint8Array | null>;
+saveSaveData(id: string, data: Uint8Array): Promise<void>;
+
+// file-saver.ts
+export interface FileSaverPort {
+  save(fileName: string, bytes: Uint8Array, mimeType: string): void;
+}
+
 // archive.ts: errors instead of partial results
 export type ArchiveRejectReason =
   | 'not-a-zip' | 'no-project-file' | 'unknown-format' | 'unsafe-path' | 'duplicate-path' | 'too-large' | 'too-many-files';
