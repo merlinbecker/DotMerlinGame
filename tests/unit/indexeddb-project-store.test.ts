@@ -49,6 +49,14 @@ describe('IndexedDB project store', () => {
     expect(await s.loadSaveData('a')).toBeNull();
   });
 
+  it('reads a project from before M3 as fixing the header', async () => {
+    const s = store();
+    const old = project('a');
+    const settings = Object.fromEntries(Object.entries(old.settings).filter(([key]) => key !== 'fixHeader'));
+    await s.save({ ...old, settings: settings as unknown as typeof old.settings });
+    expect((await s.load('a'))?.settings.fixHeader).toBe(true);
+  });
+
   it('turns a full disk into StorageFullError', async () => {
     const s = store();
     const put = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(() => {

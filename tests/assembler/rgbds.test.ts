@@ -87,3 +87,11 @@ describe('settings the app offers', () => {
     expect(result.rom?.[0x149]).toBe(code);
   });
 });
+
+describe('keeping the header', () => {
+  it('does not run rgbfix when fixHeader is false', async () => {
+    const result = await runPipeline(tools, [text('main.asm', ENTRY_POINT)], { ...settings, fixHeader: false });
+    expect(result.success).toBe(true);
+    await expect(logoMatches(result.rom ?? new Uint8Array())).resolves.toBe(false);
+  });
+});

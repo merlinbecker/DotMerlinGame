@@ -85,6 +85,29 @@ describe('Project view', () => {
     expect(fake.actions).toEqual([{ type: 'RenameProject', name: 'q' }]);
   });
 
+  it('hides cartridge settings while the header is kept', () => {
+    const fake = show({ project: { ...open, settings: { ...open.settings, fixHeader: false } } }, 1, 'settings');
+    expect(screen.queryByLabelText('Cartridge')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Fix header with rgbfix' }));
+    expect(fake.actions).toEqual([{ type: 'SetProjectSettings', settings: { ...open.settings, fixHeader: true } }]);
+  });
+
+  it.each([
+    ['identical', 'byte-identical'],
+    ['padded', 'fill the last bank'],
+    ['different', 'differs'],
+    ['not-verified', 'did not finish'],
+  ] as const)('tells the import result %s', (verdict, text) => {
+    show({ romImport: { status: 'done', result: { verdict, paddedBytes: 4 } } });
+    expect(screen.getByTestId('rom-import').textContent).toContain(text);
+  });
+
+  it('shows the import progress as text and blocks a second import', () => {
+    show({ romImport: { status: 'running', bank: 1, banks: 8 } });
+    expect(screen.getByTestId('rom-import').textContent).toBe('Importing bank 2 of 8');
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Import ROM' }).disabled).toBe(true);
+  });
+
   it('changes cartridge settings on the next page', () => {
     const fake = show({ project: open }, 1, 'settings');
     fireEvent.change(screen.getByLabelText('Cartridge'), { target: { value: 'MBC5+RAM' } });

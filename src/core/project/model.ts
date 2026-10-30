@@ -1,6 +1,7 @@
 import type { BuildResult, SourceFile } from '../ports/assembler.ts';
 import type { ArchiveRejectReason } from '../ports/archive.ts';
 import type { Project, ProjectSummary } from '../ports/project-store.ts';
+import type { ImportVerdict } from '../disasm/verify.ts';
 import type { FileProblem } from './edit.ts';
 import { isSafePath } from './paths.ts';
 
@@ -17,10 +18,12 @@ export interface ProjectSettings {
   readonly mbc: string;
   /** rgbfix -r */
   readonly ramSize: number;
+  /** False keeps the header as written in the source, for imported ROMs: rgbfix does not run (M3 research.md R1). */
+  readonly fixHeader: boolean;
 }
 
 export function defaultSettings(projectName: string): ProjectSettings {
-  return { entry: 'main.asm', title: projectName.toUpperCase().slice(0, MAX_TITLE_LENGTH), mbc: 'ROM_ONLY', ramSize: 0 };
+  return { entry: 'main.asm', title: projectName.toUpperCase().slice(0, MAX_TITLE_LENGTH), mbc: 'ROM_ONLY', ramSize: 0, fixHeader: true };
 }
 
 export type ProjectProblem = 'empty-name' | 'name-too-long' | 'no-files' | 'duplicate-path' | 'unsafe-path' | 'entry-missing';
@@ -68,9 +71,21 @@ export type ProjectNotice =
   | { readonly kind: 'import-rejected'; readonly reason: ArchiveRejectReason }
   | { readonly kind: 'file-rejected'; readonly reason: FileProblem }
   | { readonly kind: 'name-rejected' }
+  | { readonly kind: 'empty-rom' }
   | { readonly kind: 'settings-rejected' }
   | { readonly kind: 'storage-full' }
   | { readonly kind: 'action-failed' };
+
+export interface RomImportResult {
+  readonly verdict: ImportVerdict;
+  /** Bytes the linker added to fill the last bank. */
+  readonly paddedBytes: number;
+}
+
+export type RomImportState =
+  | { readonly status: 'idle' }
+  | { readonly status: 'running'; readonly bank: number; readonly banks: number }
+  | { readonly status: 'done'; readonly result: RomImportResult };
 
 export interface ExampleInfo {
   readonly id: string;
@@ -90,6 +105,7 @@ export interface ProjectState {
   readonly examples: readonly ExampleInfo[];
   /** A pending import waits for ResolveImport: a project of this name exists. */
   readonly importConflict: string | null;
+  readonly romImport: RomImportState;
   readonly notice: ProjectNotice | null;
 }
 
@@ -103,5 +119,6 @@ export const IDLE_PROJECT_STATE: ProjectState = {
   projects: [],
   examples: [],
   importConflict: null,
+  romImport: { status: 'idle' },
   notice: null,
 };

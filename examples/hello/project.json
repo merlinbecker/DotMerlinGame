@@ -1,4 +1,4 @@
 {
   "name": "hello",
-  "settings": { "entry": "main.asm", "title": "HELLO", "mbc": "ROM_ONLY", "ramSize": 0 }
+  "settings": { "entry": "main.asm", "title": "HELLO", "mbc": "ROM_ONLY", "ramSize": 0, "fixHeader": true }
 }

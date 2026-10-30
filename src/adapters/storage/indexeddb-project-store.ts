@@ -1,5 +1,5 @@
 import { PROJECT_NAME } from '../../config/project.ts';
-import type { Project, ProjectStorePort, ProjectSummary } from '../../core/index.ts';
+import type { Project, ProjectSettings, ProjectStorePort, ProjectSummary } from '../../core/index.ts';
 import { openObjectStore, request } from './idb.ts';
 
 export const PROJECT_DB_NAME = `${PROJECT_NAME.toLowerCase()}-projects`;
@@ -28,7 +28,8 @@ export function createIndexedDbProjectStore(databaseName = PROJECT_DB_NAME): Pro
       const stored = (await request(tx.objectStore(STORE).get(id))) as StoredProject | undefined;
       if (!stored) return undefined;
       const { id: storedId, name, settings, files } = stored;
-      return { id: storedId, name, settings, files };
+      // Projects from before M3 have no fixHeader.
+      return { id: storedId, name, settings: { ...settings, fixHeader: (settings as Partial<ProjectSettings>).fixHeader ?? true }, files };
     },
     async save(project) {
       const record: StoredProject = { ...project, updatedAt: new Date().toISOString() };

@@ -58,6 +58,7 @@ function setup(overrides: Partial<ProjectSessionDeps> = {}) {
     runRom,
     publish: (event) => events.push(event),
     createId: () => `p${String(++id)}`,
+    pause: () => Promise.resolve(),
     ...overrides,
   });
   const state = () => session.state.getSnapshot();
@@ -333,6 +334,45 @@ describe('project session', () => {
     await t.session.idle();
     expect(t.state().notice).toEqual({ kind: 'action-failed' });
     vi.restoreAllMocks();
+  });
+
+  describe('ROM import', () => {
+    const rom = new Uint8Array(0x8000).fill(0x76);
+
+    it('creates a project without the ROM, says whether the build matches, starts nothing (US1)', async () => {
+      const t = setup();
+      t.build.mockResolvedValue({ ...OK, rom });
+      t.session.dispatch({ type: 'ImportRom', bytes: rom, fileName: 'game.gb' });
+      await t.session.idle();
+      const project = t.state().project;
+      expect(project).toMatchObject({ name: 'game', settings: { entry: 'main.asm', fixHeader: false } });
+      expect(project?.files.map((f) => f.path)).toEqual(['main.asm', 'bank_000.asm', 'bank_001.asm']);
+      expect(t.state().romImport).toEqual({ status: 'done', result: { verdict: 'identical', paddedBytes: 0 } });
+      expect(t.events).toContainEqual({ type: 'ProjectChanged', projectId: 'p1' });
+      expect(t.runRom).not.toHaveBeenCalled();
+      expect(JSON.stringify(Object.keys(t.store.map.get('p1') ?? {}))).not.toContain('rom');
+    });
+
+    it('still keeps the project when the build differs or times out', async () => {
+      const t = setup();
+      t.build.mockResolvedValue({ ...OK, rom: new Uint8Array(0x8000) });
+      t.session.dispatch({ type: 'ImportRom', bytes: rom, fileName: 'a.gb' });
+      await t.session.idle();
+      expect(t.state().romImport).toEqual({ status: 'done', result: { verdict: 'different', paddedBytes: 0 } });
+      t.build.mockResolvedValue({ success: false, timedOut: true, diagnostics: [], durationMs: 1 });
+      t.session.dispatch({ type: 'ImportRom', bytes: rom, fileName: 'a.gb' });
+      await t.session.idle();
+      expect(t.state().romImport).toEqual({ status: 'done', result: { verdict: 'not-verified', paddedBytes: 0 } });
+      expect(t.state().project?.name).toBe('a 2');
+    });
+
+    it('refuses an empty file', async () => {
+      const t = setup();
+      t.session.dispatch({ type: 'ImportRom', bytes: new Uint8Array(), fileName: 'a.gb' });
+      await t.session.idle();
+      expect(t.state().notice).toEqual({ kind: 'empty-rom' });
+      expect(t.store.saved).toEqual([]);
+    });
   });
 
   it('closes a deleted open project', async () => {

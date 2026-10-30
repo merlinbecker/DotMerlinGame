@@ -280,6 +280,7 @@ export function createEmulatorSession(deps: SessionDeps): EmulatorSession {
       case 'DeleteFile':
       case 'RenameProject':
       case 'SetProjectSettings':
+      case 'ImportRom':
       case 'Build':
       case 'RunBuild':
       case 'ExportRom':

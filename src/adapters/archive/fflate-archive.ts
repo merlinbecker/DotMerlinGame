@@ -68,9 +68,11 @@ function parseMeta(bytes: Uint8Array): { name: string; settings: ProjectSettings
   const { formatVersion, name, settings } = (meta ?? {}) as { formatVersion?: unknown; name?: unknown; settings?: Partial<ProjectSettings> | null };
   if (formatVersion !== FORMAT_VERSION) reject('unknown-format');
   if (typeof name !== 'string' || !settings) reject('invalid-project');
-  const { entry, title, mbc, ramSize } = settings;
+  const { entry, title, mbc, ramSize, fixHeader } = settings;
   if (typeof entry !== 'string' || typeof title !== 'string' || typeof mbc !== 'string' || typeof ramSize !== 'number') reject('invalid-project');
-  return { name, settings: { entry, title, mbc, ramSize } };
+  // Archives from before M3 have no such field.
+  if (fixHeader !== undefined && typeof fixHeader !== 'boolean') reject('invalid-project');
+  return { name, settings: { entry, title, mbc, ramSize, fixHeader: fixHeader ?? true } };
 }
 
 export function createFflateArchive(createId: () => string = () => crypto.randomUUID()): ArchivePort {

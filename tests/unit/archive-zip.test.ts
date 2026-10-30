@@ -53,6 +53,14 @@ describe('ZIP archive', () => {
     expect(await archive.exportProject(project)).toEqual(await archive.exportProject(project));
   });
 
+  it('reads an archive from before M3 as fixing the header, and keeps an explicit false', async () => {
+    const older = Object.fromEntries(Object.entries(defaultSettings('game')).filter(([key]) => key !== 'fixHeader'));
+    const before = await archive.importProject(zipSync({ 'project.json': metaFile({ ...META, settings: older }), 'main.asm': encodeSource('') }));
+    expect(before.settings.fixHeader).toBe(true);
+    const kept = await archive.importProject(await archive.exportProject({ ...project, settings: { ...project.settings, fixHeader: false } }));
+    expect(kept.settings.fixHeader).toBe(false);
+  });
+
   it('rejects what is no ZIP', () => rejected(encodeSource('not a zip at all'), 'not-a-zip'));
 
   it('rejects an archive without project.json', () => rejected(zipSync({ 'main.asm': encodeSource('nop') }), 'no-project-file'));

@@ -6,7 +6,7 @@ const valid = { name: 'game', settings: defaultSettings('game'), files: [file('m
 
 describe('project model', () => {
   it('starts with the documented settings', () => {
-    expect(defaultSettings('game')).toEqual({ entry: 'main.asm', title: 'GAME', mbc: 'ROM_ONLY', ramSize: 0 });
+    expect(defaultSettings('game')).toEqual({ entry: 'main.asm', title: 'GAME', mbc: 'ROM_ONLY', ramSize: 0, fixHeader: true });
     expect(defaultSettings('x'.repeat(40)).title).toHaveLength(MAX_TITLE_LENGTH);
   });
 

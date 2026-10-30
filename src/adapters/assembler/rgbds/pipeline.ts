@@ -64,16 +64,20 @@ export async function runPipeline(tools: RgbdsTools, files: readonly SourceFile[
   diagnostics.push(...link.diagnostics);
   if (link.code !== 0) return { success: false, diagnostics };
 
+  const finished = (rom: Uint8Array) => ({
+    success: true,
+    rom: rom.slice(),
+    symbols: text(link.module.FS.readFile(SYMBOLS)),
+    map: text(link.module.FS.readFile(MAP)),
+    diagnostics,
+  });
+  // An imported ROM keeps its header as written in the source (M3 research.md R1).
+  if (!settings.fixHeader) return finished(link.module.FS.readFile(ROM));
+
   const linked = { path: ROM, content: link.module.FS.readFile(ROM) };
   const fix = await runTool(tools, 'rgbfix', ['-v', '-p', PAD_VALUE, '-t', settings.title, '-m', settings.mbc, '-r', String(settings.ramSize), ROM], [linked]);
   diagnostics.push(...fix.diagnostics);
   if (fix.code !== 0) return { success: false, diagnostics };
 
-  return {
-    success: true,
-    rom: fix.module.FS.readFile(ROM).slice(),
-    symbols: text(link.module.FS.readFile(SYMBOLS)),
-    map: text(link.module.FS.readFile(MAP)),
-    diagnostics,
-  };
+  return finished(fix.module.FS.readFile(ROM));
 }

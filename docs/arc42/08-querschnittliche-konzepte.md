@@ -82,3 +82,10 @@ Werkzeuge sind festgelegt: emsdk-Image per Digest, RGBDS per Version und SHA-256
 - **Autosave**: Text liegt sofort im Projektzustand und überlebt einen Wechsel des View-Inhalts. Gespeichert wird nach 1 s
   und sofort, wenn die Seite verborgen wird.
 
+## ROM-Import und Roundtrip (M3)
+
+- Code nur, wo er von `$0100` oder einem Vektor über statische Ziele sicher erreichbar ist, sonst Daten (ADR-0013).
+- Importierte Projekte bauen ohne `rgbfix`, damit auch ein ungültiger Header unverändert bleibt.
+- Jeder Import prüft sich selbst durch einen Build und zeigt das Ergebnis an.
+- `npm run roundtrip:local` prüft eigene ROMs aus `roms/local/`, schreibt nichts und zeigt nur Hash und Ergebnis.
+

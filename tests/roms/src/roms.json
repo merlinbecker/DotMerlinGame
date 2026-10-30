@@ -12,6 +12,7 @@
   "apu-ch4": { "source": "apu.asm", "defines": { "CHANNEL": 4 }, "title": "APUCH4" },
   "input": { "source": "input.asm", "title": "INPUT" },
   "pattern": { "source": "pattern.asm", "title": "PATTERN" },
+  "known-split": { "source": "known-split.asm", "title": "KNOWNSPLIT" },
   "marker": { "source": "marker.asm", "title": "MARKER" },
   "cgb-only": { "source": "marker.asm", "title": "CGBONLY", "cgb": "only" },
   "cgb-compatible": { "source": "marker.asm", "title": "CGBCOMPAT", "cgb": "compatible" },

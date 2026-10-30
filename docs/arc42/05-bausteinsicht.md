@@ -212,3 +212,10 @@ Inspektion), `tests/unit/inspect-*` und `view-*` mit echten Snapshots der Test-R
 | Project Session | `src/app/session/project-session.ts` | offenes Projekt, Autosave, Build, Import und Export |
 | Views | `src/views/editor`, `build`, `project` | nur über den View-Vertrag |
 
+## Bausteine von M3
+
+| Baustein | Ort | Aufgabe |
+|---|---|---|
+| Disassembler | `src/core/disasm/` | Opcode-Tabelle, Analyse, Quelltext, Vergleich mit dem Build; rein und ohne Fremdcode |
+| ROM-Import | `src/app/session/project-session.ts` | ROM → Projekt mit Fortschritt und Prüfung; das ROM wird nicht aufbewahrt |
+

@@ -24,6 +24,13 @@ Die IDE soll Lernen, Debuggen und Export konsistent machen. Würde man ROMs dire
   selbst bleibt auf dem Gerät.
 - Ab M3 werden importierte ROMs disassembliert, dann entfällt diese Übergangslösung.
 
+## Nachtrag M3 (2026-10-30)
+
+- Der Import aus M3 macht aus einem ROM ein Projekt (ADR-0013). Das ist ab jetzt der Weg, an einem fremden ROM zu arbeiten.
+- **Load ROM** in ROM Info bleibt vorerst bestehen und widerspricht damit dem Satz „dann entfällt diese Übergangslösung“.
+  Es dient nur zum Spielen und Ansehen, der Projektspeicher bleibt ROM-frei. Der Projektinhaber hat mehrfach gefragt, ob
+  das Laden erhalten bleibt, das Entfernen ist nicht Teil der Spec von M3. **Die endgültige Entscheidung steht aus.**
+
 ## Konsequenzen
 
 Der Disassembler muss byte-identische Roundtrips liefern (M3). Der Debugger arbeitet auf Quelltextzeilen (M4).

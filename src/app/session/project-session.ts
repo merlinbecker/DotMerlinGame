@@ -1,8 +1,10 @@
 import {
   ArchiveRejectedError,
+  compareBuild,
   createFile,
   deleteFile,
   encodeSource,
+  generateSource,
   IDLE_PROJECT_STATE,
   projectNameValid,
   renameFile,
@@ -17,6 +19,7 @@ import {
   type ProjectState,
   type ProjectStateSource,
   type ProjectStorePort,
+  type RomImportResult,
   type ViewAction,
 } from '../../core/index.ts';
 
@@ -27,11 +30,11 @@ const ZIP_MIME = 'application/zip';
 
 export type ProjectAction = Extract<
   ViewAction,
-  { type: 'NewProjectFromExample' | 'OpenProject' | 'DeleteProject' | 'OpenFile' | 'EditFile' | 'CreateFile' | 'RenameFile' | 'DeleteFile' | 'RenameProject' | 'SetProjectSettings' | 'Build' | 'RunBuild' | 'ExportRom' | 'ExportZip' | 'ImportZip' | 'ResolveImport' | 'GoToDiagnostic' }
+  { type: 'NewProjectFromExample' | 'OpenProject' | 'DeleteProject' | 'OpenFile' | 'EditFile' | 'ImportRom' | 'CreateFile' | 'RenameFile' | 'DeleteFile' | 'RenameProject' | 'SetProjectSettings' | 'Build' | 'RunBuild' | 'ExportRom' | 'ExportZip' | 'ImportZip' | 'ResolveImport' | 'GoToDiagnostic' }
 >;
 
 const PROJECT_ACTIONS: ReadonlySet<ViewAction['type']> = new Set<ProjectAction['type']>([
-  'NewProjectFromExample', 'OpenProject', 'DeleteProject', 'OpenFile', 'EditFile', 'CreateFile', 'RenameFile', 'DeleteFile', 'RenameProject', 'SetProjectSettings', 'Build', 'RunBuild', 'ExportRom', 'ExportZip', 'ImportZip', 'ResolveImport', 'GoToDiagnostic',
+  'NewProjectFromExample', 'OpenProject', 'DeleteProject', 'OpenFile', 'EditFile', 'ImportRom', 'CreateFile', 'RenameFile', 'DeleteFile', 'RenameProject', 'SetProjectSettings', 'Build', 'RunBuild', 'ExportRom', 'ExportZip', 'ImportZip', 'ResolveImport', 'GoToDiagnostic',
 ]);
 
 export function isProjectAction(action: ViewAction): action is ProjectAction {
@@ -57,6 +60,8 @@ export interface ProjectSessionDeps {
   readonly publish: (event: DomainEvent) => void;
   readonly page?: Page | null;
   readonly createId?: () => string;
+  /** A pause between banks of a ROM import, so the page can draw. */
+  readonly pause?: () => Promise<void>;
 }
 
 export interface ProjectSession {
@@ -73,6 +78,7 @@ export interface ProjectSession {
 export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
   const { store, assembler, archive, files, page = null } = deps;
   const createId = deps.createId ?? (() => crypto.randomUUID());
+  const pause = deps.pause ?? (() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
   const listeners = new Set<() => void>();
   let state: ProjectState = { ...IDLE_PROJECT_STATE, examples: deps.examples.map((e) => ({ id: e.exampleId, name: e.name })) };
   let queue: Promise<void> = Promise.resolve();
@@ -192,6 +198,32 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
     if (result.rom) await runBuilt(result.rom, built);
   };
 
+  /** ROM → project; the ROM itself is kept nowhere (M3 FR-008). The build proves the result at once (research.md R6). */
+  const importRom = async (bytes: Uint8Array, fileName: string) => {
+    if (bytes.length === 0) {
+      update({ notice: { kind: 'empty-rom' } });
+      return;
+    }
+    update({ notice: null });
+    await saveNow();
+    await refreshList();
+    const generated = await generateSource(bytes, fileName, async (bank, banks) => {
+      update({ romImport: { status: 'running', bank, banks } });
+      await pause();
+    });
+    const project: Project = { id: createId(), name: uniqueName(generated.name), settings: generated.settings, files: generated.files };
+    let result: RomImportResult = { verdict: 'not-verified', paddedBytes: 0 };
+    try {
+      const built = await assembler.build(project.files, project.settings);
+      if (built.rom) result = compareBuild(bytes, built.rom);
+      else if (!built.timedOut) result = { verdict: 'different', paddedBytes: 0 };
+    } catch (error) {
+      console.error('Could not verify the import', error);
+    }
+    await persistAndOpen(project);
+    update({ romImport: { status: 'done', result } });
+  };
+
   const successfulRom = () => (state.build.status === 'finished' ? state.build.result.rom : undefined);
 
   const importZip = async (bytes: Uint8Array) => {
@@ -274,6 +306,8 @@ export function createProjectSession(deps: ProjectSessionDeps): ProjectSession {
       case 'OpenFile':
         if (state.project?.files.some((file) => file.path === action.path)) update({ activeFile: action.path });
         return;
+      case 'ImportRom':
+        return importRom(action.bytes, action.fileName);
       case 'Build':
         return build();
       case 'RunBuild': {

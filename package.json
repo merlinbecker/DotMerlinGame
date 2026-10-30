@@ -1,6 +1,6 @@
 {
   "name": "dotmerlingame",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -21,6 +21,7 @@
     "core:verify": "sh scripts/build-core.sh && git diff --exit-code -- src/adapters/emulator/sameboy/generated",
     "assembler:build": "sh scripts/build-assembler.sh",
     "assembler:verify": "sh scripts/build-assembler.sh && git diff --exit-code -- src/adapters/assembler/rgbds/generated",
+    "roundtrip:local": "node scripts/roundtrip-local.ts",
     "roms:build": "node scripts/build-test-roms.ts",
     "bootrom:build": "node scripts/build-bootrom.ts",
     "licenses": "node scripts/check-licenses.ts",

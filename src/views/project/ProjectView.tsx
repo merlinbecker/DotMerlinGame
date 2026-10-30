@@ -1,5 +1,5 @@
 import { useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { MAX_PROJECT_NAME_LENGTH, MBC_OPTIONS, RAM_SIZE_OPTIONS, type ArchiveRejectReason, type FileProblem, type Project, type ProjectNotice, type ProjectSettings, type ViewAction, type ViewInstanceProps } from '../../core/index.ts';
+import { MAX_PROJECT_NAME_LENGTH, MBC_OPTIONS, RAM_SIZE_OPTIONS, type ArchiveRejectReason, type FileProblem, type Project, type ProjectNotice, type RomImportResult, type ProjectSettings, type ViewAction, type ViewInstanceProps } from '../../core/index.ts';
 import { Pager } from '../inspect-common/Pager.tsx';
 import { useFit } from '../inspect-common/useFit.ts';
 import common from '../inspect-common/Inspect.module.css';
@@ -35,12 +35,27 @@ function noticeText(notice: ProjectNotice): string {
       return REJECTED[notice.reason];
     case 'file-rejected':
       return FILE_PROBLEM[notice.reason];
+    case 'empty-rom':
+      return 'This file is empty.';
     case 'name-rejected':
       return `The name must not be empty, must be unique and may have ${String(MAX_PROJECT_NAME_LENGTH)} characters.`;
     case 'settings-rejected':
       return 'These settings are not valid.';
     case 'action-failed':
       return 'That did not work. Try again, or reload the page.';
+  }
+}
+
+function importText(result: RomImportResult): string {
+  switch (result.verdict) {
+    case 'identical':
+      return 'Imported. The build is byte-identical to the ROM.';
+    case 'padded':
+      return `Imported. The build equals the ROM plus ${String(result.paddedBytes)} bytes to fill the last bank.`;
+    case 'different':
+      return 'Imported, but the build differs from the ROM. Keep your ROM file.';
+    case 'not-verified':
+      return 'Imported, but the check did not finish. Tap Build to try again.';
   }
 }
 
@@ -158,13 +173,18 @@ function SettingsTab({ project, dispatch, page, onPage }: { readonly project: Pr
       </select>
     </label>
   );
+  const fix = settings.fixHeader;
   const rows = [
     <TextRow key={`name:${project.name}`} label="Project name" value={project.name} onApply={(name) => { dispatch({ type: 'RenameProject', name }); }} />,
     <TextRow key={`title:${settings.title}`} label="ROM title" value={settings.title} onApply={(title) => { set({ title }); }} />,
     select('Entry file', settings.entry, project.files.map((f) => [f.path, f.path] as const), (entry) => { set({ entry }); }),
-    select('Cartridge', settings.mbc, MBC_OPTIONS.map((mbc) => [mbc, mbc] as const), (mbc) => { set({ mbc }); }),
-    select('Cartridge RAM', String(settings.ramSize), RAM_SIZE_OPTIONS.map((o) => [String(o.code), o.label] as const), (ramSize) => { set({ ramSize: Number(ramSize) }); }),
-  ];
+    <button key="fix" type="button" className={common.button} aria-pressed={fix} onClick={() => { set({ fixHeader: !fix }); }}>
+      Fix header with rgbfix
+    </button>,
+    !fix && <p key="kept" className={common.note}>The header stays as written in the source.</p>,
+    fix && select('Cartridge', settings.mbc, MBC_OPTIONS.map((mbc) => [mbc, mbc] as const), (mbc) => { set({ mbc }); }),
+    fix && select('Cartridge RAM', String(settings.ramSize), RAM_SIZE_OPTIONS.map((o) => [String(o.code), o.label] as const), (ramSize) => { set({ ramSize: Number(ramSize) }); }),
+  ].filter(Boolean);
   return <PagedRows rows={rows} page={page} onPage={onPage} />;
 }
 
@@ -176,7 +196,8 @@ export function ProjectView({ context, state, setState }: ViewInstanceProps<Proj
   );
   const input = useRef<HTMLInputElement>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const { projects, examples, importConflict, notice } = project;
+  const romInput = useRef<HTMLInputElement>(null);
+  const { projects, examples, importConflict, notice, romImport } = project;
   const pages = Math.max(1, Math.ceil(projects.length / PROJECTS_PER_PAGE));
   const page = Math.min(state.page, pages - 1);
 
@@ -267,11 +288,24 @@ export function ProjectView({ context, state, setState }: ViewInstanceProps<Proj
         <button type="button" className={common.button} onClick={() => input.current?.click()}>
           Import ZIP
         </button>
+        <button type="button" className={common.button} disabled={romImport.status === 'running'} onClick={() => romInput.current?.click()}>
+          Import ROM
+        </button>
         <button type="button" className={common.button} disabled={!project.project} onClick={() => { context.dispatch({ type: 'ExportZip' }); }}>
           Export ZIP
         </button>
       </div>
       {message}
+      {romImport.status === 'running' && (
+        <p className={common.notice} role="status" data-testid="rom-import">
+          Importing bank {romImport.bank + 1} of {romImport.banks}
+        </p>
+      )}
+      {romImport.status === 'done' && (
+        <p className={common.notice} role="status" data-testid="rom-import">
+          {importText(romImport.result)}
+        </p>
+      )}
       {projects.length === 0 && <p className={common.notice}>No projects yet.</p>}
       <div className={styles.list}>
         {projects.slice(page * PROJECTS_PER_PAGE, (page + 1) * PROJECTS_PER_PAGE).map((summary) => (
@@ -299,6 +333,18 @@ export function ProjectView({ context, state, setState }: ViewInstanceProps<Proj
           }}
         />
       )}
+      <input
+        ref={romInput}
+        className={styles.file}
+        type="file"
+        accept=".gb,.gbc,.bin,application/octet-stream"
+        data-testid="rom-import-file"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = '';
+          if (file) void file.arrayBuffer().then((buffer) => { context.dispatch({ type: 'ImportRom', bytes: new Uint8Array(buffer), fileName: file.name }); });
+        }}
+      />
       <input
         ref={input}
         className={styles.file}

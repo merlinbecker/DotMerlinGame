@@ -34,6 +34,7 @@ export type ViewAction =
   | { readonly type: 'DeleteFile'; readonly path: string }
   | { readonly type: 'RenameProject'; readonly name: string }
   | { readonly type: 'SetProjectSettings'; readonly settings: ProjectSettings }
+  | { readonly type: 'ImportRom'; readonly bytes: Uint8Array; readonly fileName: string }
   | { readonly type: 'Build' }
   | { readonly type: 'RunBuild' }
   | { readonly type: 'ExportRom' }

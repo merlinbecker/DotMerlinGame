@@ -65,6 +65,7 @@ describe('view actions (M1, M1b)', () => {
       | 'DeleteProject'
       | 'OpenFile'
       | 'EditFile'
+      | 'ImportRom'
       | 'CreateFile'
       | 'RenameFile'
       | 'DeleteFile'

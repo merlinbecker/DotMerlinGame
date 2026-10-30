@@ -16,6 +16,7 @@ Entscheidungen werden als ADR in `docs/adr/` dokumentiert. Vorlage: [`docs/adr/0
 | ADR-0010 | [Kein Backend, statische Auslieferung](../adr/0010-kein-backend-statisches-hosting.md) | M0 | akzeptiert |
 | ADR-0011 | [RGBDS als selbst gebautes WASM und erzeugter Bison-Parser](../adr/0011-rgbds-wasm-und-bison.md) | M2 | akzeptiert |
 | ADR-0012 | [Editor CodeMirror 6 und ZIP mit fflate](../adr/0012-editor-und-zip.md) | M2 | akzeptiert |
+| ADR-0013 | [Eigener konservativer Disassembler](../adr/0013-disassembler.md) | M3 | akzeptiert |
 
 ## Offene Punkte
 

@@ -83,6 +83,7 @@ TypeScript, Vite, Vitest, React. Zielbrowser in M0–M3: nur aktuelles Chrome (i
 - `npm run core:verify` – baut den Core neu und prüft, dass das committete Artefakt identisch ist
 - `npm run assembler:build` – baut RGBDS (`rgbasm`, `rgblink`, `rgbfix`) nach WASM (Docker, festgelegtes emsdk-Image und Bison)
 - `npm run assembler:verify` – baut neu und prüft, dass das committete Artefakt identisch ist
+- `npm run roundtrip:local` – prüft eigene ROMs aus `roms/local/` (ignoriert, schreibt keine Dateien)
 - `npm run check` – alles oben in Reihenfolge, genau wie die CI (außer den WASM-Nachbauten, die in den CI-Jobs `core-reproducible` und `assembler-reproducible` laufen)
 
 ## Verzeichnisse

@@ -12,7 +12,7 @@ function isIgnored(path: string): boolean {
 }
 
 describe('.gitignore', () => {
-  it.each(['roms/x.gb', 'game.gb', 'game.gbc', 'game.sgb', 'dmg_boot.bin', 'dmg0_boot.bin'])('ignores %s', (path) => {
+  it.each(['roms/x.gb', 'roms/local/game.gb', 'roms/local/game.asm', 'game.gb', 'game.gbc', 'game.sgb', 'dmg_boot.bin', 'dmg0_boot.bin'])('ignores %s', (path) => {
     expect(isIgnored(path)).toBe(true);
   });
 
